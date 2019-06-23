@@ -1,0 +1,9 @@
+#e2c444 | Gold
+#0071bc | Blue - Dark
+#29abe2 | Blue - Light
+#ffffff | White
+#1a1a1a | Black
+#333333 | Gray
+#2b1043 | Purple - Dark
+#3f1e55 | Purple - Medium
+#5b3d78 | Purple - Light

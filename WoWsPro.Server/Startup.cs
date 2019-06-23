@@ -20,6 +20,8 @@ namespace WoWsPro.Server
 				opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
 					new[] { "application/octet-stream" });
 			});
+			// TODO: make sure you have environment service
+			// TODO: add singleton of IConfiguration
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
