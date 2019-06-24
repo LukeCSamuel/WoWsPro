@@ -1,0 +1,20 @@
+﻿
+// Includes
+@import "Includes/colors.scss";
+@import "Includes/mediaq.scss";
+
+// Shared
+@import "Shared/NavMenu.scss";
+
+// Pages
+
+
+// Global styles
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	margin: 0;
+}

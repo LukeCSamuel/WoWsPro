@@ -4,13 +4,22 @@
 
   "dependentFileProviders": {
     "add": {
+      "extensionToExtension": {
+        "add": {
+          ".scss": [
+            ".razor"
+          ]
+        }
+      },
       "pathSegment": {
         "add": {
           ".*": [
-            ".json"
+            ".json",
+            ".css"
           ]
         }
-      }
+      },
+      "addedExtension": {}
     }
   }
 }
