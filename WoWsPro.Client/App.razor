@@ -1,1 +1,18 @@
-﻿<Router AppAssembly="typeof(Program).Assembly" />
+﻿@using WoWsPro.Client.Pages.Exceptions
+
+<Router AppAssembly="typeof(Program).Assembly">
+	<NotFoundContent>
+		<MainLayout>
+			<Body>
+				<NotFound></NotFound>
+			</Body>
+		</MainLayout>
+	</NotFoundContent>
+	<NotAuthorizedContent>
+		<MainLayout>
+			<Body>
+				<Unauthorized></Unauthorized>
+			</Body>
+		</MainLayout>
+	</NotAuthorizedContent>
+</Router>

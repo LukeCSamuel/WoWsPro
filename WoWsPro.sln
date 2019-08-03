@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWsPro.Bot", "WoWsPro.Bot\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{B12A2CC4-A305-4440-9F1C-607435135800}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWsPro.Data.Authorization", "WoWsPro.Data.Authorization\WoWsPro.Data.Authorization.csproj", "{C2108611-08BF-4EE4-8B04-03ADFDEE85B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWsPro.Data.Authorization", "WoWsPro.Data.Authorization\WoWsPro.Data.Authorization.csproj", "{C2108611-08BF-4EE4-8B04-03ADFDEE85B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWsPro.Data.Authentication", "WoWsPro.Data.Authentication\WoWsPro.Data.Authentication.csproj", "{551AF89B-26EC-4335-8510-3A34A0662788}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWsPro.Data.Authentication", "WoWsPro.Data.Authentication\WoWsPro.Data.Authentication.csproj", "{551AF89B-26EC-4335-8510-3A34A0662788}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

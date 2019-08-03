@@ -1,13 +1,6 @@
-﻿
-// Includes
+﻿// Includes
 @import "Includes/colors.scss";
 @import "Includes/mediaq.scss";
-
-// Shared
-@import "Shared/NavMenu.scss";
-
-// Pages
-
 
 // Global styles
 *, *::before, *::after {
@@ -18,3 +11,21 @@ body {
 	font-family: Arial, Helvetica, sans-serif;
 	margin: 0;
 }
+
+a, a:visited {
+	color: $color-blue-light;
+	text-decoration: none;
+}
+
+a:hover, a:focus {
+	text-decoration: underline;
+}
+
+// Shared
+@import "Shared/NavMenu.scss";
+@import "Shared/MainLayout.scss";
+@import "Shared/Feet.scss";
+
+// Pages
+@import "Pages/Account/Login.scss";
+

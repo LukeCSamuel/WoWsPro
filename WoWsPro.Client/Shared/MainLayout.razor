@@ -1,11 +1,18 @@
 ﻿@inherits LayoutComponentBase
 
-<div>
-    <NavMenu />
+<div class="main-layout body-fill">
+	<div class="not-footer">
+		<div>
+			<NavMenu />
+		</div>
+
+		<div>
+			@Body
+		</div>
+	</div>
+
+	<footer class="footer">
+		<Feet />
+	</footer>
 </div>
 
-<div>
-    <div>
-        @Body
-    </div>
-</div>

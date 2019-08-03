@@ -1,0 +1,38 @@
+﻿@page "/account/login"
+@using WoWsPro.Shared
+@using WoWsPro.Shared.Constants
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+
+
+<div class="account-login">
+	@if (loading)
+	{
+		<p>Loading...</p>
+	}
+	else
+	{
+		<div class="option-wrapper">
+		@foreach (Region region in (Region[])Enum.GetValues(typeof(Region)))
+		{
+			<div class="auth-option @region.ToString()" @onclick="@(e => WGOpenIdLogin(region))">
+				<h3 class="region-indicator">@region.ToString()</h3>
+				<p class="description">Wargaming Account</p>
+			</div>
+		}
+		</div>
+	}
+</div>
+
+
+@code {
+	bool loading = false;
+
+	protected async Task WGOpenIdLogin (Region region)
+	{
+		loading = true;
+		string requestAddress = $"api/Account/WGOpenId/RequestBody/{region.ToString()}";
+		var request = await Http.GetJsonAsync<WGOpenIdRequest>(requestAddress);
+		await JsRuntime.InvokeAsync<object>("autoform.submit", request.RequestAddress, request.Body);
+	}
+}

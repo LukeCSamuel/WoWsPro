@@ -1,0 +1,60 @@
+﻿@import "../../Includes/colors.scss";
+
+.account-login {
+
+	.option-wrapper {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		background: $color-purple-light;
+		border: 1px solid $color-purple-dark;
+		border-radius: 1em;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-content: center;
+		padding: 2rem;
+		background: $color-white;
+
+		.auth-option {
+			width: 100%;
+			cursor: pointer;
+			display: flex;
+			padding: 0.5rem;
+			border-radius: 0.25rem;
+			margin: 0.5rem;
+			font-size: 2rem;
+
+			.region-indicator {
+				display: inline-block;
+				margin: 0;
+				color: $color-white;
+				width: 3.5em;
+			}
+
+			.description {
+				display: inline-block;
+				margin: 0;
+				color: $color-white;
+				background: $color-purple-medium;
+			}
+		}
+	}
+
+	.NA {
+		background: $color-region-na;
+	}
+
+	.EU {
+		background: $color-region-eu;
+	}
+
+	.CIS {
+		background: $color-region-ru;
+	}
+
+	.APAC {
+		background: $color-region-ap;
+	}
+}

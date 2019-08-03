@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
+using System.IO;
 
 namespace WoWsPro.Server
 {
@@ -13,11 +15,16 @@ namespace WoWsPro.Server
 
 		public static IWebHost BuildWebHost (string[] args) =>
 			WebHost.CreateDefaultBuilder(args)
-				.UseConfiguration(new ConfigurationBuilder()
-					.AddCommandLine(args)
-					.AddJsonFile("appsettings.json")
-					.AddJsonFile("appsettings.development.json") // TODO: how not include for prod??
-					.Build())
+				.ConfigureAppConfiguration((hostingContext, config) =>
+				{
+					config.SetBasePath(Directory.GetCurrentDirectory());
+					config.AddCommandLine(args);
+					config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+					if (hostingContext.HostingEnvironment.EnvironmentName is string env)
+					{
+						config.AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true);
+					}
+				})
 				.UseStartup<Startup>()
 				.Build();
 	}
