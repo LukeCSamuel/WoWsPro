@@ -11,8 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WoWsPro.Data.Authentication\WoWsPro.Data.Authentication.csproj" />
-    <ProjectReference Include="..\WoWsPro.Data.Authorization\WoWsPro.Data.Authorization.csproj" />
     <ProjectReference Include="..\WoWsPro.Shared\WoWsPro.Shared.csproj" />
   </ItemGroup>
 

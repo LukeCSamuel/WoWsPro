@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
-using WoWsPro.Data.Authorization;
 using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.DB.Models
 {
-	[Authorize(Actions.Read, Permissions.Default)]
-	[Authorize(Actions.All, Permissions.ManageTournament, Scope = typeof(Tournament))]
-	[Authorize(Actions.All, Permissions.AdministerTournaments)]
-	internal partial class TournamentGroup : IScopable<Tournament>
+	internal partial class TournamentGroup
 	{
 		public TournamentGroup ()
 		{
@@ -27,8 +23,5 @@ namespace WoWsPro.Data.DB.Models
 
 		public virtual ICollection<TournamentSeed> Seeds { get; set; }
 		public virtual ICollection<TournamentMatch> Matches { get; set; }
-
-		[NotMapped]
-		Tournament IScopable<Tournament>.ScopeInstance => Stage.Tournament;
 	}
 }

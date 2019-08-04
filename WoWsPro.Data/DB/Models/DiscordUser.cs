@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
-using WoWsPro.Data.Authorization;
 using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.DB.Models
 {
-	[Authorize(Actions.Read, Permissions.Default)]
-	[Authorize(Actions.All, Permissions.Default, Scope = typeof(Account))]
-	[Authorize(Actions.All, Permissions.AdministerAccounts)]
-	internal partial class DiscordUser : IScopable<Account>
+	internal partial class DiscordUser 
 	{
 		public DiscordUser() { }
 
@@ -24,7 +20,5 @@ namespace WoWsPro.Data.DB.Models
 
 		public virtual Account Account { get; set; }
 
-		[NotMapped]
-		Account IScopable<Account>.ScopeInstance => Account;
 	}
 }

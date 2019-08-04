@@ -1,11 +1,9 @@
 ﻿using System;
-using WoWsPro.Data.Authorization;
 using WoWsPro.Shared.Constants;
 using SM = WoWsPro.Shared.Models;
 
 namespace WoWsPro.Data.DB.Models
 {
-	[Authorize(Actions.All, Permissions.AdministerApplicationSettings)]
 	internal partial class ApplicationSetting
 	{
 		public ApplicationSetting() { }

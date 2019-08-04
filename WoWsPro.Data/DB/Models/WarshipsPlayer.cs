@@ -2,16 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
-using WoWsPro.Data.Authorization;
-using WoWsPro.Data.Authorization.Scope;
 using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.DB.Models
 {
-	[Authorize(Actions.Read, Permissions.Default)]
-	[Authorize(Actions.All, Permissions.Default, Scope = typeof(Account))]
-	[Authorize(Actions.All, Permissions.AdministerAccounts)]
-	internal partial class WarshipsPlayer : IScopable<Account>
+	internal partial class WarshipsPlayer
 	{
 		public WarshipsPlayer ()
 		{
@@ -32,8 +27,5 @@ namespace WoWsPro.Data.DB.Models
 		public virtual WarshipsClan Clan { get; set; }
 
 		public virtual ICollection<TournamentParticipant> Participations { get; set; }
-
-		[NotMapped]
-		Account IScopable<Account>.ScopeInstance => Account;
 	}
 }

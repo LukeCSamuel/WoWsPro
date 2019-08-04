@@ -15,10 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWsPro.Bot", "WoWsPro.Bot\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{B12A2CC4-A305-4440-9F1C-607435135800}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWsPro.Data.Authorization", "WoWsPro.Data.Authorization\WoWsPro.Data.Authorization.csproj", "{C2108611-08BF-4EE4-8B04-03ADFDEE85B2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWsPro.Data.Authentication", "WoWsPro.Data.Authentication\WoWsPro.Data.Authentication.csproj", "{551AF89B-26EC-4335-8510-3A34A0662788}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,14 +45,6 @@ Global
 		{B12A2CC4-A305-4440-9F1C-607435135800}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B12A2CC4-A305-4440-9F1C-607435135800}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B12A2CC4-A305-4440-9F1C-607435135800}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C2108611-08BF-4EE4-8B04-03ADFDEE85B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C2108611-08BF-4EE4-8B04-03ADFDEE85B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C2108611-08BF-4EE4-8B04-03ADFDEE85B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C2108611-08BF-4EE4-8B04-03ADFDEE85B2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{551AF89B-26EC-4335-8510-3A34A0662788}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{551AF89B-26EC-4335-8510-3A34A0662788}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{551AF89B-26EC-4335-8510-3A34A0662788}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{551AF89B-26EC-4335-8510-3A34A0662788}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

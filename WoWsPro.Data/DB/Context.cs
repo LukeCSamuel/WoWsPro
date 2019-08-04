@@ -8,9 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using WoWsPro.Data.Authentication;
-using WoWsPro.Data.Authorization;
-using WoWsPro.Data.Authorization.Claim;
+
 using WoWsPro.Data.DB.Models;
 using WoWsPro.Shared.Constants;
 
@@ -18,21 +16,13 @@ using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.DB
 {
-	internal partial class Context : DbContext, IClaimResolver
+	internal partial class Context : DbContext
 	{
-		IAuthorization Authorization { get; }
-		IAuthentication Authentication { get; }
 		IConfiguration Configuration { get; }
 
-		private List<IClaim> CurrentClaims { get; } = new List<IClaim>();
-
-		public Context (IAuthorization authorization, IAuthentication authentication, IConfiguration configuration) : base()
+		public Context (IConfiguration configuration) : base()
 		{
-			Authorization = authorization;
-			Authorization.ClaimResolver = this;
-			Authentication = authentication;
 			Configuration = configuration;
-			CurrentClaims.AddRange(GetCurrentClaims());
 		}
 
 
@@ -455,103 +445,6 @@ namespace WoWsPro.Data.DB
 					.UseSqlServer(Configuration["ConnectionStrings:WoWsPro"])
 					.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.LazyLoadOnDisposedContextWarning));
 			}
-		}
-
-		public override int SaveChanges ()
-		{
-			AuthorizeAll();
-			return base.SaveChanges();
-		}
-		public override int SaveChanges (bool acceptAllChangesOnSuccess)
-		{
-			AuthorizeAll();
-			return base.SaveChanges(acceptAllChangesOnSuccess);
-		}
-		public override Task<int> SaveChangesAsync (bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-		{
-			AuthorizeAll();
-			return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-		}
-		public override Task<int> SaveChangesAsync (CancellationToken cancellationToken = default)
-		{
-			AuthorizeAll();
-			return base.SaveChangesAsync(cancellationToken);
-		}
-
-		void AuthorizeAll ()
-		{
-			foreach (var entry in ChangeTracker.Entries().Where(e => e.State != EntityState.Unchanged && e.State != EntityState.Detached).ToList())
-			{
-				Authorize(entry);
-			}
-		}
-		void Authorize (EntityEntry entry)
-		{
-			try
-			{
-				Authorization.Authorize(entry);
-			}
-			catch (UnauthorizedException ex)
-			{
-				ex.UserId = Authentication.AccountId;
-				throw;
-			}
-		}
-
-		public IEnumerable<IClaim> GetClaims () => CurrentClaims;
-		public IEnumerable<IClaim> GetCurrentClaims ()
-		{
-			if (Authentication.IsAuthenticated)
-			{
-				yield return new DefaultClaim(null, null);
-
-				var yielded = new List<long?>();
-				foreach (IClaim<Account> claim in AccountClaims.Where(a => a.AccountId == Authentication.AccountId))
-				{
-					yield return claim;
-					if (!yielded.Contains(claim.ScopedId))
-					{
-						yielded.Add(claim.ScopedId);
-						yield return new DefaultClaim(claim.ScopedId, claim.Scope);
-					}
-				}
-
-				yielded = new List<long?>();
-				foreach (IClaim<Tournament> claim in TournamentClaims.Where(a => a.AccountId == Authentication.AccountId))
-				{
-					yield return claim;
-					if (!yielded.Contains(claim.ScopedId))
-					{
-						yielded.Add(claim.ScopedId);
-						yield return new DefaultClaim(claim.ScopedId, claim.Scope);
-					}
-				}
-
-				yielded = new List<long?>();
-				foreach (IClaim<TournamentTeam> claim in TournamentTeamClaims.Where(a => a.AccountId == Authentication.AccountId))
-				{
-					yield return claim;
-					if (!yielded.Contains(claim.ScopedId))
-					{
-						yielded.Add(claim.ScopedId);
-						yield return new DefaultClaim(claim.ScopedId, claim.Scope);
-					}
-				}
-			}
-		}
-
-		public class DefaultClaim : IClaim
-		{
-			public string Permission => Permissions.Default;
-			public long? ScopedId { get; }
-			public Type Scope { get; }
-
-			public DefaultClaim (long? scopedId, Type scope)
-			{
-				ScopedId = scopedId;
-				Scope = scope;
-			}
-
 		}
 	}
 }

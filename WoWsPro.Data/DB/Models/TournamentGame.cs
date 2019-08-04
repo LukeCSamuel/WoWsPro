@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
-using WoWsPro.Data.Authorization;
 using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.DB.Models
 {
-	[Authorize(Actions.Read, Permissions.Default)]
-	[Authorize(Actions.All, Permissions.ManageTournament, Scope = typeof(Tournament))]
-	[Authorize(Actions.All, Permissions.AdministerTournaments)]
-	internal partial class TournamentGame : IScopable<Tournament>
+	internal partial class TournamentGame
 	{
 		public TournamentGame () { }
 
@@ -23,8 +19,5 @@ namespace WoWsPro.Data.DB.Models
 		public virtual TournamentMatch Match { get; set; }
 		public virtual TournamentTeam WinningTeam { get; set; }
 		public virtual WarshipsMap Map { get; set; }
-
-		[NotMapped]
-		Tournament IScopable<Tournament>.ScopeInstance => Match.Group.Stage.Tournament;
 	}
 }

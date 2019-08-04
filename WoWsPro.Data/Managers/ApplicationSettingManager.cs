@@ -4,8 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using WoWsPro.Data.Authentication;
-using WoWsPro.Data.Authorization;
 using WoWsPro.Data.DB;
 using WoWsPro.Shared.Models;
 

@@ -2,16 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
-using WoWsPro.Data.Authorization;
-using WoWsPro.Data.Authorization.Scope;
 using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.DB.Models
 {
-	[Authorize(Actions.Read, Permissions.Default)]
-	[Authorize(Actions.Permanent, Permissions.Default, Scope = typeof(Account))]
-	[Authorize(Actions.All, Permissions.AdministerAccounts)]
-	internal partial class Account : IScope<Account>, IScopable<Account>
+	internal partial class Account
 	{
 		public Account()
 		{
@@ -35,12 +30,5 @@ namespace WoWsPro.Data.DB.Models
 		public virtual ICollection<TournamentClaim> TournamentClaims { get; set; }
 		public virtual ICollection<TournamentTeamClaim> TeamClaims { get; set; }
 		public virtual ICollection<TournamentTeam> OwnedTeams { get; set; }
-
-		[NotMapped]
-		public long? ScopedId => AccountId;
-		[NotMapped]
-		public Type Scope => typeof(Account);
-		[NotMapped]
-		Account IScopable<Account>.ScopeInstance => this;
 	}
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using WoWsPro.Client.Services;
 
 namespace WoWsPro.Client
 {
@@ -7,6 +8,7 @@ namespace WoWsPro.Client
 	{
 		public void ConfigureServices (IServiceCollection services)
 		{
+			services.AddUserService();
 		}
 
 		public void Configure (IComponentsApplicationBuilder app)

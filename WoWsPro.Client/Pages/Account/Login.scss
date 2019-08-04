@@ -7,28 +7,31 @@
 		left: 50%;
 		top: 50%;
 		transform: translate(-50%, -50%);
-		background: $color-purple-light;
-		border: 1px solid $color-purple-dark;
+		background: $color-purple-medium;
+		border: 1px solid $color-purple-light;
 		border-radius: 1em;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-content: center;
 		padding: 2rem;
-		background: $color-white;
+		box-shadow: #333 0 2px 5px;
 
 		.auth-option {
 			width: 100%;
 			cursor: pointer;
 			display: flex;
-			padding: 0.5rem;
-			border-radius: 0.25rem;
-			margin: 0.5rem;
+			border: 0.2rem solid $color-purple-medium;
+			border-radius: 0.5rem;
+			margin: 1rem 0;
 			font-size: 2rem;
+			background: $color-purple-light;
+			overflow: hidden;
 
 			.region-indicator {
 				display: inline-block;
 				margin: 0;
+				padding: 1rem;
 				color: $color-white;
 				width: 3.5em;
 			}
@@ -36,8 +39,12 @@
 			.description {
 				display: inline-block;
 				margin: 0;
+				padding: 1rem;
 				color: $color-white;
-				background: $color-purple-medium;
+			}
+
+			&:hover, &:focus {
+				border-color: $color-blue-light;
 			}
 		}
 	}

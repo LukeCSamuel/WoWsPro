@@ -1,16 +1,39 @@
-﻿<div class="nav-menu">
+﻿@using WoWsPro.Client.Services
+@inject IUserService _userService
+
+<div class="nav-menu">
 	<NavLink href="" Match="NavLinkMatch.All">
 		<img class="logo" src="/res/Logo.svg" alt="" />
 		<span class="title">WOWSPRO</span>
 	</NavLink>
 
 	<div class="nav-links">
-		<NavLink href="account/login">
-			SIGN IN
-		</NavLink>
+		@if (User?.IsLoggedIn ?? false)
+		{
+			<NavLink href="account">
+				@User.PreferredName
+			</NavLink>
+		}
+		else
+		{
+			<NavLink href="account/login">
+				SIGN IN
+			</NavLink>
+		}
 	</div>
 </div>
 
 @code {
+	User User { get; set; }
 
+	protected override async Task OnInitAsync()
+	{
+		_userService.UserUpdate += OnUserUpdate;
+		await _userService.UpdateAsync();
+	}
+
+	void OnUserUpdate (object sender, User user)
+	{
+		User = user;
+	}
 }

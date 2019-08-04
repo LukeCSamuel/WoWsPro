@@ -100,33 +100,38 @@ html, body, .body-fill {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background: #5b3d78;
-  border: 1px solid #2b1043;
+  background: #3f1e55;
+  border: 1px solid #5b3d78;
   border-radius: 1em;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-content: center;
   padding: 2rem;
-  background: #ffffff; }
+  box-shadow: #333 0 2px 5px; }
   .account-login .option-wrapper .auth-option {
     width: 100%;
     cursor: pointer;
     display: flex;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    margin: 0.5rem;
-    font-size: 2rem; }
+    border: 0.2rem solid #3f1e55;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+    font-size: 2rem;
+    background: #5b3d78;
+    overflow: hidden; }
     .account-login .option-wrapper .auth-option .region-indicator {
       display: inline-block;
       margin: 0;
+      padding: 1rem;
       color: #ffffff;
       width: 3.5em; }
     .account-login .option-wrapper .auth-option .description {
       display: inline-block;
       margin: 0;
-      color: #ffffff;
-      background: #3f1e55; }
+      padding: 1rem;
+      color: #ffffff; }
+    .account-login .option-wrapper .auth-option:hover, .account-login .option-wrapper .auth-option:focus {
+      border-color: #29abe2; }
 
 .account-login .NA {
   background: #009900; }

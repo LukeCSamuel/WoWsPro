@@ -13,13 +13,13 @@
 	else
 	{
 		<div class="option-wrapper">
-		@foreach (Region region in (Region[])Enum.GetValues(typeof(Region)))
-		{
-			<div class="auth-option @region.ToString()" @onclick="@(e => WGOpenIdLogin(region))">
-				<h3 class="region-indicator">@region.ToString()</h3>
-				<p class="description">Wargaming Account</p>
-			</div>
-		}
+			@foreach (Region region in (Region[])Enum.GetValues(typeof(Region)))
+			{
+				<div class="auth-option" @onclick="@(e => WGOpenIdLogin(region))" tabindex="0">
+					<h3 class="region-indicator @region.ToString()">@region.ToString()</h3>
+					<p class="description">Wargaming Account</p>
+				</div>
+			}
 		</div>
 	}
 </div>
