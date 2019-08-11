@@ -7,7 +7,7 @@ using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.DB.Models
 {
-	internal partial class TournamentTeam
+	internal partial class TournamentTeam : IScope
 	{
 		public TournamentTeam ()
 		{
@@ -41,5 +41,7 @@ namespace WoWsPro.Data.DB.Models
 
 		[NotMapped]
 		public ICollection<TournamentMatch> Matches => AlphaMatches.Union(BravoMatches).ToHashSet();
+		[NotMapped]
+		long IScope.ScopedId => TeamId;
 	}
 }

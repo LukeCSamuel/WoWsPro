@@ -3,13 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using WoWsPro.Data.Authentication;
-using WoWsPro.Data.Authorization;
 using WoWsPro.Data.DB;
 using WoWsPro.Data.Managers;
 using WoWsPro.Shared.Models;
 
-namespace WoWsPro.Data
+namespace WoWsPro.Data.Services
 {
 	public interface IContextManager
 	{
@@ -21,23 +19,21 @@ namespace WoWsPro.Data
 		internal Context Context { get; }
 		Context IContextManager.Context => Context;
 
-		public ContextManager (IAuthorization authorization, IAuthentication authentication, IConfiguration configuration)
+		public ContextManager (IConfiguration configuration)
 		{
-			Context = new Context(authorization, authentication, configuration);
+			Context = new Context(configuration);
 		}
 
 		public void Dispose () => ((IDisposable)Context).Dispose();
 	}
 
-	public static class ManagerFactoryInjector
+	public static class ManagerProvider
 	{
-		public static IServiceCollection AddDataManagers (this IServiceCollection services)
+		public static IServiceCollection AddDataManagers<T> (this IServiceCollection services) where T : class, IContextAuthentication
 			=> services
-			.AddAuthorization()
-			.AddAuthentication()
-			.AddScoped<IContextManager, ContextManager>()
+			.AddContextAuthorization<T>()
 			.AddScoped<ApplicationSettingManager, ApplicationSettingManager>()
-			.AddScoped<ClaimManager, ClaimManager>()
+			.AddScoped<AccountManager, AccountManager>()
 			;
 	}
 

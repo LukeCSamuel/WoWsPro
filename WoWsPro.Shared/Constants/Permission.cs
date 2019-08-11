@@ -18,6 +18,7 @@ namespace WoWsPro.Shared.Constants
 		public const string ManageTeam = nameof(ManageTeam);
 		public const string ManageTeamClaims = nameof(ManageTeamClaims);
 		public const string ManageParticipants = nameof(ManageParticipants);
+		public const string ManageAccount = nameof(ManageAccount);
 
 		public const string Default = nameof(Default);
 	}

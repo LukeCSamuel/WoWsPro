@@ -302,10 +302,9 @@ namespace WoWsPro.Server.Services
 	public static class WGOpenIdProvider
 	{
 		public static IServiceCollection AddWGOpenId (this IServiceCollection services)
-		{
-			services.AddSingleton<IWGOpenIdHttpService, WGHttpService>();
-			services.AddSingleton<IWGOpenId, WGOpenId>();
-			return services;
-		}
+			=> services
+			.AddSingleton<IWGOpenIdHttpService, WGHttpService>()
+			.AddSingleton<IWGOpenId, WGOpenId>()
+			;
 	}
 }

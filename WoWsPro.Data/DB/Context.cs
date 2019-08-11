@@ -258,7 +258,7 @@ namespace WoWsPro.Data.DB
 					.HasForeignKey(d => d.GuildId);
 
 				entity.HasOne(d => d.Owner)
-					.WithMany(p => p.OwnedTournamnets)
+					.WithMany(p => p.OwnedTournaments)
 					.HasForeignKey(d => d.OwnerAccountId);
 			})
 

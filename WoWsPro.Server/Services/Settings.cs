@@ -28,10 +28,7 @@ namespace WoWsPro.Server.Services
 
 	public static class SettingsProvider
 	{
-		public static IServiceCollection AddSettings (this IServiceCollection services)
-		{
-			services.AddSingleton<ISettings, Settings>();
-			return services;
-		}
+		public static IServiceCollection AddSettings (this IServiceCollection services) 
+			=> services.AddSingleton<ISettings, Settings>();
 	}
 }

@@ -6,7 +6,7 @@ using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.DB.Models
 {
-	internal partial class Tournament
+	internal partial class Tournament : IScope
 	{
 		public Tournament()
 		{
@@ -30,5 +30,8 @@ namespace WoWsPro.Data.DB.Models
 		public virtual ICollection<TournamentClaim> Claims { get; set; }
 		public virtual ICollection<TournamentStage> Stages { get; set; }
 		public virtual ICollection<TournamentTeam> Teams { get; set; }
+
+		[NotMapped]
+		long IScope.ScopedId => TournamentId;
 	}
 }

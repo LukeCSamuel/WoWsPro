@@ -155,3 +155,11 @@ CREATE TABLE TournamentTeamClaim (
     ClaimId bigint NOT NULL FOREIGN KEY REFERENCES [Claim](ClaimId),
     PRIMARY KEY (TeamId, AccountId, ClaimId)
 )
+
+CREATE TABLE SessionCache (
+    Id nvarchar(449) NOT NULL PRIMARY KEY,
+    [Value] varbinary(MAX) NOT NULL,
+    ExpiresAtTime datetimeoffset(7) NOT NULL,
+    SlidingExpirationInSeconds bigint,
+    AbsoluteExpiration datetimeoffset(7)
+)

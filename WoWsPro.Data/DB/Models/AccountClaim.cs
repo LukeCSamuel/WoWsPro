@@ -7,7 +7,7 @@ using WoWsPro.Shared.Constants;
 namespace WoWsPro.Data.DB.Models
 {
 
-	internal partial class AccountClaim
+	internal partial class AccountClaim : IClaim<Account>
 	{
 		public AccountClaim () { }
 		
@@ -20,8 +20,6 @@ namespace WoWsPro.Data.DB.Models
 		[NotMapped]
 		public string Permission => Claim.Permission;
 		[NotMapped]
-		public long? ScopedId => AccountId;
-		[NotMapped]
-		public Type Scope => typeof(Account);
+		Account IClaim<Account>.Scope => Account;
 	}
 }

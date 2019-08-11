@@ -80,6 +80,7 @@ namespace WoWsPro.Server.Services
 
 	public static class UserServiceExtensions
 	{
-		public static IServiceCollection AddUserService (this IServiceCollection services) => services.AddScoped<IUserService, UserService>();
+		public static IServiceCollection AddUserService (this IServiceCollection services) 
+			=> services.AddScoped<IUserService, UserService>();
 	}
 }

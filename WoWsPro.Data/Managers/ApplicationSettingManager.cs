@@ -5,18 +5,19 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using WoWsPro.Data.DB;
+using WoWsPro.Data.Services;
 using WoWsPro.Shared.Models;
 
 namespace WoWsPro.Data.Managers
 {
 	public class ApplicationSettingManager
 	{
-		IContextManager ContextManager { get; set; }
-		Context Context => ContextManager.Context;
+		IContextAuthorization Authorization { get; }
+		Context Context => Authorization.Context;
 
-		public ApplicationSettingManager (IContextManager manager)
+		public ApplicationSettingManager (IContextAuthorization auth)
 		{
-			ContextManager = manager;
+			Authorization = auth;
 		}
 
 		public async Task<ApplicationSetting> GetAsync (long id)

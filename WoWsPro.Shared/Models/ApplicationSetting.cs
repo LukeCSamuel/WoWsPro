@@ -6,7 +6,7 @@ namespace WoWsPro.Shared.Models
 {
 	public class ApplicationSetting
 	{
-		public ApplicationSetting() { }
+		public ApplicationSetting () { }
 
 		public long ApplicationSettingId { get; set; }
 		public string Environment { get; set; }
