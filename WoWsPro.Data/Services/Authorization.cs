@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WoWsPro.Data.DB;
 using WoWsPro.Data.DB.Models;
+using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.Services
 {
@@ -13,8 +14,8 @@ namespace WoWsPro.Data.Services
 	{
 		internal long? AccountId { get; }
 		internal Context Context { get; }
-		internal bool HasClaim<T> (string permission, T scope) where T : IScope;
-		internal bool HasClaim (string permission);
+		internal bool HasClaim<T> (IPermission permission, T scope) where T : IScope;
+		internal bool HasAdminClaim (IAdminPermission permission);
 	}
 
 
@@ -37,14 +38,14 @@ namespace WoWsPro.Data.Services
 		internal IEnumerable<IClaim<T>> GetClaims<T> (T scope) where T : IScope
 			=> UserAccount.GetClaims<T>().Where(c => c.ScopedId == scope?.ScopedId);
 
-		internal bool HasClaim<T> (string permission, T scope) where T : IScope
-			=> GetClaims(scope).Any(c => c.Permission == permission);
+		internal bool HasClaim<T> (IPermission permission, T scope) where T : IScope
+			=> GetClaims(scope).Any(c => c.Permission == permission.Permission);
 
-		internal bool HasClaim (string permission)
+		internal bool HasAdminClaim (IAdminPermission permission)
 			=> HasClaim(permission, UserAccount);
 
-		bool IContextAuthorization.HasClaim<T> (string permission, T scope) => HasClaim(permission, scope);
-		bool IContextAuthorization.HasClaim (string permission) => HasClaim(permission);
+		bool IContextAuthorization.HasClaim<T> (IPermission permission, T scope) => HasClaim(permission, scope);
+		bool IContextAuthorization.HasAdminClaim (IAdminPermission permission) => HasAdminClaim(permission);
 	}
 
 	public static class ContextAuthorizationProvider
@@ -56,7 +57,12 @@ namespace WoWsPro.Data.Services
 			.AddScoped<IContextAuthorization, ContextAuthorization>();
 	}
 
-	public class UnauthorizedException<T> : Exception
+	public abstract class UnauthorizedException : Exception
+	{
+		public UnauthorizedException (string message) : base(message) { }
+	}
+
+	public class UnauthorizedException<T> : UnauthorizedException
 	{
 		// TODO: add key interface for all entities
 		public UnauthorizedException (IContextAuthorization auth, T entity)

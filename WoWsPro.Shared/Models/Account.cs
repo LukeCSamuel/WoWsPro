@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace WoWsPro.Shared.Models
@@ -12,6 +13,13 @@ namespace WoWsPro.Shared.Models
 		public string Nickname { get; set; }
 		public DateTime Created { get; set; }
 
+
+		public ICollection<DiscordUser> DiscordAccounts { get; set; }
+		public ICollection<WarshipsPlayer> WarshipsAccounts { get; set; }
+
 		// TODO: Navigation properties
+
+		public DiscordUser GetPrimaryDiscordAccount () => DiscordAccounts.SingleOrDefault(e => e.IsPrimary);
+		public WarshipsPlayer GetPrimaryWarshipsAccount () => WarshipsAccounts.SingleOrDefault(e => e.IsPrimary);
 	}
 }

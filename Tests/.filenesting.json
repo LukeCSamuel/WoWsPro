@@ -4,7 +4,13 @@
 
   "dependentFileProviders": {
     "add": {
-      "pathSegment": {}
+      "pathSegment": {
+        "add": {
+          ".*": [
+            ".json"
+          ]
+        }
+      }
     }
   }
 }

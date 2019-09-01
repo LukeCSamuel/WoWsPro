@@ -20,5 +20,28 @@ namespace WoWsPro.Data.DB.Models
 
 		public virtual Account Account { get; set; }
 
+
+		public static implicit operator Shared.Models.DiscordUser (DiscordUser user) => new Shared.Models.DiscordUser()
+		{
+			DiscordId = user.DiscordId,
+			AccountId = user.AccountId,
+			Username = user.Username,
+			Discriminator = user.Discriminator,
+			Avatar = user.Avatar,
+			IsPrimary = user.IsPrimary,
+			Account = user.Account
+		};
+
+		public static implicit operator DiscordUser (Shared.Models.DiscordUser user) => new DiscordUser()
+		{
+			DiscordId = user.DiscordId,
+			AccountId = user.AccountId,
+			Username = user.Username,
+			Discriminator = user.Discriminator,
+			Avatar = user.Avatar,
+			IsPrimary = user.IsPrimary,
+			Account = user.Account
+		};
+
 	}
 }

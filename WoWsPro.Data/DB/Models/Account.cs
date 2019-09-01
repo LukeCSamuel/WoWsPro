@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
 using WoWsPro.Shared.Constants;
 
@@ -64,7 +65,9 @@ namespace WoWsPro.Data.DB.Models
 			{
 				AccountId = account.AccountId,
 				Created = account.Created,
-				Nickname = account.Nickname
+				Nickname = account.Nickname,
+				DiscordAccounts = account.DiscordAccounts.Select<DiscordUser, Shared.Models.DiscordUser>(e => e).ToHashSet(),
+				WarshipsAccounts = account.WarshipsAccounts.Select<WarshipsPlayer, Shared.Models.WarshipsPlayer>(e => e).ToHashSet()
 			};
 		}
 
@@ -74,7 +77,9 @@ namespace WoWsPro.Data.DB.Models
 			{
 				AccountId = account.AccountId,
 				Created = account.Created,
-				Nickname = account.Nickname
+				Nickname = account.Nickname,
+				DiscordAccounts = account.DiscordAccounts.Select<Shared.Models.DiscordUser, DiscordUser>(e => e).ToHashSet(),
+				WarshipsAccounts = account.WarshipsAccounts.Select<Shared.Models.WarshipsPlayer, WarshipsPlayer>(e => e).ToHashSet()
 			};
 		}
 

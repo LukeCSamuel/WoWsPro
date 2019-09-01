@@ -32,8 +32,11 @@ namespace WoWsPro.Data.Services
 		public static IServiceCollection AddDataManagers<T> (this IServiceCollection services) where T : class, IContextAuthentication
 			=> services
 			.AddContextAuthorization<T>()
-			.AddScoped<ApplicationSettingManager, ApplicationSettingManager>()
-			.AddScoped<AccountManager, AccountManager>()
+			.AddSingleton<IWarshipsApi, WarshipsApi>()
+			.AddScoped<IApplicationSettingManager, ApplicationSettingManager>()
+			.AddScoped<IAccountManager, AccountManager>()
+			.AddScoped<IDiscordManager, DiscordManager>()
+			.AddScoped<IWarshipsManager, WarshipsManager>()
 			;
 	}
 

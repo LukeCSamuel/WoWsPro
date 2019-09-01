@@ -10,7 +10,15 @@ using WoWsPro.Shared.Models;
 
 namespace WoWsPro.Data.Managers
 {
-	public class ApplicationSettingManager
+	public interface IApplicationSettingManager
+	{
+		Task<ApplicationSetting> GetAsync (long id);
+		Task<ApplicationSetting> AddAsync (ApplicationSetting setting);
+		Task<ApplicationSetting> SetValueAsync (long id, string value);
+		Task DeleteAsync (long id);
+	}
+
+	internal class ApplicationSettingManager : IApplicationSettingManager
 	{
 		IContextAuthorization Authorization { get; }
 		Context Context => Authorization.Context;
@@ -27,9 +35,9 @@ namespace WoWsPro.Data.Managers
 
 		public async Task<ApplicationSetting> AddAsync (ApplicationSetting setting)
 		{
-			var result = Context.ApplicationSettings.Add(setting).Entity;
+			var result = Context.ApplicationSettings.Add(setting);
 			await Context.SaveChangesAsync();
-			return result;
+			return result.Entity;
 		}
 
 		public async Task<ApplicationSetting> SetValueAsync (long id, string value)

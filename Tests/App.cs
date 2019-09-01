@@ -1,33 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using WoWsPro.Data.Authorization;
 using WoWsPro.Data.Managers;
+using WoWsPro.Data.Services;
+using WoWsPro.Shared.Constants;
 using WoWsPro.Shared.Models;
 
 namespace Tests
 {
 	public class App
 	{
-		ClaimManager Manager { get; }
 
-		public App (ClaimManager manager)
+		DiscordManager GuildManager { get; }
+		IWarshipsApi ShipsApi { get; }
+
+		public App (IDiscordManager discordManager, IWarshipsApi shipsapi)
 		{
-			Manager = manager;
+			GuildManager = (DiscordManager)discordManager;
+			ShipsApi = shipsapi;
 		}
 
 		public async Task RunAsync ()
 		{
 			try
 			{
-				await Manager.AddAllClaimsAsync();
-				Console.WriteLine("Operation succeeded.");
+				foreach (var (id, name) in await ShipsApi.SearchPlayerAsync(Region.NA, "00d"))
+				{
+					var player = await ShipsApi.GetPlayerInfoAsync(Region.NA, id);
+					Console.WriteLine($"{player.Nickname} created on {player.Created}.{(player.ClanId is long ? $"\r\n\tJoined {player.ClanId} on {player.JoinedClan}." : "")}");
+				}
 			}
-			catch (UnauthorizedException ex)
+			catch (Exception ex) when (ex is HttpRequestException || ex is WarshipsApiException)
 			{
 				Console.WriteLine(ex.Message);
 			}
+
+			//try
+			//{
+			//	var guild = await GuildManager.AddOrUpdateGuildAsync(new DiscordGuild()
+			//	{
+			//		GuildId = 1234,
+			//		Name = "Best Girl Club",
+			//		Icon = "http://pictures.rem.moe",
+			//		Invite = "http://discord.gg/invite"
+			//	});
+			//	Console.WriteLine($"Operation succeeded. Account ID: {guild.Name}");
+			//}
+			//catch (UnauthorizedException ex)
+			//{
+			//	Console.WriteLine(ex.Message);
+			//}
 		}
 	}
 }

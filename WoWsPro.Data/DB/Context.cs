@@ -447,4 +447,14 @@ namespace WoWsPro.Data.DB
 			}
 		}
 	}
+
+	internal static class ContextExtensions
+	{
+		public static async Task<EntityEntry<T>> AddOrUpdateAsync<T> (this DbSet<T> set, T entity, Func<T, T, bool> comparer) where T: class
+		{
+			return (await set.AsNoTracking().AnyAsync(e => comparer(entity, e)))
+				? set.Update(entity)
+				: set.Add(entity);
+		}
+	}
 }

@@ -17,15 +17,45 @@ namespace WoWsPro.Data.DB.Models
 		public long? AccountId { get; set; }
 		public Region Region { get; set; }
 		public string Nickname { get; set; }
-		public DateTime Created { get; set; }
-		public long ClanId { get; set; }
+		public DateTime? Created { get; set; }
+		public long? ClanId { get; set; }
 		public string ClanRole { get; set; }
-		public DateTime JoinedClan { get; set; }
+		public DateTime? JoinedClan { get; set; }
 		public bool IsPrimary { get; set; }
 
 		public virtual Account Account { get; set; }
 		public virtual WarshipsClan Clan { get; set; }
 
 		public virtual ICollection<TournamentParticipant> Participations { get; set; }
+
+
+		public static implicit operator Shared.Models.WarshipsPlayer (WarshipsPlayer player) => new Shared.Models.WarshipsPlayer()
+		{
+			PlayerId = player.PlayerId,
+			AccountId = player.AccountId,
+			Region = player.Region,
+			Nickname = player.Nickname,
+			Created = player.Created,
+			ClanId = player.ClanId,
+			ClanRole = player.ClanRole,
+			JoinedClan = player.JoinedClan,
+			IsPrimary = player.IsPrimary,
+			Account = player.Account
+		};
+
+		public static implicit operator WarshipsPlayer (Shared.Models.WarshipsPlayer player) => new WarshipsPlayer()
+		{
+			PlayerId = player.PlayerId,
+			AccountId = player.AccountId,
+			Region = player.Region,
+			Nickname = player.Nickname,
+			Created = player.Created,
+			ClanId = player.ClanId,
+			ClanRole = player.ClanRole,
+			JoinedClan = player.JoinedClan,
+			IsPrimary = player.IsPrimary,
+			Account = player.Account
+		};
+
 	}
 }
