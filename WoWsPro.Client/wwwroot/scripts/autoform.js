@@ -1,10 +1,5 @@
 ﻿window.autoform = {
 	submit: (address, body) => {
-
-		// TODO: remove
-		console.log(address);
-		console.log(body);
-
 		var form = document.createElement('form');
 		form.setAttribute('method', 'post');
 		form.setAttribute('action', address);

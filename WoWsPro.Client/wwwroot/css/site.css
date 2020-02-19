@@ -3,6 +3,8 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  background: #1a1224;
+  color: #ffffff;
   margin: 0; }
 
 a, a:visited {
@@ -14,27 +16,37 @@ a:hover, a:focus {
 
 .nav-menu {
   position: sticky;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   width: 100%;
-  height: 4rem;
+  height: 3rem;
   padding: 0 10px;
-  font-size: 2rem;
+  font-size: 1.5rem;
   background-color: #2b1043;
   color: #ffffff;
-  box-shadow: #333333 0px 2px 5px; }
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25); }
   .nav-menu a {
     text-decoration: none;
     color: inherit; }
+  .nav-menu .brand {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%; }
   .nav-menu .logo {
-    height: 100%;
-    float: left; }
+    height: 100%; }
   .nav-menu .title {
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-weight: lighter;
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+    font-weight: 200;
+    font-style: italic;
+    font-variant-caps: petite-caps;
+    letter-spacing: 0.01em;
     font-size: 1.5em;
+    text-shadow: 0px 0px 5px black;
     margin: 0; }
   .nav-menu .nav-links {
     position: relative;
-    float: right;
     height: 100%;
     display: flex;
     flex-direction: row;
@@ -144,3 +156,61 @@ html, body, .body-fill {
 
 .account-login .APAC {
   background: #0066ff; }
+
+.dashboard {
+  padding: 1em; }
+  .dashboard .name {
+    margin: 0.2em;
+    padding: 0.5em;
+    background: #5b3d78;
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+    font-weight: 200;
+    border-radius: 0.25em; }
+  .dashboard .accounts {
+    margin: 0.4em;
+    padding: 1em;
+    background: #3f1e55;
+    font-family: Arial, Helvetica, sans-serif;
+    border-radius: 1em; }
+    .dashboard .accounts h2 {
+      margin: 0 0 0.2em 0;
+      text-align: center; }
+    .dashboard .accounts .account {
+      padding: 0.5em 0;
+      border-bottom: 1px solid #1a1224; }
+      .dashboard .accounts .account:first-child {
+        border-top: 1px solid #1a1224; }
+      .dashboard .accounts .account h3 {
+        margin: 0 0.5em 0.75em 0; }
+      .dashboard .accounts .account button {
+        background: #2b1043;
+        color: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 1em;
+        border: none;
+        border-radius: 0.5em;
+        padding: 0.5em; }
+        .dashboard .accounts .account button:hover {
+          background: #0071bc; }
+      .dashboard .accounts .account .NA, .dashboard .accounts .account .EU, .dashboard .accounts .account .CIS, .dashboard .accounts .account .APAC {
+        font-size: 0.7em;
+        padding: 0.5em;
+        border-radius: 0.5em; }
+      .dashboard .accounts .account .NA {
+        background-color: #009900; }
+      .dashboard .accounts .account .EU {
+        background-color: #c26b0e; }
+      .dashboard .accounts .account .CIS {
+        background-color: #b53a2f; }
+      .dashboard .accounts .account .APAC {
+        background-color: #0066ff; }
+    .dashboard .accounts .add-account {
+      margin: 0.5em auto;
+      display: inline-block;
+      color: #ffffff;
+      padding: 0.5em;
+      border-radius: 0.5em;
+      background: #2b1043;
+      text-decoration: none; }
+      .dashboard .accounts .add-account:hover, .dashboard .accounts .add-account:focus {
+        background: #29abe2; }

@@ -34,6 +34,7 @@ namespace WoWsPro.Client.Services
 
 	public interface IUserService
 	{
+		User User { get; }
 		Task<User> GetUserAsync ();
 		Task UpdateAsync ();
 
@@ -47,10 +48,10 @@ namespace WoWsPro.Client.Services
 
 		public event EventHandler<User> UserUpdate;
 
-		private User User
+		public User User
 		{
 			get => _user;
-			set
+			private set
 			{
 				_user = value;
 				UserUpdate(this, _user);

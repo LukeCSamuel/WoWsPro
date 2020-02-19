@@ -5,8 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using WoWsPro.Data.Operations;
+using WoWsPro.Data.Services;
 using WoWsPro.Server.Services;
 using WoWsPro.Shared.Constants;
+using WoWsPro.Shared.Models;
 
 namespace WoWsPro.Server.Controllers
 {
@@ -16,12 +19,21 @@ namespace WoWsPro.Server.Controllers
 		private readonly IUserService _user;
 		private readonly ISettings _settings;
 		private readonly IWGOpenId _wgOpenId;
+		private readonly IWarshipsApi _warshipsApi;
+		IAuthorizer<AccountOperations> Accounts { get; }
 
-		public AccountController (IUserService userService, ISettings settings, IWGOpenId wgOpenId)
+		public AccountController (
+			IUserService userService,
+			ISettings settings,
+			IWGOpenId wgOpenId,
+			IWarshipsApi warshipsApi,
+			IAuthorizer<AccountOperations> accounts)
 		{
 			_user = userService;
 			_settings = settings;
 			_wgOpenId = wgOpenId;
+			_warshipsApi = warshipsApi;
+			Accounts = accounts;
 		}
 
 		[HttpGet("api/[controller]/User")]
@@ -68,7 +80,9 @@ namespace WoWsPro.Server.Controllers
 				else
 				{
 					(long id, string nickname) = ((long, string))verification;
-					_user.TestLogin(id, nickname); // TODO: Replace with data-driven login
+
+					var player = _warshipsApi.GetPlayerInfoAsync(RegionExtensions.FromString(region), id).GetAwaiter().GetResult();
+					_user.Login(player);
 					return Redirect("/"); // TODO: Replace with memory redirect
 				}
 			}
@@ -80,6 +94,13 @@ namespace WoWsPro.Server.Controllers
 			{
 				return StatusCode(500);
 			}
+		}
+
+		[HttpGet("api/[controller]/{id:long}")]
+		public Account GetAccount (long id)
+		{
+			Accounts.Manager.ScopeId = id;
+			return Accounts.Do(a => a.GetAccount()).Result;
 		}
 
     }

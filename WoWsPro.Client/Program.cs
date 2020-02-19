@@ -1,16 +1,25 @@
 ﻿using Microsoft.AspNetCore.Blazor.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
+using WoWsPro.Client.Services;
 
 namespace WoWsPro.Client
 {
 	public class Program
 	{
-		public static void Main (string[] args)
+		public static async Task Main (string[] args)
 		{
-			CreateHostBuilder(args).Build().Run();
+			var builder = WebAssemblyHostBuilder.CreateDefault(args);
+			ConfigureServices(builder.Services);
+			builder.RootComponents.Add<App>("app");
+
+			await builder.Build().RunAsync();
 		}
 
-		public static IWebAssemblyHostBuilder CreateHostBuilder (string[] args) =>
-			BlazorWebAssemblyHost.CreateDefaultBuilder()
-				.UseBlazorStartup<Startup>();
+		public static void ConfigureServices (IServiceCollection services)
+		{
+			services.AddUserService();
+			services.AddAccountService();
+		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -137,6 +138,12 @@ namespace WoWsPro.Data.Services
 		}
 
 		public static DateTime? FromEpoch (long? epoch) => epoch is long epoc ? (DateTime?)new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epoc) : null;
+	}
+
+	public static class WarshipsApiProvider
+	{
+		public static IServiceCollection AddWarshipsApi (this IServiceCollection services)
+			=> services.AddSingleton<IWarshipsApi, WarshipsApi>();
 	}
 
 	internal class ParamList

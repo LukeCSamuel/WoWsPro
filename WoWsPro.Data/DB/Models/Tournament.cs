@@ -32,6 +32,6 @@ namespace WoWsPro.Data.DB.Models
 		public virtual ICollection<TournamentTeam> Teams { get; set; }
 
 		[NotMapped]
-		long IScope.ScopedId => TournamentId;
+		long IScope.ScopeId => TournamentId;
 	}
 }

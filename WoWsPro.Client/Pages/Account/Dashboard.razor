@@ -1,0 +1,52 @@
+﻿@page "/account"
+@inject IUserService _userService
+@inject IAccountService _accountService
+
+    <div class="dashboard">
+
+        <h1 class="name">@User?.PreferredName</h1>
+
+        <div class="accounts">
+            <h2>Connected Accounts</h2>
+            <div>
+                @if (Account?.WarshipsAccounts != null)
+                {
+                    @foreach (var player in Account.WarshipsAccounts.OrderByDescending(a => a.IsPrimary))
+                    {
+                        <div class="account">
+                            <h3><span class="@player.Region.ToString()">@player.Region.ToString()</span> @player.Nickname</h3>
+                            @if (player.IsPrimary)
+                            {
+                                <p>This is your primary account.</p>
+                            }
+                            else
+                            {
+                                <button>Make Primary</button>
+                            }
+                        </div>
+                    }
+                    <NavLink class="add-account" href="account/login">
+                        Add Account
+                    </NavLink>
+                }
+            </div>
+        </div>
+
+    </div>
+
+@code {
+    User User { get; set; }
+    WoWsPro.Shared.Models.Account Account { get; set; }
+
+    protected override async Task OnInitializedAsync ()
+    {
+        _userService.UserUpdate += OnUserUpdate;
+        User = await _userService.GetUserAsync();
+        Account = await _accountService.GetUserAccountAsync();
+    }
+
+    void OnUserUpdate (object sender, User user)
+    {
+        User = user;
+    }
+}

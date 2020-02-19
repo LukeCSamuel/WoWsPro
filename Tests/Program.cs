@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using WoWsPro.Data;
+using WoWsPro.Data.DB;
 using WoWsPro.Data.Services;
 
 namespace Tests
@@ -28,13 +29,18 @@ namespace Tests
 				.Build();
 
 			services.AddSingleton<IConfiguration>(config);
-			services.AddDataManagers<ContextAuthentication>();
+
+			//services.AddDataContext();
+			services.AddAuthenticator<Authy>();
+			services.AddAccountManager();
+
 			services.AddTransient<App>();
 		}
 
-		public class ContextAuthentication : IContextAuthentication
+		public class Authy : IAuthenticator
 		{
-			public long? AccountId => 1;
+			public bool LoggedIn => false;
+			long? IAuthenticator.AccountId => null;
 		}
 	}
 }

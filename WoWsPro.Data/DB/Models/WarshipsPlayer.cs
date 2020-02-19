@@ -29,33 +29,8 @@ namespace WoWsPro.Data.DB.Models
 		public virtual ICollection<TournamentParticipant> Participations { get; set; }
 
 
-		public static implicit operator Shared.Models.WarshipsPlayer (WarshipsPlayer player) => new Shared.Models.WarshipsPlayer()
-		{
-			PlayerId = player.PlayerId,
-			AccountId = player.AccountId,
-			Region = player.Region,
-			Nickname = player.Nickname,
-			Created = player.Created,
-			ClanId = player.ClanId,
-			ClanRole = player.ClanRole,
-			JoinedClan = player.JoinedClan,
-			IsPrimary = player.IsPrimary,
-			Account = player.Account
-		};
-
-		public static implicit operator WarshipsPlayer (Shared.Models.WarshipsPlayer player) => new WarshipsPlayer()
-		{
-			PlayerId = player.PlayerId,
-			AccountId = player.AccountId,
-			Region = player.Region,
-			Nickname = player.Nickname,
-			Created = player.Created,
-			ClanId = player.ClanId,
-			ClanRole = player.ClanRole,
-			JoinedClan = player.JoinedClan,
-			IsPrimary = player.IsPrimary,
-			Account = player.Account
-		};
+		public static implicit operator Shared.Models.WarshipsPlayer (WarshipsPlayer player) => player.ConvertObject<WarshipsPlayer, Shared.Models.WarshipsPlayer>();
+		public static implicit operator WarshipsPlayer (Shared.Models.WarshipsPlayer player) => player.ConvertObject<Shared.Models.WarshipsPlayer, WarshipsPlayer>();
 
 	}
 }

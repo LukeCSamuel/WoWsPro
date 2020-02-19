@@ -1,5 +1,6 @@
 ﻿// Includes
 @import "Includes/colors.scss";
+@import "Includes/fonts.scss";
 @import "Includes/mediaq.scss";
 
 // Global styles
@@ -8,7 +9,9 @@
 }
 
 body {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: $font-copy;
+	background: $color-black-off;
+	color: $color-white;
 	margin: 0;
 }
 
@@ -28,4 +31,5 @@ a:hover, a:focus {
 
 // Pages
 @import "Pages/Account/Login.scss";
+@import "Pages/Account/Dashboard.scss";
 

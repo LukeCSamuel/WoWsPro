@@ -42,6 +42,6 @@ namespace WoWsPro.Data.DB.Models
 		[NotMapped]
 		public ICollection<TournamentMatch> Matches => AlphaMatches.Union(BravoMatches).ToHashSet();
 		[NotMapped]
-		long IScope.ScopedId => TeamId;
+		long IScope.ScopeId => TeamId;
 	}
 }

@@ -8,6 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
+using WoWsPro.Data.DB;
+using WoWsPro.Data.Operations;
+using WoWsPro.Data.Services;
 using WoWsPro.Server.Services;
 
 namespace WoWsPro.Server
@@ -28,12 +31,12 @@ namespace WoWsPro.Server
 		{
 			services.AddSettings();
 
-			services.AddMvc()
-				.SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-				.AddNewtonsoftJson(options =>
-				{
-					options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-				});
+			services.AddMvc();
+				//.SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+				//.AddNewtonsoftJson(options =>
+				//{
+				//	options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+				//});
 
 			services.AddResponseCompression(opts =>
 			{
@@ -48,7 +51,7 @@ namespace WoWsPro.Server
 				options.TableName = "SessionCache";
 			});
 
-			// TODO: don't use session for cookies because it doesn't persist beyond browser lifetime
+			// ONEDAY: don't use session for cookies because it doesn't persist beyond browser lifetime
 			services.AddSession(options =>
 			{
 				options.IdleTimeout = TimeSpan.FromDays(7);
@@ -57,8 +60,15 @@ namespace WoWsPro.Server
 			});
 			services.AddHttpContextAccessor();
 			services.AddWGOpenId();
+			services.AddWarshipsApi();
 
 			services.AddUserService();
+			services.AddAuthenticator<UserService>();
+
+			services.AddDataContextPool();
+			services.AddAccountManager();
+
+			services.AddAdminAccountOperations();
 
 		}
 
@@ -79,13 +89,13 @@ namespace WoWsPro.Server
 
 			app.UseSession();
 
-			app.UseClientSideBlazorFiles<Client.Startup>();
+			app.UseClientSideBlazorFiles<Client.Program>();
 			app.UseRouting();
 
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapDefaultControllerRoute();
-				endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
+				endpoints.MapFallbackToClientSideBlazor<Client.Program>("index.html");
 			});
 		}
 	}

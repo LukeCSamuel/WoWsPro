@@ -1,3 +1,24 @@
+-- DROP TABLE Account
+-- DROP TABLE ApplicationSetting
+-- DROP TABLE Claim
+-- DROP TABLE DiscordGuild
+-- DROP TABLE DiscordUser
+-- DROP TABLE DiscordToken
+-- DROP TABLE SessionCache
+-- DROP TABLE Tournament
+-- DROP TABLE TournamentClaim
+-- DROP TABLE TournamentGame
+-- DROP TABLE TournamentGroup
+-- DROP TABLE TournamentMatch
+-- DROP TABLE TournamentParticipant
+-- DROP TABLE TournamentSeed
+-- DROP TABLE TournamentStage
+-- DROP TABLE TournamentTeam
+-- DROP TABLE TournamentTeamClaim
+-- DROP TABLE WarshipsClan
+-- DROP TABLE WarshipsMap
+-- DROP TABLE WarshipsPlayer
+
 CREATE TABLE ApplicationSetting (
     ApplicationSettingId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
     Environment varchar(255),
@@ -12,6 +33,13 @@ CREATE TABLE Account (
     Created datetime2 NOT NULL
 )
 
+CREATE TABLE DiscordGuild (
+    GuildId bigint NOT NULL PRIMARY KEY,
+    [Name] nvarchar(200) NOT NULL,
+    Icon varchar(255),
+    Invite varchar(255)
+)
+
 CREATE TABLE DiscordUser (
     DiscordId bigint NOT NULL PRIMARY KEY,
     AccountId bigint FOREIGN KEY REFERENCES Account(AccountId),
@@ -19,6 +47,16 @@ CREATE TABLE DiscordUser (
     Discriminator char(4) NOT NULL,
     Avatar varchar(255),
     IsPrimary bit NOT NULL
+)
+
+CREATE TABLE DiscordToken (
+    DiscordTokenId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    DiscordId bigint NOT NULL FOREIGN KEY REFERENCES DiscordUser(DiscordId),
+    AccessToken varchar(255) NOT NULL,
+    TokenType varchar(255) NOT NULL,
+    Expires datetime2 NOT NULL,
+    RefreshToken varchar(255),
+    Scope varchar(255) NOT NULL
 )
 
 CREATE TABLE WarshipsClan (
@@ -47,13 +85,6 @@ CREATE TABLE WarshipsMap (
     [Description] varchar(255) NOT NULL,
     Icon varchar(255) NOT NULL,
     [Name] varchar(255) NOT NULL
-)
-
-CREATE TABLE DiscordGuild (
-    GuildId bigint NOT NULL PRIMARY KEY,
-    [Name] nvarchar(200) NOT NULL,
-    Icon varchar(255),
-    Invite varchar(255)
 )
 
 CREATE TABLE Tournament (

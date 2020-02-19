@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -26,16 +27,38 @@ namespace WoWsPro.Data.DB.Models
 
 		public virtual ICollection<DiscordUser> DiscordAccounts { get; set; }
 		public virtual ICollection<WarshipsPlayer> WarshipsAccounts { get; set; }
-		public virtual ICollection<Tournament> OwnedTournaments { get; set; }		
+		public virtual ICollection<Tournament> OwnedTournaments { get; set; }
 		public virtual ICollection<TournamentTeam> OwnedTeams { get; set; }
 
+		[JsonIgnore]
 		public virtual ICollection<AccountClaim> AccountClaims { get; set; }
+		[JsonIgnore]
 		public virtual ICollection<TournamentClaim> TournamentClaims { get; set; }
+		[JsonIgnore]
 		public virtual ICollection<TournamentTeamClaim> TeamClaims { get; set; }
 
 		[NotMapped]
-		long IScope.ScopedId => AccountId;
+		long IScope.ScopeId => AccountId;
 
+		public IEnumerable<IClaim> GetClaims (Type scope)
+		{
+			if (scope == typeof(Account))
+			{
+				return AccountClaims;
+			}
+			else if (scope == typeof(Tournament))
+			{
+				return TournamentClaims;
+			}
+			else if (scope == typeof(TournamentTeam))
+			{
+				return TeamClaims;
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+		}
 
 		public ICollection<IClaim<T>> GetClaims<T> () where T : IScope
 		{
@@ -58,30 +81,8 @@ namespace WoWsPro.Data.DB.Models
 		}
 
 
-
-		public static implicit operator Shared.Models.Account (Account account)
-		{
-			return new Shared.Models.Account()
-			{
-				AccountId = account.AccountId,
-				Created = account.Created,
-				Nickname = account.Nickname,
-				DiscordAccounts = account.DiscordAccounts.Select<DiscordUser, Shared.Models.DiscordUser>(e => e).ToHashSet(),
-				WarshipsAccounts = account.WarshipsAccounts.Select<WarshipsPlayer, Shared.Models.WarshipsPlayer>(e => e).ToHashSet()
-			};
-		}
-
-		public static implicit operator Account (Shared.Models.Account account)
-		{
-			return new Account()
-			{
-				AccountId = account.AccountId,
-				Created = account.Created,
-				Nickname = account.Nickname,
-				DiscordAccounts = account.DiscordAccounts.Select<Shared.Models.DiscordUser, DiscordUser>(e => e).ToHashSet(),
-				WarshipsAccounts = account.WarshipsAccounts.Select<Shared.Models.WarshipsPlayer, WarshipsPlayer>(e => e).ToHashSet()
-			};
-		}
+		public static implicit operator Shared.Models.Account (Account account) => account.ConvertObject<Account, Shared.Models.Account>();
+		public static implicit operator Account (Shared.Models.Account account) => account.ConvertObject<Shared.Models.Account, Account>();
 
 	}
 }

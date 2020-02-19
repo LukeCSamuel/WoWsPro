@@ -1,35 +1,34 @@
-﻿@using WoWsPro.Client.Services
-@inject IUserService _userService
+﻿@inject IUserService _userService
 
-<div class="nav-menu">
-	<NavLink href="" Match="NavLinkMatch.All">
-		<img class="logo" src="/res/Logo.svg" alt="" />
-		<span class="title">WOWSPRO</span>
-	</NavLink>
+    <div class="nav-menu">
+        <NavLink href="" class="brand" Match="NavLinkMatch.All">
+            <div class="title">Wows.Pro</div>
+            <img class="logo" src="/res/Logo.svg" alt="" />
+        </NavLink>
 
-	<div class="nav-links">
-		@if (User?.IsLoggedIn ?? false)
-		{
-			<NavLink href="account">
-				@User.PreferredName
-			</NavLink>
-		}
-		else
-		{
-			<NavLink href="account/login">
-				SIGN IN
-			</NavLink>
-		}
-	</div>
-</div>
+        <div class="nav-links">
+            @if (User?.IsLoggedIn ?? false)
+            {
+                <NavLink href="account">
+                    @User.PreferredName
+                </NavLink>
+            }
+            else
+            {
+                <NavLink href="account/login">
+                    Sign in
+                </NavLink>
+            }
+        </div>
+    </div>
 
 @code {
 	User User { get; set; }
 
-	protected override async Task OnInitAsync()
+	protected override async Task OnInitializedAsync()
 	{
 		_userService.UserUpdate += OnUserUpdate;
-		await _userService.UpdateAsync();
+		User = await _userService.GetUserAsync();
 	}
 
 	void OnUserUpdate (object sender, User user)

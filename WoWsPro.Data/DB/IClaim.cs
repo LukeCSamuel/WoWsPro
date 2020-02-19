@@ -4,16 +4,21 @@ using System.Text;
 
 namespace WoWsPro.Data.DB
 {
-	internal interface IClaim<T> where T : IScope
+	internal interface IClaim
 	{
 		string Permission { get; }
 		long AccountId { get; }
+		long ScopeId { get; }
+	}
+	
+	internal interface IClaim<T> : IClaim where T : IScope
+	{
 		T Scope { get; }
-		long ScopedId => Scope.ScopedId;
+		long IClaim.ScopeId => Scope.ScopeId;
 	}
 
 	internal interface IScope
 	{
-		long ScopedId { get; }
+		long ScopeId { get; }
 	}
 }

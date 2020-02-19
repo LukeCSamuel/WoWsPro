@@ -1,18 +1,14 @@
 ﻿@using WoWsPro.Client.Pages.Exceptions
 
 <Router AppAssembly="typeof(Program).Assembly">
-	<NotFoundContent>
+	<Found Context="routeData">
+		<RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+	</Found>
+	<NotFound>
 		<MainLayout>
 			<Body>
 				<NotFound></NotFound>
 			</Body>
 		</MainLayout>
-	</NotFoundContent>
-	<NotAuthorizedContent>
-		<MainLayout>
-			<Body>
-				<Unauthorized></Unauthorized>
-			</Body>
-		</MainLayout>
-	</NotAuthorizedContent>
+	</NotFound>
 </Router>

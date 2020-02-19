@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WoWsPro.Data.Operations;
+using WoWsPro.Data.Services;
 using WoWsPro.Server.Extensions;
+using WoWsPro.Shared.Models;
 
 namespace WoWsPro.Server.Services
 {
@@ -32,7 +35,6 @@ namespace WoWsPro.Server.Services
 		}
 
 		public static User None => new User();
-		// TODO: public static User FromAccount (WoWsPro.Shared.Models.Account account) => throw new NotImplementedException();
 
 		public override string ToString () => IsLoggedIn ? PreferredName : "Logged Out";
 	}
@@ -43,17 +45,14 @@ namespace WoWsPro.Server.Services
 		bool IsLoggedIn { get; }
 		string PreferredName { get; }
 
-		// TODO: WoWsPro.Shared.Models.Account Account { get; }
-		// TODO: void Login (WoWsPro.Shared.Models.WarshipsPlayer player)
+		Account Account { get; }
 		// TODO: void Login (WoWsPro.Shared.Models.DiscordUser user)
 
-		// TODO: Remove once data-driven login is complete
-		void TestLogin (long id, string nickname);
-
+		void Login (WarshipsPlayer player);
 		void Logout ();
 	}
 
-	public class UserService : IUserService
+	public class UserService : IUserService, IAuthenticator
 	{
 		private readonly ISession _session;
 
@@ -64,18 +63,38 @@ namespace WoWsPro.Server.Services
 		}
 		private User _user = null;
 
-		public UserService (IHttpContextAccessor contextAccessor)
+		AdminAccountOperations AccountOps { get; }
+
+		public UserService (IHttpContextAccessor contextAccessor, AdminAccountOperations accountOps)
 		{
 			_session = contextAccessor.HttpContext.Session;
+			AccountOps = accountOps;
 		}
 
 		public bool IsLoggedIn => User.IsLoggedIn;
 		public string PreferredName => User.PreferredName;
 
+		bool IAuthenticator.LoggedIn => User.IsLoggedIn;
+		long? IAuthenticator.AccountId => User.AccountId;
+
+		public Account Account => User.AccountId is long accountId ? AccountOps.GetAccount(accountId) : null;
+
 		public void Logout () => User = User.None;
 
-		// TODO: Remove once data-driven login is complete
-		public void TestLogin (long id, string nickname) => User = new User(nickname, id);
+		public void Login (WarshipsPlayer player)
+		{
+			if (IsLoggedIn)
+			{
+				AccountOps.AddOrMergeWarshipsAccount((long)User.AccountId, player);
+			}
+			else
+			{
+				var (nickname, accountId) = AccountOps.GetOrCreateAccount(player);
+				User = new User(nickname, accountId);
+			}
+		}
+
+
 	}
 
 	public static class UserServiceExtensions

@@ -2,54 +2,46 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 using WoWsPro.Data.DB.Models;
-using WoWsPro.Shared.Constants;
-
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace WoWsPro.Data.DB
 {
-	internal partial class Context : DbContext
+
+	public partial class Context : DbContext
 	{
-		IConfiguration Configuration { get; }
-
-		public Context (IConfiguration configuration) : base()
-		{
-			Configuration = configuration;
-		}
-
-
+		public Context (DbContextOptions<Context> options) : base(options) { }
 
 		#region Tables
-		public virtual DbSet<ApplicationSetting> ApplicationSettings { get; set; }
-		public virtual DbSet<Account> Accounts { get; set; }
-		public virtual DbSet<Claim> Claims { get; set; }
-		public virtual DbSet<AccountClaim> AccountClaims { get; set; }
+		internal virtual DbSet<ApplicationSetting> ApplicationSettings { get; set; }
+		internal virtual DbSet<Account> Accounts { get; set; }
+		internal virtual DbSet<Claim> Claims { get; set; }
+		internal virtual DbSet<AccountClaim> AccountClaims { get; set; }
 
-		public virtual DbSet<DiscordUser> DiscordUsers { get; set; }
-		public virtual DbSet<DiscordGuild> DiscordGuilds { get; set; }
+		internal virtual DbSet<DiscordUser> DiscordUsers { get; set; }
+		internal virtual DbSet<DiscordGuild> DiscordGuilds { get; set; }
 
-		public virtual DbSet<WarshipsClan> WarshipsClans { get; set; }
-		public virtual DbSet<WarshipsPlayer> WarshipsPlayers { get; set; }
-		public virtual DbSet<WarshipsMap> WarshipsMaps { get; set; }
+		internal virtual DbSet<WarshipsClan> WarshipsClans { get; set; }
+		internal virtual DbSet<WarshipsPlayer> WarshipsPlayers { get; set; }
+		internal virtual DbSet<WarshipsMap> WarshipsMaps { get; set; }
 
-		public virtual DbSet<Tournament> Tournaments { get; set; }
-		public virtual DbSet<TournamentClaim> TournamentClaims { get; set; }
-		public virtual DbSet<TournamentStage> TournamentStages { get; set; }
-		public virtual DbSet<TournamentGroup> TournamentGroups { get; set; }
-		public virtual DbSet<TournamentTeam> TournamentTeams { get; set; }
-		public virtual DbSet<TournamentTeamClaim> TournamentTeamClaims { get; set; }
-		public virtual DbSet<TournamentSeed> TournamentSeads { get; set; }
-		public virtual DbSet<TournamentMatch> TournamentMatches { get; set; }
-		public virtual DbSet<TournamentGame> TournamentGames { get; set; }
-		public virtual DbSet<TournamentParticipant> TournamentParticipants { get; set; }
+		internal virtual DbSet<Tournament> Tournaments { get; set; }
+		internal virtual DbSet<TournamentClaim> TournamentClaims { get; set; }
+		internal virtual DbSet<TournamentStage> TournamentStages { get; set; }
+		internal virtual DbSet<TournamentGroup> TournamentGroups { get; set; }
+		internal virtual DbSet<TournamentTeam> TournamentTeams { get; set; }
+		internal virtual DbSet<TournamentTeamClaim> TournamentTeamClaims { get; set; }
+		internal virtual DbSet<TournamentSeed> TournamentSeads { get; set; }
+		internal virtual DbSet<TournamentMatch> TournamentMatches { get; set; }
+		internal virtual DbSet<TournamentGame> TournamentGames { get; set; }
+		internal virtual DbSet<TournamentParticipant> TournamentParticipants { get; set; }
 		#endregion
 
 		#region Table Configuration
@@ -434,27 +426,37 @@ namespace WoWsPro.Data.DB
 			;
 
 		#endregion
-
-		protected override void OnConfiguring (DbContextOptionsBuilder optionsBuilder)
-		{
-			if (!optionsBuilder.IsConfigured)
-			{
-				// FIXME: Access configuration in a less dependent way
-				optionsBuilder
-					.UseLazyLoadingProxies()
-					.UseSqlServer(Configuration["ConnectionStrings:WoWsPro"])
-					.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.LazyLoadOnDisposedContextWarning));
-			}
-		}
 	}
 
-	internal static class ContextExtensions
+	public static class ContextExtensions
 	{
-		public static async Task<EntityEntry<T>> AddOrUpdateAsync<T> (this DbSet<T> set, T entity, Func<T, T, bool> comparer) where T: class
+		internal static async Task<EntityEntry<T>> AddOrUpdateAsync<T> (this DbSet<T> set, T entity, Func<T, T, bool> comparer) where T: class
 		{
 			return (await set.AsNoTracking().AnyAsync(e => comparer(entity, e)))
 				? set.Update(entity)
 				: set.Add(entity);
+		}
+
+		internal static R ConvertObject<T, R> (this T obj) where T : class where R : class
+		{
+			return obj is null
+				? null
+				: JsonConvert.DeserializeObject<R>(JsonConvert.SerializeObject(obj, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+		}
+
+		public static IServiceCollection AddDataContextPool (this IServiceCollection services)
+		{
+			return services.AddDbContextPool<Context>((serviceProvider, options) =>
+			{
+				if (!options.IsConfigured)
+				{
+					var config = serviceProvider.GetRequiredService<IConfiguration>();
+					options
+						.UseLazyLoadingProxies()
+						.UseSqlServer(config["ConnectionStrings:WoWsPro"])
+						.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.LazyLoadOnDisposedContextWarning));
+				}
+			});
 		}
 	}
 }
