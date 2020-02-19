@@ -131,7 +131,7 @@ namespace WoWsPro.Server.Services
 		public async Task<object> GetRequestBodyAsync (Region region, string returnUrl)
 		{
 			string handle = (await GetAssociationAsync(region)).Handle;
-			return new WGOpenIdRequest
+			return new HtmlFormRequest
 			{
 				RequestAddress = $"https://{region.Subdomain()}.wargaming.net/id/openid/",
 				Body = new Dictionary<string, string>()

@@ -26,13 +26,13 @@
 
 
 @code {
-	bool loading = false;
+    bool loading = false;
 
-	protected async Task WGOpenIdLogin (Region region)
-	{
-		loading = true;
-		string requestAddress = $"api/Account/WGOpenId/RequestBody/{region.ToString()}";
-		var request = await Http.GetJsonAsync<WGOpenIdRequest>(requestAddress);
-		await JsRuntime.InvokeAsync<object>("autoform.submit", request.RequestAddress, request.Body);
-	}
+    protected async Task WGOpenIdLogin (Region region)
+    {
+        loading = true;
+        string requestAddress = $"api/Account/WGOpenId/RequestBody/{region.ToString()}";
+        var request = await Http.GetJsonAsync<HtmlFormRequest>(requestAddress);
+        await JsRuntime.InvokeAsync<object>("autoform.submit", request.RequestAddress, request.Body);
+    }
 }

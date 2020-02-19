@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace WoWsPro.Server.Services
 {
+	// TODO: Move to shared?
 	public interface ISettings
 	{
 		string WoWsProConnectionString { get; }
 		string BaseUrl { get; }
+		string DiscordClientId { get; }
+		string DiscordClientSecret { get; }
 	}
 
 	public class Settings : ISettings
@@ -22,8 +25,10 @@ namespace WoWsPro.Server.Services
 			_config = config;
 		}
 
-		public string WoWsProConnectionString => _config["ConnectionStrings:WoWsPro"];
+		public string WoWsProConnectionString => _config["ConnectionStrings:WoWsPro"];		
 		public string BaseUrl => _config["Urls:BaseUrl"];
+		public string DiscordClientId => _config["ApiKeys:Discord:ClientId"];
+		public string DiscordClientSecret => _config["ApiKeys:Discord:ClientSecret"];
 	}
 
 	public static class SettingsProvider
