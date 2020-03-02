@@ -11,14 +11,29 @@ namespace WoWsPro.Client.Services
 {
 	public interface IAccountService
 	{
+		Account UserAccount { get; }
 		Task<Account> GetUserAccountAsync ();
+		Task UpdateUserAccountAsync ();
+		event EventHandler<Account> UserAccountUpdate;
 	}
 	
-	public class AccountService : IAccountService
+	public class AccountService : IDisposable, IAccountService
 	{
-		public User User { get; set; }
+		public Account UserAccount {
+
+			get => _userAccount;
+			private set
+			{
+				_userAccount = value;
+				UserAccountUpdate(this, _userAccount);
+			}
+		}
+		private Account _userAccount;
+
 		public HttpClient Http { get; }
 		IUserService UserService { get; }
+
+		public event EventHandler<Account> UserAccountUpdate;
 
 		public AccountService (HttpClient http, IUserService userService)
 		{
@@ -29,17 +44,19 @@ namespace WoWsPro.Client.Services
 
 		public async Task<Account> GetUserAccountAsync ()
 		{
-			if (User is null)
+			if (UserAccount is null)
 			{
-				User = await UserService.GetUserAsync();
+				await UpdateUserAccountAsync();
 			}
-			return await Http.GetJsonAsync<Account>($"api/Account/{User.AccountId}");
+			return UserAccount;
 		}
+		public async Task UpdateUserAccountAsync () => UserAccount = await Http.GetJsonAsync<Account>($"api/Account");
 
-		private void OnUserUpdate (object sender, User user)
-		{
-			User = user;
-		}
+		public async Task<Account> GetAccount () => await Http.GetJsonAsync<Account>($"api/Account/{UserService.User?.AccountId}");
+
+		private async void OnUserUpdate (object sender, User user) => await UpdateUserAccountAsync();
+
+		public void Dispose () => UserService.UserUpdate -= OnUserUpdate;
 	}
 
 	public static class AccountServiceProvider

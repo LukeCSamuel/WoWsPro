@@ -11,6 +11,7 @@ using System.Linq;
 using WoWsPro.Data.DB;
 using WoWsPro.Data.Operations;
 using WoWsPro.Data.Services;
+using WoWsPro.Server.Formatters;
 using WoWsPro.Server.Services;
 
 namespace WoWsPro.Server
@@ -31,7 +32,10 @@ namespace WoWsPro.Server
 		{
 			services.AddSettings();
 
-			services.AddMvc();
+			services.AddMvc(options =>
+			{
+				options.InputFormatters.Insert(0, new TextFormatter());
+			});
 				//.SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
 				//.AddNewtonsoftJson(options =>
 				//{
@@ -60,6 +64,7 @@ namespace WoWsPro.Server
 			});
 			services.AddHttpContextAccessor();
 			services.AddWGOpenId();
+			services.AddDiscordOauth2();
 			services.AddWarshipsApi();
 
 			services.AddUserService();
@@ -69,6 +74,7 @@ namespace WoWsPro.Server
 			services.AddAccountManager();
 
 			services.AddAdminAccountOperations();
+			services.AddFileOperations();
 
 		}
 

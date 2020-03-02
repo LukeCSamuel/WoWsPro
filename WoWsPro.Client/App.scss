@@ -1,4 +1,7 @@
 ﻿// Includes
+@import "Includes/fa/fontawesome.scss";
+@import "Includes/fa/solid.scss";
+@import "Includes/fa/brands.scss";
 @import "Includes/colors.scss";
 @import "Includes/fonts.scss";
 @import "Includes/mediaq.scss";
@@ -28,6 +31,7 @@ a:hover, a:focus {
 @import "Shared/NavMenu.scss";
 @import "Shared/MainLayout.scss";
 @import "Shared/Feet.scss";
+@import "Shared/Loading.scss";
 
 // Pages
 @import "Pages/Account/Login.scss";

@@ -3,92 +3,89 @@
 @import "../../Includes/mediaq.scss";
 
 .dashboard {
-    padding: 1em;
+	padding: 1em;
 
-    .name {
-        margin: 0.2em;
-        padding: 0.5em;
-        background: $color-purple-light;
-        font-family: $font-header;
-        font-weight: 200;
-        border-radius: 0.25em;
-    }
+	.name {
+		margin: 0.2em;
+		padding: 0.5em;
+		background: $color-purple-light;
+		font-family: $font-header;
+		font-weight: 200;
+		border-radius: 0.25em;
+	}
 
-    .accounts {
-        margin: 0.4em;
-        padding: 1em;
-        background: $color-purple-medium;
-        font-family: $font-copy;
-        border-radius: 1em;
+	.container {
+		display: flex;
+		flex-wrap: wrap;
+	}
 
-        h2 {
-            margin: 0 0 0.2em 0;
-            text-align: center;
-        }
+	.accounts {
+		margin: 0.4em;
+		padding: 1em;
+		background: $color-purple-medium;
+		font-family: $font-copy;
+		border-radius: 1em;
 
-        .account {
-            padding: 0.5em 0;
-            border-bottom: 1px solid $color-black-off;
+		button,
+		.add-account {
+			background: $color-purple-dark;
+			color: $color-white;
+			font-family: $font-copy;
+			font-size: 1em;
+			border: none;
+			border-radius: 0.5em;
+			padding: 0.5em;
 
-            &:first-child {
-                border-top: 1px solid $color-black-off;
-            }
+			&:hover,
+			&:focus {
+				background: $color-blue-dark;
+			}
+		}
 
-            h3 {
-                margin: 0 0.5em 0.75em 0;
-            }
+		.add-account {
+			margin: 0.5em auto;
+			display: inline-block;
+			text-decoration: none;
+		}
 
-            button {
-                background: $color-purple-dark;
-                color: $color-white;
-                font-family: $font-copy;
-                font-size: 1em;
-                border: none;
-                border-radius: 0.5em;
-                padding: 0.5em;
+		h2 {
+			margin: 0 0 0.2em 0;
+			text-align: center;
+		}
 
-                &:hover {
-                    background: $color-blue-dark;
-                }
-            }
+		.account {
+			padding: 0.5em 0;
+			border-bottom: 1px solid $color-black-off;
 
+			&:first-child {
+				border-top: 1px solid $color-black-off;
+			}
 
-            .NA, .EU, .CIS, .APAC {
-                font-size: 0.7em;
-                padding: 0.5em;
-                border-radius: 0.5em;
-            }
+			h3 {
+				margin: 0 0.5em 0.75em 0;
+			}
 
-            .NA {
-                background-color: $color-region-na;
-            }
+			.NA, .EU, .CIS, .APAC {
+				font-size: 0.7em;
+				padding: 0.5em;
+				border-radius: 0.5em;
+			}
 
-            .EU {
-                background-color: $color-region-eu;
-            }
+			.NA {
+				background-color: $color-region-na;
+			}
 
-            .CIS {
-                background-color: $color-region-ru;
-            }
+			.EU {
+				background-color: $color-region-eu;
+			}
 
-            .APAC {
-                background-color: $color-region-ap;
-            }
-        }
+			.CIS {
+				background-color: $color-region-ru;
+			}
 
-        .add-account {
-            margin: 0.5em auto;
-            display: inline-block;
-            color: $color-white;
-            padding: 0.5em;
-            border-radius: 0.5em;
-            background: $color-purple-dark;
-            text-decoration: none;
-
-            &:hover,
-            &:focus {
-                background: $color-blue-light;
-            }
-        }
-    }
+			.SEA {
+				background-color: $color-region-ap;
+			}
+		}
+	}
 }

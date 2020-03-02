@@ -41,25 +41,26 @@ namespace WoWsPro.Server.Services
 
 	public interface IUserService
 	{
+		ISession Session { get; }
 		User User { get; }
 		bool IsLoggedIn { get; }
 		string PreferredName { get; }
 
 		Account Account { get; }
-		// TODO: void Login (WoWsPro.Shared.Models.DiscordUser user)
 
+		void Login (DiscordToken token);
 		void Login (WarshipsPlayer player);
 		void Logout ();
 	}
 
 	public class UserService : IUserService, IAuthenticator
 	{
-		private readonly ISession _session;
+		public ISession Session { get; }
 
 		public User User
 		{
-			get => _user ?? (_user = _session.Retrieve<User>());
-			set => _session.Store(_user = value);
+			get => _user ?? (_user = Session.Retrieve<User>());
+			set => Session.Store(_user = value);
 		}
 		private User _user = null;
 
@@ -67,7 +68,7 @@ namespace WoWsPro.Server.Services
 
 		public UserService (IHttpContextAccessor contextAccessor, AdminAccountOperations accountOps)
 		{
-			_session = contextAccessor.HttpContext.Session;
+			Session = contextAccessor.HttpContext.Session;
 			AccountOps = accountOps;
 		}
 
@@ -85,7 +86,7 @@ namespace WoWsPro.Server.Services
 		{
 			if (IsLoggedIn)
 			{
-				AccountOps.AddOrMergeWarshipsAccount((long)User.AccountId, player);
+				AccountOps.AddOrMergeAccount((long)User.AccountId, player);
 			}
 			else
 			{
@@ -94,10 +95,21 @@ namespace WoWsPro.Server.Services
 			}
 		}
 
-
+		public void Login (DiscordToken token)
+		{
+			if (IsLoggedIn)
+			{
+				AccountOps.AddOrMergeAccount((long)User.AccountId, token);
+			}
+			else
+			{
+				var (nickname, accountId) = AccountOps.GetOrCreateAccount(token);
+				User = new User(nickname, accountId);
+			}
+		}
 	}
 
-	public static class UserServiceExtensions
+	public static class UserServiceProvider
 	{
 		public static IServiceCollection AddUserService (this IServiceCollection services) 
 			=> services.AddScoped<IUserService, UserService>();

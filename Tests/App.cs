@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,19 +13,19 @@ namespace Tests
 {
 	public class App
 	{
-		IAuthorizer<AccountOperations> Auth { get; }
 
-		public App (IAuthorizer<AccountOperations> auth) => Auth = auth;
+		FileOperations Filoio { get; }
+
+		public App (FileOperations fileio) => Filoio = fileio;
 
 		public async Task RunAsync ()
 		{
-			Auth.Manager.ScopeId = 3;
-			Console.WriteLine(Auth.Do(o => o.GetNickname()).Result);
-			Console.WriteLine(Auth.Do(o => o.SetNickname("OG Test Account")).Success);
+			using var file = new FileStream(@"C:\OneDrive\Tournaments\King of the Sea\KotS 9\Art\WG_WOWS_SPB_Kings_Of_Sea_LOGO_9_season_Logo.png", FileMode.Open);
+			using var mem = new MemoryStream();
 
-			Auth.Manager.ScopeId = 4;
-			Console.WriteLine(Auth.Do(o => o.GetNickname()).Result);
-			Console.WriteLine(Auth.Do(o => o.SetNickname("uh oh spaghettio")).Success);
+			file.CopyTo(mem);
+			(long id, string name) = Filoio.SaveFile("KotS-IX-Logo.png", mem.ToArray());
+			Console.WriteLine($"api/SampleData/{id}/{name}");
 		}
 	}
 }

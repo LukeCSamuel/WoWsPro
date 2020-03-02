@@ -67,7 +67,7 @@ namespace WoWsPro.Server.Services
 			{ Region.NA, null },
 			{ Region.EU, null },
 			{ Region.CIS, null },
-			{ Region.APAC, null }
+			{ Region.SEA, null }
 		};
 
 		private readonly IWGOpenIdHttpService _http;
@@ -101,18 +101,16 @@ namespace WoWsPro.Server.Services
 				.AddKey("assoc_type", "HMAC-SHA256")
 				.AddKey("session_type", "no-encryption");
 
-			using (var response = await _http[region].PostAsync("openid/", body))
+			using var response = await _http[region].PostAsync("openid/", body);
+			if (response.IsSuccessStatusCode)
 			{
-				if (response.IsSuccessStatusCode)
-				{
-					string result = await response.Content.ReadAsStringAsync();
-					Associations[region] = new OpenIdAssociation(result);
-					return Associations[region];
-				}
-				else
-				{
-					throw new Exception($"OpenId association request to {_http[region].BaseAddress} failed.{Environment.NewLine}Reason: {response.ReasonPhrase}");
-				}
+				string result = await response.Content.ReadAsStringAsync();
+				Associations[region] = new OpenIdAssociation(result);
+				return Associations[region];
+			}
+			else
+			{
+				throw new Exception($"OpenId association request to {_http[region].BaseAddress} failed.{Environment.NewLine}Reason: {response.ReasonPhrase}");
 			}
 		}
 
@@ -121,7 +119,7 @@ namespace WoWsPro.Server.Services
 		/// </summary>
 		/// <param name="region">The region on which the OpenId process should be performed.</param>
 		/// <param name="returnUrl">The url to which the result of the OpenId request should be redirected.</param>
-		public object GetRequestBody (Region region, string returnUrl) => GetRequestBodyAsync(region, returnUrl).Result;
+		public object GetRequestBody (Region region, string returnUrl) => GetRequestBodyAsync(region, returnUrl).GetAwaiter().GetResult();
 
 		/// <summary>
 		/// Generates the request body required to initialize the OpenId process.
@@ -154,7 +152,7 @@ namespace WoWsPro.Server.Services
 		/// <param name="claimedId">ID of user</param>
 		/// <param name="assoc">Association used</param>
 		/// <param name="query">Query parameters of redirect</param>
-		public (long id, string nickname)? VerifyLogin (Region region, string claimedId, string assoc, IQueryCollection query) => VerifyLoginAsync(region, claimedId, assoc, query).Result;
+		public (long id, string nickname)? VerifyLogin (Region region, string claimedId, string assoc, IQueryCollection query) => VerifyLoginAsync(region, claimedId, assoc, query).GetAwaiter().GetResult();
 
 		/// <summary>
 		/// Verififes an OpenID redirect back to the server.
@@ -208,14 +206,14 @@ namespace WoWsPro.Server.Services
 		{
 			public string this[string key]
 			{
-				get => _content["openid." + key];
-				set => _content["openid." + key] = value;
+				get => Content["openid." + key];
+				set => Content["openid." + key] = value;
 			}
-			Dictionary<string, string> _content { get; set; }
+			Dictionary<string, string> Content { get; set; }
 
 			public OpenIdBody ()
 			{
-				_content = new Dictionary<string, string>();
+				Content = new Dictionary<string, string>();
 				this["ns"] = "http://specs.openid.net/auth/2.0";
 			}
 
@@ -225,8 +223,8 @@ namespace WoWsPro.Server.Services
 				return this;
 			}
 
-			public IEnumerator<KeyValuePair<string, string>> GetEnumerator () => ((IEnumerable<KeyValuePair<string, string>>)_content).GetEnumerator();
-			IEnumerator IEnumerable.GetEnumerator () => ((IEnumerable<KeyValuePair<string, string>>)_content).GetEnumerator();
+			public IEnumerator<KeyValuePair<string, string>> GetEnumerator () => ((IEnumerable<KeyValuePair<string, string>>)Content).GetEnumerator();
+			IEnumerator IEnumerable.GetEnumerator () => ((IEnumerable<KeyValuePair<string, string>>)Content).GetEnumerator();
 
 			public static implicit operator HttpContent (OpenIdBody obj) => new FormUrlEncodedContent(obj);
 		}
@@ -274,7 +272,7 @@ namespace WoWsPro.Server.Services
 	public class WGHttpService : IDisposable, IWGOpenIdHttpService
 	{
 		public HttpClient this[Region region] => _clients[region];
-		private Dictionary<Region, HttpClient> _clients;
+		private readonly Dictionary<Region, HttpClient> _clients;
 
 		public WGHttpService ()
 		{

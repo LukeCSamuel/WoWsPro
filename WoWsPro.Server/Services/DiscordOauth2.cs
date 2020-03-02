@@ -17,34 +17,44 @@ namespace WoWsPro.Server.Services
 	{
 		object GetRequestBody (string returnUrl);
 		Task<DiscordToken> GetTokenAsync (string returnUrl, string code, string state);
+		Task<DiscordUser> GetUserAsync (string token);
 	}
 
-	public class DiscordOauth2 : IDisposable, IDiscordOauth2
+	public class DiscordHttpClient : HttpClient
+	{
+		public DiscordHttpClient ()
+		{
+			BaseAddress = new Uri($"{"https:"}//discordapp.com/api/");
+			DefaultRequestHeaders.Accept.Clear();
+		}
+	}
+
+	public class DiscordOauth2 : IDiscordOauth2
 	{
 		private readonly string _scope = "identify guilds guilds.join";
 
-		HttpClient Http { get; }
+		DiscordHttpClient Http { get; }
 		ISettings Settings { get; }
 		ISession Session { get; }
 
-		public DiscordOauth2 (ISettings settings, IHttpContextAccessor contextAccessor)
+		public DiscordOauth2 (ISettings settings, IHttpContextAccessor contextAccessor, DiscordHttpClient http)
 		{
-			Http = new HttpClient()
-			{
-				BaseAddress = new Uri($"{"https:"}//discordapp.com/api/oauth2/")
-			};
-			Http.DefaultRequestHeaders.Accept.Clear();
+			Http = http;
 			Settings = settings;
 			Session = contextAccessor.HttpContext.Session;
 		}
 
 		public object GetRequestBody (string returnUrl)
 		{
-			var nonce = new Nonce();
-			Session.Store(nonce);
+			var nonce = Session.Retrieve<Nonce>();
+			if (nonce.State is null)
+			{
+				nonce = Nonce.NewNonce();
+				Session.Store(nonce);
+			}
 			return new HtmlFormRequest
 			{
-				RequestAddress = $"{"https:"}//discordapp.com/api/oauth2/authorize/",
+				RequestAddress = $"{"https:"}//discordapp.com/api/oauth2/authorize",
 				Body = new Dictionary<string, string>()
 				{
 					{ "response_type", "code" },
@@ -62,21 +72,50 @@ namespace WoWsPro.Server.Services
 			var nonce = Session.Retrieve<Nonce>();
 			if (nonce.Matches(state))
 			{
-				var response = await Http.PostAsync("token", new
+				var request = new HttpRequestMessage()
 				{
-					client_id = Settings.DiscordClientId,
-					client_secret = Settings.DiscordClientSecret,
-					grant_type = "authorization_code",
-					code,
-					redirect_uri = returnUrl,
-					scope = _scope
-				},
-				new FormUrlEncodedMediaTypeFormatter());
+					RequestUri = new Uri($"{Http.BaseAddress}oauth2/token"),
+					Method = HttpMethod.Post
+				};
+				request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
+				{
+					{ "client_id", Settings.DiscordClientId },
+					{ "client_secret", Settings.DiscordClientSecret },
+					{ "grant_type", "authorization_code" },
+					{ "code", code },
+					{ "redirect_uri", returnUrl },
+					{ "scope", _scope }
+				});
+
+				var response = await Http.SendAsync(request);
 				if (response.IsSuccessStatusCode)
 				{
-					// TODO: this isn't going to work, there is some conversion that must be done to write to DiscordToken
-					//       need to do an immediate discord API request to get the user id to build/connect to DiscordUser object in database
-					return await response.Content.ReadAsAsync<DiscordToken>();
+					var result = await response.Content.ReadAsAsync<dynamic>();
+					try
+					{
+						double seconds = result.expires_in;
+						var token = new DiscordToken()
+						{
+							AccessToken = result.access_token,
+							TokenType = result.token_type,
+							Expires = DateTime.UtcNow.AddSeconds(seconds),
+							RefreshToken = result.refresh_token,
+							Scope = result.scope
+						};
+
+						// Get the Discord Id associated with this request
+						var user = await GetUserAsync(token.AccessToken);
+						token.DiscordId = user.DiscordId;
+						token.DiscordUser = user;
+
+						// FIXME: probably move more of the Discord API work to different library
+						return token;
+					}
+					catch (Exception)
+					{
+						// FIXME: more specific exception
+						throw new Exception("Failed to obtain token for request.");
+					}
 				}
 				else
 				{
@@ -91,14 +130,53 @@ namespace WoWsPro.Server.Services
 			}
 		}
 
-		public void Dispose () => ((IDisposable)Http).Dispose();
+		public async Task<DiscordUser> GetUserAsync (string token)
+		{
+			var message = new HttpRequestMessage()
+			{
+				RequestUri = new Uri($"{Http.BaseAddress}users/@me"),
+				Method = HttpMethod.Get
+			};
+			message.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+			var response = await Http.SendAsync(message);
+			if (response.IsSuccessStatusCode)
+			{
+				var result = await response.Content.ReadAsAsync<dynamic>();
+				try
+				{
+					return new DiscordUser()
+					{
+						DiscordId = result.id,
+						Username = result.username,
+						Discriminator = result.discriminator,
+						Avatar = result.avatar
+					};
+				}
+				catch (Exception)
+				{
+					// FIXME: more specific exception
+					throw new Exception("Failed to obtain user with token.");
+				}
+			}
+			else
+			{
+				// FIXME: more specific exception
+				throw new Exception("Failed to obtain user with token.");
+			}
+		}
 
 		class Nonce
 		{
 			[SessionVar]
-			public string State { get; }
+			public string State { get; set; }
 
-			public Nonce () => State = TokenGenerator.GenerateToken();
+			public Nonce () { }
+
+			public static Nonce NewNonce () => new Nonce()
+			{
+				State = TokenGenerator.GenerateToken()
+			};
 
 			public bool Matches (string nonce) => State == nonce;
 
@@ -112,7 +190,8 @@ namespace WoWsPro.Server.Services
 	{
 		public static IServiceCollection AddDiscordOauth2 (this IServiceCollection services)
 			=> services
-			.AddSingleton<IDiscordOauth2, DiscordOauth2>()
+			.AddSingleton<DiscordHttpClient, DiscordHttpClient>()
+			.AddScoped<IDiscordOauth2, DiscordOauth2>()
 			;
 	}
 }

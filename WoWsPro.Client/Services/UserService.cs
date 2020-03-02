@@ -60,15 +60,9 @@ namespace WoWsPro.Client.Services
 		private User _user;
 
 
-		public UserService (HttpClient http)
-		{
-			_http = http;
-		}
+		public UserService (HttpClient http) => _http = http;
 
-		public async Task UpdateAsync ()
-		{
-			User = await _http.GetJsonAsync<User>(_address);
-		}
+		public async Task UpdateAsync () => User = await _http.GetJsonAsync<User>(_address);
 
 		public async Task<User> GetUserAsync ()
 		{

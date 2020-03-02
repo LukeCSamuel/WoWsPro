@@ -187,6 +187,12 @@ CREATE TABLE TournamentTeamClaim (
     PRIMARY KEY (TeamId, AccountId, ClaimId)
 )
 
+CREATE TABLE FileContent (
+    FileContentId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    Title varchar(255) NOT NULL,
+    Content varbinary(MAX)
+)
+
 CREATE TABLE SessionCache (
     Id nvarchar(449) NOT NULL PRIMARY KEY,
     [Value] varbinary(MAX) NOT NULL,

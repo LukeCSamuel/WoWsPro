@@ -23,11 +23,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Content\Images\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="compilerconfig.json" />
+    <None Include="wwwroot\css\webfonts\fa-brands-400.svg" />
+    <None Include="wwwroot\css\webfonts\fa-brands-400.woff2" />
+    <None Include="wwwroot\css\webfonts\fa-regular-400.svg" />
+    <None Include="wwwroot\css\webfonts\fa-regular-400.woff2" />
+    <None Include="wwwroot\css\webfonts\fa-solid-900.svg" />
+    <None Include="wwwroot\css\webfonts\fa-solid-900.woff2" />
   </ItemGroup>
 
 </Project>

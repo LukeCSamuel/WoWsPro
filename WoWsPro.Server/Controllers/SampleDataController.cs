@@ -4,17 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WoWsPro.Data.Operations;
 
 namespace WoWsPro.Server.Controllers
 {
 	[Route("api/[controller]")]
 	public class SampleDataController : Controller
 	{
-		private static string[] Summaries = new[]
-		{
-			"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-		};
-
 		//[HttpGet("[action]")]
 		//public IEnumerable<WeatherForecast> WeatherForecasts ()
 		//{
@@ -26,5 +22,35 @@ namespace WoWsPro.Server.Controllers
 		//		Summary = Summaries[rng.Next(Summaries.Length)]
 		//	});
 		//}
+
+		FileOperations FileIO { get; }
+
+		public SampleDataController (FileOperations fileIO) => FileIO = fileIO;
+
+		[HttpGet("{id}/{title}")]
+		public IActionResult DownloadFile (long id, string title)
+		{
+			try
+			{
+				byte[] content = FileIO.GetFile(id, title);
+				string mimeType = "image/png";
+				return new FileContentResult(content, mimeType)
+				{
+					FileDownloadName = title
+				};
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch (InvalidOperationException)
+			{
+				return BadRequest();
+			}
+			catch
+			{
+				return StatusCode(500);
+			}
+		}
 	}
 }

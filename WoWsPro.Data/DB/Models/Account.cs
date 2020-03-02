@@ -10,7 +10,7 @@ namespace WoWsPro.Data.DB.Models
 {
 	internal partial class Account : IScope
 	{
-		public Account()
+		public Account ()
 		{
 			DiscordAccounts = new HashSet<DiscordUser>();
 			WarshipsAccounts = new HashSet<WarshipsPlayer>();
@@ -23,6 +23,14 @@ namespace WoWsPro.Data.DB.Models
 		public long AccountId { get; set; }
 		public string Nickname { get; set; }
 		public DateTime Created { get; set; }
+
+		[NotMapped]
+		[JsonIgnore]
+		public DiscordUser PrimaryDiscord => DiscordAccounts.SingleOrDefault(u => u.IsPrimary);
+
+		[NotMapped]
+		[JsonIgnore]
+		public WarshipsPlayer PrimaryPlayer => WarshipsAccounts.SingleOrDefault(p => p.IsPrimary);
 
 
 		public virtual ICollection<DiscordUser> DiscordAccounts { get; set; }

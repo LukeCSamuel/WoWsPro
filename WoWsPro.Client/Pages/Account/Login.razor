@@ -1,38 +1,59 @@
 ﻿@page "/account/login"
-@using WoWsPro.Shared
-@using WoWsPro.Shared.Constants
+@page "/account/login/{service}"
 @inject HttpClient Http
 @inject IJSRuntime JsRuntime
 
 
 <div class="account-login">
-	@if (loading)
-	{
-		<p>Loading...</p>
-	}
-	else
-	{
+	<Loading Until="Loaded">
 		<div class="option-wrapper">
 			@foreach (Region region in (Region[])Enum.GetValues(typeof(Region)))
 			{
-				<div class="auth-option" @onclick="@(e => WGOpenIdLogin(region))" tabindex="0">
+				<div class="auth-option" @onclick="@(e => Loaded = WGOpenIdLogin(region))" tabindex="0">
+					<p class="description">World of Warships</p>
 					<h3 class="region-indicator @region.ToString()">@region.ToString()</h3>
-					<p class="description">Wargaming Account</p>
 				</div>
 			}
+			<div class="auth-option" @onclick="@(e => Loaded = DiscordLogin())" tabindex="1">
+				<p class="description">Discord</p>
+				<h3 class="region-indicator"><i class="fab fa-discord"></i></h3>
+			</div>
 		</div>
-	}
+	</Loading>
 </div>
 
 
 @code {
-    bool loading = false;
 
-    protected async Task WGOpenIdLogin (Region region)
-    {
-        loading = true;
-        string requestAddress = $"api/Account/WGOpenId/RequestBody/{region.ToString()}";
-        var request = await Http.GetJsonAsync<HtmlFormRequest>(requestAddress);
-        await JsRuntime.InvokeAsync<object>("autoform.submit", request.RequestAddress, request.Body);
-    }
+	[Parameter]
+	public string Service { get; set; }
+
+	Task Loaded { get; set; }
+
+	protected override Task OnInitializedAsync ()
+	{
+		if (Service == "discord")
+		{
+			return Loaded = DiscordLogin();
+		}
+		else
+		{
+			return Loaded = Task.CompletedTask;
+		}
+	}
+
+
+	protected async Task WGOpenIdLogin (Region region)
+	{
+		string requestAddress = $"api/Account/WGOpenId/RequestBody/{region.ToString()}";
+		var request = await Http.GetJsonAsync<HtmlFormRequest>(requestAddress);
+		await JsRuntime.InvokeAsync<object>("autoform.submitOpenId", request.RequestAddress, request.Body);
+	}
+
+	protected async Task DiscordLogin ()
+	{
+		string requestAddress = $"api/Account/DiscordId/RequestBody";
+		var request = await Http.GetJsonAsync<HtmlFormRequest>(requestAddress);
+		await JsRuntime.InvokeAsync<object>("autoform.submitOauth2", request.RequestAddress, request.Body);
+	}
 }

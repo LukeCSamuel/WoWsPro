@@ -33,7 +33,7 @@ namespace WoWsPro.Data.Services
 				[Region.NA] = new HttpClient() { BaseAddress = new Uri("https://api.worldofwarships.com/wows/") },
 				[Region.EU] = new HttpClient() { BaseAddress = new Uri("https://api.worldofwarships.eu/wows/") },
 				[Region.CIS] = new HttpClient() { BaseAddress = new Uri("https://api.worldofwarships.ru/wows/") },
-				[Region.APAC] = new HttpClient() { BaseAddress = new Uri("https://api.worldofwarships.asia/wows/") }
+				[Region.SEA] = new HttpClient() { BaseAddress = new Uri("https://api.worldofwarships.asia/wows/") }
 			};
 
 			foreach (var client in Http.Values)

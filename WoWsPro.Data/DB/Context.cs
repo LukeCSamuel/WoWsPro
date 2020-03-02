@@ -21,12 +21,15 @@ namespace WoWsPro.Data.DB
 
 		#region Tables
 		internal virtual DbSet<ApplicationSetting> ApplicationSettings { get; set; }
+		internal virtual DbSet<FileContent> Files { get; set; }
+
 		internal virtual DbSet<Account> Accounts { get; set; }
 		internal virtual DbSet<Claim> Claims { get; set; }
 		internal virtual DbSet<AccountClaim> AccountClaims { get; set; }
 
 		internal virtual DbSet<DiscordUser> DiscordUsers { get; set; }
 		internal virtual DbSet<DiscordGuild> DiscordGuilds { get; set; }
+		internal virtual DbSet<DiscordToken> DiscordTokens { get; set; }
 
 		internal virtual DbSet<WarshipsClan> WarshipsClans { get; set; }
 		internal virtual DbSet<WarshipsPlayer> WarshipsPlayers { get; set; }
@@ -62,6 +65,16 @@ namespace WoWsPro.Data.DB
 					.IsUnicode(false);
 
 				entity.Property(e => e.Value)
+					.HasMaxLength(255)
+					.IsUnicode(false);
+			})
+
+			.Entity<FileContent>(entity =>
+			{
+				entity.ToTable(nameof(FileContent))
+					.HasKey(e => e.FileContentId);
+
+				entity.Property(e => e.Title)
 					.HasMaxLength(255)
 					.IsUnicode(false);
 			})
@@ -128,6 +141,36 @@ namespace WoWsPro.Data.DB
 				entity.HasOne(d => d.Account)
 					.WithMany(p => p.DiscordAccounts)
 					.HasForeignKey(d => d.AccountId);
+			})
+
+			.Entity<DiscordToken>(entity =>
+			{
+				entity.ToTable(nameof(DiscordToken))
+					.HasKey(e => e.DiscordTokenId);
+
+				entity.Property(e => e.AccessToken)
+					.IsRequired()
+					.HasMaxLength(255)
+					.IsUnicode(false);
+
+				entity.Property(e => e.TokenType)
+					.IsRequired()
+					.HasMaxLength(255)
+					.IsUnicode(false);
+
+				entity.Property(e => e.RefreshToken)
+					.IsRequired(false)
+					.HasMaxLength(255)
+					.IsUnicode(false);
+
+				entity.Property(e => e.Scope)
+					.IsRequired()
+					.HasMaxLength(255)
+					.IsUnicode(false);
+
+				entity.HasOne(d => d.DiscordUser)
+					.WithMany(p => p.DiscordTokens)
+					.HasForeignKey(d => d.DiscordId);
 			})
 
 			.Entity<DiscordGuild>(entity =>

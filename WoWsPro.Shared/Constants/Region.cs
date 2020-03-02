@@ -9,7 +9,7 @@ namespace WoWsPro.Shared.Constants
 		NA,
 		EU,
 		CIS,
-		APAC
+		SEA
 	}
 
 	public static class RegionExtensions
@@ -24,7 +24,7 @@ namespace WoWsPro.Shared.Constants
 				return "eu";
 			case Region.CIS:
 				return "ru";
-			case Region.APAC:
+			case Region.SEA:
 				return "asia";
 			default:
 				throw new NotImplementedException();
@@ -41,7 +41,7 @@ namespace WoWsPro.Shared.Constants
 				return "eu";
 			case Region.CIS:
 				return "ru";
-			case Region.APAC:
+			case Region.SEA:
 				return "asia";
 			default:
 				throw new NotImplementedException();
@@ -62,7 +62,7 @@ namespace WoWsPro.Shared.Constants
 			case "sea":
 			case "asia":
 			case "apac":
-				return Region.APAC;
+				return Region.SEA;
 			default:
 				throw new ArgumentException($"\"{region}\" could not be matched to a known region.");
 			}

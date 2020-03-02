@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using WoWsPro.Data;
 using WoWsPro.Data.DB;
+using WoWsPro.Data.Operations;
 using WoWsPro.Data.Services;
 
 namespace Tests
@@ -30,9 +31,8 @@ namespace Tests
 
 			services.AddSingleton<IConfiguration>(config);
 
-			//services.AddDataContext();
-			services.AddAuthenticator<Authy>();
-			services.AddAccountManager();
+			services.AddDataContextPool();
+			services.AddFileOperations();
 
 			services.AddTransient<App>();
 		}

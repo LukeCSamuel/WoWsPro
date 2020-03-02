@@ -1,52 +1,117 @@
 ﻿@page "/account"
-@inject IUserService _userService
-@inject IAccountService _accountService
+@inject IUserService UserService
+@inject IAccountService AccountService
+@inject HttpClient Http 
+@implements IDisposable
 
-    <div class="dashboard">
+<div class="dashboard">
 
-        <h1 class="name">@User?.PreferredName</h1>
+	<h1 class="name">@User?.PreferredName</h1>
 
-        <div class="accounts">
-            <h2>Connected Accounts</h2>
-            <div>
-                @if (Account?.WarshipsAccounts != null)
-                {
-                    @foreach (var player in Account.WarshipsAccounts.OrderByDescending(a => a.IsPrimary))
-                    {
-                        <div class="account">
-                            <h3><span class="@player.Region.ToString()">@player.Region.ToString()</span> @player.Nickname</h3>
-                            @if (player.IsPrimary)
-                            {
-                                <p>This is your primary account.</p>
-                            }
-                            else
-                            {
-                                <button>Make Primary</button>
-                            }
-                        </div>
-                    }
-                    <NavLink class="add-account" href="account/login">
-                        Add Account
-                    </NavLink>
-                }
-            </div>
-        </div>
+	<div class="container">
+		<div class="accounts">
+			<h2>Warships Accounts</h2>
+			<div>
+				<Loading Until="AccountLoad">
+					@foreach (var player in Account.WarshipsAccounts.OrderByDescending(a => a.IsPrimary))
+					{
+						<div class="account">
+							<h3><span class="@player.Region.ToString()">@player.Region.ToString()</span> @player.Nickname</h3>
+							@if (player.IsPrimary)
+							{
+								<p>This is your primary World of Warships account.</p>
+							}
+							else
+							{
+								<button @onclick="@(e => AccountLoad = SetPrimaryWarshipsPlayer(player.PlayerId))">Make Primary</button>
+							}
+						</div>
+					}
+					<NavLink class="add-account" href="account/login">
+						Add Account
+					</NavLink>
+				</Loading>
+			</div>
+		</div>
 
-    </div>
+		<div class="accounts">
+			<h2>Discord Accounts</h2>
+			<div>
+				<Loading Until="AccountLoad">
+					@foreach (var user in Account.DiscordAccounts.OrderByDescending(a => a.IsPrimary))
+					{
+						<div class="account">
+							<h3><span class="fab fa-discord"></span> @($"{user.Username}#{user.Discriminator}")</h3>
+							<img src="@DiscordImage.GetUserAvatar(user)" />
+							@if (user.IsPrimary)
+							{
+								<p>This is your primary Discord account.</p>
+							}
+							else
+							{
+								<button>Make Primary</button>
+							}
+						</div>
+					}
+					<NavLink class="add-account" href="account/login/discord">
+						@if (Account.DiscordAccounts.Count < 1)
+						{
+							<span>Link Discord!</span>
+						}
+						else
+						{
+							<span>Add Account</span>
+						}
+					</NavLink>
+				</Loading>
+			</div>
+		</div>
+	</div>
+
+</div>
 
 @code {
-    User User { get; set; }
-    WoWsPro.Shared.Models.Account Account { get; set; }
+	User User { get; set; }
+	Account Account { get; set; }
 
-    protected override async Task OnInitializedAsync ()
-    {
-        _userService.UserUpdate += OnUserUpdate;
-        User = await _userService.GetUserAsync();
-        Account = await _accountService.GetUserAccountAsync();
-    }
+	Task AccountLoad { get; set; }
 
-    void OnUserUpdate (object sender, User user)
-    {
-        User = user;
-    }
+	protected override async Task OnInitializedAsync ()
+	{
+		UserService.UserUpdate += OnUserUpdate;
+		AccountService.UserAccountUpdate += OnAccountUpdate;
+
+		User = await UserService.GetUserAsync();
+		var actLoaded = AccountService.GetUserAccountAsync();
+		AccountLoad = actLoaded;
+		Account = await actLoaded;
+	}
+
+	void OnUserUpdate (object sender, User user)
+	{
+		User = user;
+	}
+
+	void OnAccountUpdate (object sender, Account account)
+	{
+		Account = account;
+	}
+
+	async Task SetPrimaryDiscordUser (long discordId)
+	{
+		await Http.PostJsonAsync("/api/Account/primary/discord", discordId);
+		await AccountService.UpdateUserAccountAsync();
+	}
+
+	async Task SetPrimaryWarshipsPlayer (long playerId)
+	{
+		await Http.PostJsonAsync("api/Account/primary/warships", playerId);
+		await AccountService.UpdateUserAccountAsync();
+	}
+
+	public void Dispose ()
+	{
+		UserService.UserUpdate -= OnUserUpdate;
+		AccountService.UserAccountUpdate -= OnAccountUpdate;
+	}
 }

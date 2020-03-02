@@ -6,9 +6,11 @@ using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.DB.Models
 {
-	internal partial class DiscordUser 
+	internal partial class DiscordUser
 	{
-		public DiscordUser() { }
+		public DiscordUser () {
+			DiscordTokens = new HashSet<DiscordToken>();
+		}
 
 		public long DiscordId { get; set; }
 		public long? AccountId { get; set; }
@@ -20,28 +22,11 @@ namespace WoWsPro.Data.DB.Models
 
 		public virtual Account Account { get; set; }
 
+		public virtual ICollection<DiscordToken> DiscordTokens { get; set; }
 
-		public static implicit operator Shared.Models.DiscordUser (DiscordUser user) => new Shared.Models.DiscordUser()
-		{
-			DiscordId = user.DiscordId,
-			AccountId = user.AccountId,
-			Username = user.Username,
-			Discriminator = user.Discriminator,
-			Avatar = user.Avatar,
-			IsPrimary = user.IsPrimary,
-			Account = user.Account
-		};
 
-		public static implicit operator DiscordUser (Shared.Models.DiscordUser user) => new DiscordUser()
-		{
-			DiscordId = user.DiscordId,
-			AccountId = user.AccountId,
-			Username = user.Username,
-			Discriminator = user.Discriminator,
-			Avatar = user.Avatar,
-			IsPrimary = user.IsPrimary,
-			Account = user.Account
-		};
+		public static implicit operator Shared.Models.DiscordUser (DiscordUser user) => user.ConvertObject<DiscordUser, Shared.Models.DiscordUser>();
+		public static implicit operator DiscordUser (Shared.Models.DiscordUser user) => user.ConvertObject<Shared.Models.DiscordUser, DiscordUser>();
 
 	}
 }
