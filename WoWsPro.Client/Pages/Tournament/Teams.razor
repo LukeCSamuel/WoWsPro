@@ -1,0 +1,24 @@
+﻿@page "/tournament/{tournamentId:long}/teams"
+@inject ITournamentService TournamentService
+
+<Loading Until="TournamentLoad">
+	<h1>Registration has not begun.</h1>
+</Loading>
+
+
+@code {
+	[Parameter]
+	public long TournamentId { get; set; }
+
+	Task TournamentLoad { get; set; }
+	Tournament Tournament { get; set; }
+
+	protected override async Task OnParametersSetAsync ()
+	{
+		var tload = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
+		TournamentLoad = tload;
+		await tload;
+
+		Tournament = TournamentService.Current;
+	}
+}

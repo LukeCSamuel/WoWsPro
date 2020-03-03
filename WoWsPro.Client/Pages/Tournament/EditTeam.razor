@@ -1,0 +1,87 @@
+﻿@page "/tournament/{tournamentId:long}/register/create"
+@page "/tournament/{tournamentId:long}/register/edit/{teamId:long}"
+@inject ITournamentService TournamentService 
+@inject IAccountService AccountService
+@inject NavigationManager Navi
+@implements IDisposable
+
+<Loading Until="TournamentLoad">
+	<Loading Until="AccountLoad">
+		<div class="edit-team">
+			<h1>Registration has not begun.</h1>
+			@if (TeamId is null)
+			{
+				// Creating new team
+				
+			}
+			else
+			{
+				// Editing existing team
+				<Loading Until="TeamLoad">
+
+				</Loading>
+			}
+
+		</div>
+	</Loading>
+</Loading>
+
+@code {
+	[Parameter]
+	public long TournamentId { get; set; }
+
+	[Parameter]
+	public long? TeamId { get; set; }
+
+	Task TeamLoad { get; set; }
+	TournamentTeam Team { get; set; }
+
+	Task TournamentLoad { get; set; }
+	Tournament Tournament { get; set; }
+
+	Task AccountLoad { get; set; }
+	Account Account { get; set; }
+
+	protected override async Task OnInitializedAsync ()
+	{
+		AccountService.UserAccountUpdate += OnAccountUpdate;
+
+		var actLoaded = AccountService.GetUserAccountAsync();
+		AccountLoad = actLoaded;
+		Account = await actLoaded;
+
+		if (Account.GetAcceptedTeam(Tournament) is TournamentTeam team && TeamId != team.TeamId)
+		{
+			Navi.NavigateTo($"/tournament/{Tournament.TournamentId}/register/edit/{team.TeamId}");
+		}
+	}
+
+	protected override async Task OnParametersSetAsync ()
+	{
+		var tload = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
+		TournamentLoad = tload;
+		await tload;
+
+		Tournament = TournamentService.Current;
+
+		if (TeamId is null)
+		{
+			Team = new TournamentTeam();
+		}
+		else
+		{
+			// Get Team from Team Service?
+		}
+	}
+
+	void OnAccountUpdate (object sender, Account account)
+	{
+		Account = account;
+	}
+
+	public void Dispose ()
+	{
+		AccountService.UserAccountUpdate -= OnAccountUpdate;
+	}
+
+}

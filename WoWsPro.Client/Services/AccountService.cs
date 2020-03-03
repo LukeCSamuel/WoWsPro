@@ -21,14 +21,16 @@ namespace WoWsPro.Client.Services
 	{
 		public Account UserAccount { get; private set; }
 
-		public HttpClient Http { get; }
+		HttpClient Http { get; }
 		IUserService UserService { get; }
+		NavigationManager Navi { get; }
 
 		public event EventHandler<Account> UserAccountUpdate;
 
-		public AccountService (HttpClient http, IUserService userService)
+		public AccountService (HttpClient http, IUserService userService, NavigationManager navi)
 		{
 			Http = http;
+			Navi = navi;
 			UserService = userService;
 			UserService.UserUpdate += OnUserUpdate;
 			UserAccountUpdate += (_, account) => UserAccount = account;
@@ -44,8 +46,15 @@ namespace WoWsPro.Client.Services
 		}
 		public async Task UpdateUserAccountAsync ()
 		{
-			var account = await Http.GetJsonAsync<Account>($"api/Account");
-			UserAccountUpdate(this, account);
+			try
+			{
+				var account = await Http.GetJsonAsync<Account>($"api/Account");
+				UserAccountUpdate(this, account);
+			}
+			catch
+			{
+				Navi.NavigateTo("/account/login");
+			}
 		}
 
 		public Task<Account> GetAccount () => Http.GetJsonAsync<Account>($"api/Account/{UserService.User?.AccountId}");

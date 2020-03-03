@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using WoWsPro.Data.Exceptions;
 using WoWsPro.Data.Operations;
 using WoWsPro.Data.Services;
 using WoWsPro.Server.Extensions;
@@ -53,7 +54,7 @@ namespace WoWsPro.Server.Controllers
 				_user.Session.Store(new Referer(referer));
 				return Ok();
 			}
-			catch (Exception)
+			catch
 			{
 				return StatusCode(500);
 			}
@@ -73,7 +74,7 @@ namespace WoWsPro.Server.Controllers
 			{
 				return Ok(_discordOauth2.GetRequestBody($"{_settings.BaseUrl}Account/DiscordId/Login"));
 			}
-			catch (Exception)
+			catch
 			{
 				// FIXME: refine exceptions
 				return StatusCode(500);
@@ -92,7 +93,7 @@ namespace WoWsPro.Server.Controllers
 				_user.Login(token);
 				return RedirectToReferer();
 			}
-			catch (Exception)
+			catch
 			{
 				// FIXME: refine exceptions
 				return StatusCode(500);
@@ -110,7 +111,7 @@ namespace WoWsPro.Server.Controllers
 			{
 				return BadRequest(new { Reason = ex.Message });
 			}
-			catch (Exception)
+			catch
 			{
 				return StatusCode(500);
 			}
@@ -143,38 +144,102 @@ namespace WoWsPro.Server.Controllers
 			{
 				return BadRequest(new { Reason = ex.Message });
 			}
-			catch (Exception)
+			catch
 			{
 				return StatusCode(500);
 			}
 		}
 
 		[HttpGet("api/[controller]/{id:long}")]
-		public Account GetAccount (long id)
+		public IActionResult GetAccount (long id)
 		{
 			Accounts.Manager.ScopeId = id;
-			return Accounts.Do(a => a.GetAccount()).Result;
+			try
+			{
+				var result = Accounts.Do(a => a.GetAccount());
+				return result.Success ? Ok(result.Result) : throw result.Exception;
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch (UnauthorizedException)
+			{
+				return Unauthorized();
+			}
+			catch
+			{
+				return StatusCode(500);
+			}
 		}
 
 		[HttpGet("api/[controller]")]
-		public Account GetAccount ()
+		public IActionResult GetAccount ()
 		{
 			Accounts.Manager.ScopeId = _user.User.AccountId;
-			return Accounts.Do(a => a.GetAccount()).Result;
+			try
+			{
+				var result = Accounts.Do(a => a.GetAccount());
+				return result.Success ? Ok(result.Result) : throw result.Exception;
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch (UnauthorizedException)
+			{
+				return Unauthorized();
+			}
+			catch
+			{
+				return StatusCode(500);
+			}
 		}
 
 		[HttpPost("api/[controller]/primary/discord")]
-		public void SetPrimaryDiscordUser ([FromBody] long discordId)
+		public IActionResult SetPrimaryDiscordUser ([FromBody] long discordId)
 		{
-			Accounts.Manager.ScopeId = _user.User.AccountId;
-			Accounts.Do(a => a.SetPrimaryDiscordUser(discordId));
+			Accounts.Manager.ScopeId = _user.User.AccountId;			
+			try
+			{
+				var result = Accounts.Do(a => a.SetPrimaryDiscordUser(discordId));
+				return result.Success ? Ok() : throw result.Exception;
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch (UnauthorizedException)
+			{
+				return Unauthorized();
+			}
+			catch
+			{
+				return StatusCode(500);
+			}
 		}
 
 		[HttpPost("api/[controller]/primary/warships")]
-		public void SetPrimaryWarshipsPlayer ([FromBody] long playerId)
+		public IActionResult SetPrimaryWarshipsPlayer ([FromBody] long playerId)
 		{
 			Accounts.Manager.ScopeId = _user.User.AccountId;
-			Accounts.Do(a => a.SetPrimaryWarshipsPlayer(playerId));
+			try
+			{
+				var result = Accounts.Do(a => a.SetPrimaryWarshipsPlayer(playerId));
+				return result.Success ? Ok() : throw result.Exception;
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch (UnauthorizedException)
+			{
+				return Unauthorized();
+			}
+			catch
+			{
+				return StatusCode(500);
+			}
 		}
 
 		IActionResult RedirectToReferer ()

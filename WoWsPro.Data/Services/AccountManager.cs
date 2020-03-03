@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,11 +16,11 @@ namespace WoWsPro.Data.Services
 		internal override Context Context { get; }
 		internal override long? UserId { get; }
 
-		public AccountManager (IAuthenticator authenticator, Context context)
+		public AccountManager (IAuthenticator authenticator, IWarshipsApi warshipsApi, Context context)
 		{
 			Context = context;
 			UserId = authenticator.AccountId;
-			Instance = new AccountOperations(this);
+			Instance = new AccountOperations(this, warshipsApi);
 		}
 	}
 
@@ -34,6 +35,12 @@ namespace WoWsPro.Data.Operations
 {
 	public partial class AccountOperations : Operations<AccountOperations>
 	{
-		internal AccountOperations (Manager<AccountOperations> manager) => Manager = manager;
+		IWarshipsApi WarshipsApi { get; }
+
+		internal AccountOperations (Manager<AccountOperations> manager, IWarshipsApi warshipsApi)
+		{
+			Manager = manager;
+			WarshipsApi = warshipsApi;
+		}
 	}
 }

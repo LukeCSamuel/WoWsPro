@@ -20,7 +20,7 @@ namespace WoWsPro.Shared.Models
 		public bool IsPrimary { get; set; }
 
 		public Account Account { get; set; }
-
-		// TODO: navigation properties
+		
+		public ICollection<TournamentParticipant> Participations { get; set; }
 	}
 }

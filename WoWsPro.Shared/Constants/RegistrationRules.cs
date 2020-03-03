@@ -11,6 +11,7 @@ namespace WoWsPro.Shared.Constants
 		AllowRosterChanges				= 1 << 0,
 		RequireTeamOwnerDiscord			= 1 << 1,
 		RequireParticipantsDiscord		= 1 << 2,
+		RequireInvitationAccept			= 1 << 3,
 
 		Default = AllowRosterChanges | RequireTeamOwnerDiscord
 	}

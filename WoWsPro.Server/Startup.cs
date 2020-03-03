@@ -36,11 +36,6 @@ namespace WoWsPro.Server
 			{
 				options.InputFormatters.Insert(0, new TextFormatter());
 			});
-				//.SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-				//.AddNewtonsoftJson(options =>
-				//{
-				//	options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-				//});
 
 			services.AddResponseCompression(opts =>
 			{

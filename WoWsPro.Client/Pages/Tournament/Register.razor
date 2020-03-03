@@ -1,0 +1,76 @@
+﻿@page "/tournament/{tournamentId:long}/register"
+@inject ITournamentService TournamentService
+@inject IAccountService AccountService
+@inject NavigationManager Navi
+@implements IDisposable
+
+<Loading Until="TournamentLoad">
+	<Loading Until="AccountLoad">
+		<div class="register">
+
+			<h1>Registration has not begun.</h1>
+
+			@*@if (Account.GetAcceptedTeam(Tournament) is TournamentTeam team)
+			{
+				<h2>@team.Region [@team.Tag] @team.Name</h2>
+				@foreach (var participant in team.Participants)
+				{
+					<p>@participant.Player.Nickname</p>
+				}
+			}
+			else
+			{
+				<h1>
+					<NavLink href="@($"/tournament/{Tournament.TournamentId}/register/create")">
+						Create a Team
+					</NavLink>
+				</h1>
+				@foreach (var particpant in Account.GetInvitations(Tournament))
+				{
+					<h2>@particpant.Team.Region [@particpant.Team.Tag] @particpant.Team.Name</h2>
+					<p>@particpant.Status</p>
+				}
+			}*@
+
+		</div>
+	</Loading>
+</Loading>
+
+@code {
+	[Parameter]
+	public long TournamentId { get; set; }
+
+	Task TournamentLoad { get; set; }
+	Tournament Tournament { get; set; }
+
+	Task AccountLoad { get; set; }
+	Account Account { get; set; }
+
+	protected override async Task OnInitializedAsync ()
+	{
+		AccountService.UserAccountUpdate += OnAccountUpdate;
+
+		var actLoaded = AccountService.GetUserAccountAsync();
+		AccountLoad = actLoaded;
+		Account = await actLoaded;
+	}
+
+	protected override async Task OnParametersSetAsync ()
+	{
+		var tload = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
+		TournamentLoad = tload;
+		await tload;
+
+		Tournament = TournamentService.Current;
+	}
+
+	void OnAccountUpdate (object sender, Account account)
+	{
+		Account = account;
+	}
+
+	public void Dispose ()
+	{
+		AccountService.UserAccountUpdate -= OnAccountUpdate;
+	}
+}

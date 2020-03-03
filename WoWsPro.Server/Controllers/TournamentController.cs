@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WoWsPro.Data.Exceptions;
 using WoWsPro.Data.Operations;
 using WoWsPro.Data.Services;
 using WoWsPro.Shared.Models;
@@ -17,10 +18,26 @@ namespace WoWsPro.Server.Controllers
 		public TournamentController (IAuthorizer<TournamentOperations> tOps) => Tops = tOps;
 
 		[HttpGet("{id:long}")]
-		public Tournament GetTournament (long id)
+		public IActionResult GetTournament (long id)
 		{
 			Tops.Manager.ScopeId = id;
-			return Tops.Do(t => t.GetTournament(id)).Result;
+			try
+			{
+				var result = Tops.Do(t => t.GetTournament(id));
+				return result.Success ? Ok(result.Result) : throw result.Exception;
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch (UnauthorizedException)
+			{
+				return Unauthorized();
+			}
+			catch
+			{
+				return StatusCode(500);
+			}
 		}
 
 		[HttpGet]

@@ -18,7 +18,33 @@ namespace WoWsPro.Data.Operations
 		public string GetNickname () => Context.Accounts.SingleOrDefault(a => a.AccountId == ScopeId)?.Nickname;
 
 		[Public]
-		public Shared.Models.Account GetAccount () => Context.Accounts.SingleOrDefault(a => a.AccountId == ScopeId);
+		public Shared.Models.Account GetAccount () => Context.Accounts.SingleOrDefault(a => a.AccountId == ScopeId) ?? throw new KeyNotFoundException();
+
+		[Public]
+		public IEnumerable<(long, string)> FindPlayer (Region region, string name) => WarshipsApi.SearchPlayerAsync(region, name).GetAwaiter().GetResult();
+
+		[Public]
+		public Shared.Models.WarshipsPlayer FetchPlayer (Region region, long playerId)
+		{
+			var player = WarshipsApi.GetPlayerInfoAsync(region, playerId).GetAwaiter().GetResult();
+			var dbPlayer = Context.WarshipsPlayers.SingleOrDefault(p => p.PlayerId == playerId);
+			if (dbPlayer is null)
+			{
+				// Add and return
+				var result = Context.WarshipsPlayers.Add(player).Entity;
+				Context.SaveChanges();
+				return result;
+			}
+			else
+			{
+				dbPlayer.Nickname = player.Nickname;
+				dbPlayer.ClanId = player.ClanId;
+				dbPlayer.ClanRole = player.ClanRole;
+				dbPlayer.JoinedClan = player.JoinedClan;
+				Context.SaveChanges();
+				return dbPlayer;
+			}
+		}
 
 		[Authorize(nameof(Permissions.ManageAccount))]
 		public void SetNickname (string nickname)
@@ -86,6 +112,39 @@ namespace WoWsPro.Data.Operations
 					old.IsPrimary = false;
 				}
 				player.IsPrimary = true;
+				Context.SaveChanges();
+			}
+		}
+
+		[Authorize(nameof(Permissions.ManageAccount))]
+		public void AcceptTeamInvite (long teamId)
+		{
+			var acc = Context.Accounts.SingleOrDefault(a => a.AccountId == ScopeId);
+			var team = Context.TournamentTeams.SingleOrDefault(t => t.TeamId == teamId);
+
+			if (acc is null || team is null)
+			{
+				throw new KeyNotFoundException();
+			}
+			else
+			{
+				foreach (var player in acc.WarshipsAccounts)
+				{
+					foreach (var participant in player.Participations)
+					{
+						if (participant.Team.TournamentId == team.TournamentId)
+						{
+							if (participant.TeamId == team.TeamId)
+							{
+								participant.Status = ParticipantStatus.Accepted;
+							}
+							else
+							{
+								participant.Status = ParticipantStatus.Declined;
+							}
+						}
+					}
+				}
 				Context.SaveChanges();
 			}
 		}
