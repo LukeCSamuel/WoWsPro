@@ -4,14 +4,19 @@
 	background: $color-purple-dark;
 	color: $color-white;
 	display: flex;
-	justify-content: center;
+	justify-content: right;
+
+	.spacer {
+		flex-grow: 1;
+		/*background: linear-gradient(to right, $color-black-off, $color-purple-dark);*/
+	}
 
 	.interior {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: flex-end;
-		margin: 0.5rem 1rem;
+		margin: 0.25rem 1rem;
 
 		h1, h2, h3, h4, h5, h6, p {
 			margin: 0;
@@ -21,6 +26,6 @@
 
 	.personal-logo {
 		margin: 0.5rem;
-		height: 4rem;
+		height: 3rem;
 	}
 }

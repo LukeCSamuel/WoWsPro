@@ -30,10 +30,15 @@ a:hover, a:focus {
 // Shared
 @import "Shared/NavMenu.scss";
 @import "Shared/MainLayout.scss";
+@import "Shared/TournamentLayout.scss";
 @import "Shared/Feet.scss";
 @import "Shared/Loading.scss";
 
 // Pages
+@import "Pages/Index.scss";
+
 @import "Pages/Account/Login.scss";
 @import "Pages/Account/Dashboard.scss";
+
+@import "Pages/Tournament/Info.scss";
 

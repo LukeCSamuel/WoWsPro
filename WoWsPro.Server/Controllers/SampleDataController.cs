@@ -33,7 +33,7 @@ namespace WoWsPro.Server.Controllers
 			try
 			{
 				byte[] content = FileIO.GetFile(id, title);
-				string mimeType = "image/png";
+				string mimeType = $"image/{title.Split('.').Last()}";
 				return new FileContentResult(content, mimeType)
 				{
 					FileDownloadName = title

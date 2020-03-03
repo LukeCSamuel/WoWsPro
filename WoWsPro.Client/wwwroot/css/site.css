@@ -4515,10 +4515,10 @@ a:hover, a:focus {
         width: calc(100% - 4 * 10px); }
       .nav-menu .nav-links a.active {
         background-color: #3f1e55; }
+      .nav-menu .nav-links a:hover::after, .nav-menu .nav-links a:focus::after {
+        transform: translateX(-50%) scaleX(1); }
       .nav-menu .nav-links a:hover {
         background-color: #3f1e55; }
-        .nav-menu .nav-links a:hover::after {
-          transform: translateX(-50%) scaleX(1); }
 
 html, body, .body-fill {
   height: 100%; }
@@ -4528,28 +4528,128 @@ html, body, .body-fill {
   flex-direction: column; }
 
 .main-layout > .not-footer {
-  flex: 1 0 auto; }
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column; }
+  .main-layout > .not-footer > .main-body {
+    flex-grow: 1; }
 
 .main-layout > .footer {
   flex-shrink: 0; }
+
+.tournament-layout {
+  display: flex;
+  min-height: 100%;
+  max-width: 100%; }
+  .tournament-layout > .side-nav {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #3f1e55;
+    width: 250px;
+    min-height: 100%; }
+    .tournament-layout > .side-nav .close {
+      display: none;
+      position: sticky;
+      bottom: 0; }
+      .tournament-layout > .side-nav .close button {
+        float: right;
+        font-size: 1.8em;
+        color: #ffffff;
+        background-color: #3f1e55;
+        border: none;
+        border-radius: 0.2em;
+        letter-spacing: -0.2em;
+        padding: 0.2em;
+        padding-right: 0.4em;
+        margin: 0.2em; }
+        .tournament-layout > .side-nav .close button:hover, .tournament-layout > .side-nav .close button:focus {
+          background-color: #2b1043; }
+    .tournament-layout > .side-nav .nav-container {
+      position: sticky;
+      top: 0; }
+      .tournament-layout > .side-nav .nav-container .tournament-icon {
+        position: relative; }
+        .tournament-layout > .side-nav .nav-container .tournament-icon img {
+          width: 100%;
+          min-height: 250px;
+          background-color: #2b1043; }
+        .tournament-layout > .side-nav .nav-container .tournament-icon .home {
+          display: block;
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          right: 10px;
+          background-color: rgba(0, 0, 0, 0.3);
+          color: #ffffff;
+          font-size: 1.25em;
+          padding: 0.1em 0.2em;
+          border-radius: 0.2em;
+          text-decoration: none;
+          z-index: 1; }
+          .tournament-layout > .side-nav .nav-container .tournament-icon .home span {
+            font-size: 0.8em; }
+          .tournament-layout > .side-nav .nav-container .tournament-icon .home:hover, .tournament-layout > .side-nav .nav-container .tournament-icon .home:focus {
+            background-color: rgba(0, 0, 0, 0.6); }
+        .tournament-layout > .side-nav .nav-container .tournament-icon::after {
+          content: "";
+          display: block;
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 100%;
+          background: linear-gradient(to bottom, rgba(63, 30, 85, 0.1) 50%, #3f1e55); }
+      .tournament-layout > .side-nav .nav-container nav {
+        display: flex;
+        flex-direction: column; }
+        .tournament-layout > .side-nav .nav-container nav a {
+          display: block;
+          color: #ffffff;
+          padding: 5px 10px;
+          text-decoration: none;
+          position: relative;
+          font-size: 1.25em; }
+          .tournament-layout > .side-nav .nav-container nav a.active {
+            background: linear-gradient(to right, #2b1043 75%, #1a1224); }
+            .tournament-layout > .side-nav .nav-container nav a.active::after {
+              content: "";
+              position: absolute;
+              right: -7px;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 20px;
+              height: 14px;
+              border: transparent solid 7px;
+              border-right-width: 10px;
+              border-left: white solid 10px; }
+          .tournament-layout > .side-nav .nav-container nav a:hover, .tournament-layout > .side-nav .nav-container nav a:focus {
+            background: #2b1043; }
+  .tournament-layout > .body {
+    flex-grow: 1;
+    padding: 0px 5px; }
 
 .feet {
   background: #2b1043;
   color: #ffffff;
   display: flex;
-  justify-content: center; }
+  justify-content: right; }
+  .feet .spacer {
+    flex-grow: 1;
+    /*background: linear-gradient(to right, $color-black-off, $color-purple-dark);*/ }
   .feet .interior {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-end;
-    margin: 0.5rem 1rem; }
+    margin: 0.25rem 1rem; }
     .feet .interior h1, .feet .interior h2, .feet .interior h3, .feet .interior h4, .feet .interior h5, .feet .interior h6, .feet .interior p {
       margin: 0;
       text-align: right; }
   .feet .personal-logo {
     margin: 0.5rem;
-    height: 4rem; }
+    height: 3rem; }
 
 @keyframes spinny {
   0% {
@@ -4582,6 +4682,47 @@ html, body, .body-fill {
     border-top: 4px solid #29abe2;
     border-radius: 50%;
     animation: spinny 1s linear infinite; }
+
+.index {
+  padding: 1em; }
+  .index .tournament-list {
+    display: flex;
+    justify-content: left; }
+    .index .tournament-list .tournament-listing {
+      position: relative;
+      display: flex;
+      background: #3f1e55;
+      border-radius: 2em;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
+      overflow: hidden; }
+      .index .tournament-list .tournament-listing .title {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        color: #ffffff;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(63, 30, 85, 0.8));
+        text-align: center;
+        text-decoration: none;
+        padding: 1em;
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: transform 200ms ease-in-out; }
+        .index .tournament-list .tournament-listing .title::after {
+          content: "Learn More";
+          color: #29abe2;
+          text-decoration: underline;
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          text-align: center;
+          padding: 1em;
+          font-size: 0.6em; }
+      .index .tournament-list .tournament-listing:hover .title, .index .tournament-list .tournament-listing:focus .title {
+        transform: scaleY(1); }
 
 .account-login .option-wrapper {
   position: absolute;
@@ -4691,3 +4832,9 @@ html, body, .body-fill {
         background-color: #b53a2f; }
       .dashboard .accounts .account .SEA {
         background-color: #0066ff; }
+
+.tournament-info {
+  margin: 1em;
+  max-width: 768px; }
+  .tournament-info p {
+    line-height: 1.5em; }

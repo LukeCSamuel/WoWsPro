@@ -20,11 +20,11 @@ namespace Tests
 
 		public async Task RunAsync ()
 		{
-			using var file = new FileStream(@"C:\OneDrive\Tournaments\King of the Sea\KotS 9\Art\WG_WOWS_SPB_Kings_Of_Sea_LOGO_9_season_Logo.png", FileMode.Open);
+			using var file = new FileStream(@"C:\OneDrive\Tournaments\King of the Sea\KotS 10\Art\KoTS-X_banner-512.png", FileMode.Open);
 			using var mem = new MemoryStream();
 
 			file.CopyTo(mem);
-			(long id, string name) = Filoio.SaveFile("KotS-IX-Logo.png", mem.ToArray());
+			(long id, string name) = Filoio.SaveFile("KoTS-X_banner-512.png", mem.ToArray());
 			Console.WriteLine($"api/SampleData/{id}/{name}");
 		}
 	}

@@ -1,0 +1,56 @@
+﻿@import "../Includes/colors.scss";
+
+.index {
+	padding: 1em;
+
+	.tournament-list {
+		display: flex;
+		justify-content: left;
+
+		.tournament-listing {
+			position: relative;
+			display: flex;
+			background: $color-purple-medium;
+			border-radius: 2em;
+			box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
+			overflow: hidden;
+
+			.title {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				color: $color-white;
+				background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba($color-purple-medium, 0.8));
+				text-align: center;
+				text-decoration: none;
+				padding: 1em;
+				transform: scaleY(0);
+				transform-origin: top;
+				transition: transform 200ms ease-in-out;
+
+				&::after {
+					content: "Learn More";
+					color: $color-blue-light;
+					text-decoration: underline;
+					position: absolute;
+					bottom: 0;
+					left: 0;
+					width: 100%;
+					text-align: center;
+					padding: 1em;
+					font-size: 0.6em;
+				}
+			}
+
+			&:hover,
+			&:focus {
+				.title {
+					transform: scaleY(1);
+				}
+			}
+		}
+	}
+}

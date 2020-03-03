@@ -1,0 +1,30 @@
+﻿@page "/tournament/{tournamentId:long}/"
+@page "/tournament/{tournamentId:long}/info"
+@using Markdig
+@inject ITournamentService TournamentService
+
+<Loading Until="TournamentLoad">
+	<div class="tournament-info">
+		@((MarkupString)DescriptionHTML)
+	</div>
+</Loading>
+
+@code {
+	[Parameter]
+	public long TournamentId { get; set; }
+
+	public Task TournamentLoad { get; set; }
+	public Tournament Tournament { get; set; }
+	public string DescriptionHTML { get; set; }
+
+	protected override async Task OnParametersSetAsync ()
+	{
+		var tload = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
+		TournamentLoad = tload;
+		await tload;
+
+		Tournament = TournamentService.Current;
+		DescriptionHTML = Markdown.ToHtml(Tournament.Description,
+			new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+	}
+}

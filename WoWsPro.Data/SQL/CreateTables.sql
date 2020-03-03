@@ -2,10 +2,13 @@
 -- DROP TABLE ApplicationSetting
 -- DROP TABLE Claim
 -- DROP TABLE DiscordGuild
+-- DROP TABLE DiscordRole
 -- DROP TABLE DiscordUser
 -- DROP TABLE DiscordToken
+-- DROP TABLE FileContent
 -- DROP TABLE SessionCache
 -- DROP TABLE Tournament
+-- DROP TABLE TournamentRegistrationRules
 -- DROP TABLE TournamentClaim
 -- DROP TABLE TournamentGame
 -- DROP TABLE TournamentGroup
@@ -38,6 +41,14 @@ CREATE TABLE DiscordGuild (
     [Name] nvarchar(200) NOT NULL,
     Icon varchar(255),
     Invite varchar(255)
+)
+
+CREATE TABLE DiscordRole (
+    RoleKeyId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    RoleId bigint NOT NULL,
+    GuildId bigint NOT NULL FOREIGN KEY REFERENCES DiscordGuild(GuildId),
+    [Name] nvarchar(255) NOT NULL,
+    CONSTRAINT UNQ_RoleGuild UNIQUE (RoleId, GuildId)
 )
 
 CREATE TABLE DiscordUser (
@@ -95,8 +106,24 @@ CREATE TABLE Tournament (
     [Description] nvarchar(2000) NOT NULL,
     [Owner] bigint NOT NULL FOREIGN KEY REFERENCES Account(AccountId),
     Created datetime2 NOT NULL,
-    Capacity int NOT NULL
-) 
+    ParticipantRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId),
+    TeamOwnerRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId)
+)
+
+CREATE TABLE TournamentRegistrationRules (
+    TournamentRegistrationRulesId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    TournamentId bigint NOT NULL FOREIGN KEY REFERENCES Tournament(TournamentId),
+    Region int NOT NULL,
+    [Open] datetime2 NOT NULL,
+    [Close] datetime2 NOT NULL,
+    Capacity int NOT NULL,
+    MinTeamSize int NOT NULL,
+    MaxTeamSize int NOT NULL,
+    Rules int NOT NULL,
+    RegionParticipantRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId),
+    RegionTeamOwnerRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId),
+    CONSTRAINT UNQ_TournamentRegion UNIQUE (TournamentId, Region)
+)
 
 CREATE TABLE TournamentStage (
     StageId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,

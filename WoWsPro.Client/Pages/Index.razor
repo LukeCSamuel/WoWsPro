@@ -1,5 +1,29 @@
 ﻿@page "/"
+@inject ITournamentService TournamentService
 
-<h1>Hello, world!</h1>
+	<div class="index">
+		<h1>Tournaments</h1>
+		<div class="tournament-list">
+			<Loading Until="TournamentsLoad">
+				@foreach (var tournament in Tournaments)
+				{
+				<NavLink href="@($"/tournament/{tournament.TournamentId}/info")" class="tournament-listing">
+					<img src="@tournament.Icon" />
+					<h2 class="title">@tournament.Name</h2>
+				</NavLink>
+				}
+			</Loading>
+		</div>
+	</div>
 
-Welcome to your new app.
+@code {
+	IEnumerable<WoWsPro.Shared.Models.Tournament> Tournaments { get; set; }
+	Task TournamentsLoad { get; set; }
+
+	protected override async Task OnInitializedAsync ()
+	{
+		var tloads = TournamentService.ListTournamentsAsync();
+		TournamentsLoad = tloads;
+		Tournaments = await tloads;
+	}
+}

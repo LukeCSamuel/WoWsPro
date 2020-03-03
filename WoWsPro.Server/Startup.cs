@@ -72,6 +72,7 @@ namespace WoWsPro.Server
 
 			services.AddDataContextPool();
 			services.AddAccountManager();
+			services.AddTournamentManager();
 
 			services.AddAdminAccountOperations();
 			services.AddFileOperations();

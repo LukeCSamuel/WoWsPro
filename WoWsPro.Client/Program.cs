@@ -20,6 +20,7 @@ namespace WoWsPro.Client
 		{
 			services.AddUserService();
 			services.AddAccountService();
+			services.AddTournamentService();
 		}
 	}
 }

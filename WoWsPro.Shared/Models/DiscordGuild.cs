@@ -13,7 +13,8 @@ namespace WoWsPro.Shared.Models
 		public string Icon { get; set; }
 		public string Invite { get; set; }
 
-		// public ICollection<Tournament> Tournaments { get; set; }
+		public ICollection<DiscordRole> Roles { get; set; }
+		public ICollection<Tournament> Tournaments { get; set; }
 		
 	}
 }

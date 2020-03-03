@@ -29,6 +29,7 @@ namespace WoWsPro.Data.DB
 
 		internal virtual DbSet<DiscordUser> DiscordUsers { get; set; }
 		internal virtual DbSet<DiscordGuild> DiscordGuilds { get; set; }
+		internal virtual DbSet<DiscordRole> DiscordRoles { get; set; }
 		internal virtual DbSet<DiscordToken> DiscordTokens { get; set; }
 
 		internal virtual DbSet<WarshipsClan> WarshipsClans { get; set; }
@@ -36,6 +37,7 @@ namespace WoWsPro.Data.DB
 		internal virtual DbSet<WarshipsMap> WarshipsMaps { get; set; }
 
 		internal virtual DbSet<Tournament> Tournaments { get; set; }
+		internal virtual DbSet<TournamentRegistrationRules> TournamentRegistrationRules { get; set; }
 		internal virtual DbSet<TournamentClaim> TournamentClaims { get; set; }
 		internal virtual DbSet<TournamentStage> TournamentStages { get; set; }
 		internal virtual DbSet<TournamentGroup> TournamentGroups { get; set; }
@@ -196,6 +198,20 @@ namespace WoWsPro.Data.DB
 					.IsUnicode(false);
 			})
 
+			.Entity<DiscordRole>(entity =>
+			{
+				entity.ToTable(nameof(DiscordRole))
+					.HasKey(e => e.RoleKeyId);
+
+				entity.Property(e => e.Name)
+					.IsRequired()
+					.HasMaxLength(255)
+					.IsUnicode();
+
+				entity.HasOne(d => d.Guild)
+					.WithMany(p => p.Roles)
+					.HasForeignKey(d => d.GuildId);
+			})
 
 			.Entity<WarshipsClan>(entity =>
 			{
@@ -288,6 +304,12 @@ namespace WoWsPro.Data.DB
 				entity.Property(e => e.OwnerAccountId)
 					.HasColumnName("Owner");
 
+				entity.Property(e => e.ParticipantRoleId)
+					.HasColumnName("ParticipantRole");
+
+				entity.Property(e => e.TeamOwnerRoleId)
+					.HasColumnName("TeamOwnerRole");
+
 				entity.HasOne(d => d.Guild)
 					.WithMany(p => p.Tournaments)
 					.HasForeignKey(d => d.GuildId);
@@ -295,6 +317,38 @@ namespace WoWsPro.Data.DB
 				entity.HasOne(d => d.Owner)
 					.WithMany(p => p.OwnedTournaments)
 					.HasForeignKey(d => d.OwnerAccountId);
+
+				entity.HasOne(d => d.ParticipantRole)
+					.WithMany()
+					.HasForeignKey(d => d.ParticipantRoleId);
+
+				entity.HasOne(d => d.TeamOwnerRole)
+					.WithMany()
+					.HasForeignKey(d => d.TeamOwnerRoleId);
+			})
+
+			.Entity<TournamentRegistrationRules>(entity =>
+			{
+				entity.ToTable(nameof(TournamentRegistrationRules))
+					.HasKey(e => e.TournamentRegistrationRulesId);
+
+				entity.Property(e => e.RegionParticipantRoleId)
+					.HasColumnName("RegionParticipantRole");
+
+				entity.Property(e => e.RegionTeamOwnerRoleId)
+					.HasColumnName("RegionTeamOwnerRole");
+
+				entity.HasOne(d => d.Tournament)
+					.WithMany(p => p.RegistrationRules)
+					.HasForeignKey(d => d.TournamentId);
+
+				entity.HasOne(d => d.RegionParticipantRole)
+					.WithMany()
+					.HasForeignKey(d => d.RegionParticipantRoleId);
+
+				entity.HasOne(d => d.RegionTeamOwnerRole)
+					.WithMany()
+					.HasForeignKey(d => d.RegionTeamOwnerRoleId);
 			})
 
 			.Entity<TournamentClaim>(entity =>

@@ -19,16 +19,7 @@ namespace WoWsPro.Client.Services
 	
 	public class AccountService : IDisposable, IAccountService
 	{
-		public Account UserAccount {
-
-			get => _userAccount;
-			private set
-			{
-				_userAccount = value;
-				UserAccountUpdate(this, _userAccount);
-			}
-		}
-		private Account _userAccount;
+		public Account UserAccount { get; private set; }
 
 		public HttpClient Http { get; }
 		IUserService UserService { get; }
@@ -40,6 +31,7 @@ namespace WoWsPro.Client.Services
 			Http = http;
 			UserService = userService;
 			UserService.UserUpdate += OnUserUpdate;
+			UserAccountUpdate += (_, account) => UserAccount = account;
 		}
 
 		public async Task<Account> GetUserAccountAsync ()
@@ -50,9 +42,13 @@ namespace WoWsPro.Client.Services
 			}
 			return UserAccount;
 		}
-		public async Task UpdateUserAccountAsync () => UserAccount = await Http.GetJsonAsync<Account>($"api/Account");
+		public async Task UpdateUserAccountAsync ()
+		{
+			var account = await Http.GetJsonAsync<Account>($"api/Account");
+			UserAccountUpdate(this, account);
+		}
 
-		public async Task<Account> GetAccount () => await Http.GetJsonAsync<Account>($"api/Account/{UserService.User?.AccountId}");
+		public Task<Account> GetAccount () => Http.GetJsonAsync<Account>($"api/Account/{UserService.User?.AccountId}");
 
 		private async void OnUserUpdate (object sender, User user) => await UpdateUserAccountAsync();
 

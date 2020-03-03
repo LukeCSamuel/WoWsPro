@@ -16,6 +16,8 @@ namespace WoWsPro.Shared.Models
 
 		public ICollection<DiscordUser> DiscordAccounts { get; set; }
 		public ICollection<WarshipsPlayer> WarshipsAccounts { get; set; }
+		public ICollection<Tournament> OwnedTournaments { get; set; }
+		public ICollection<TournamentTeam> OwnedTeams { get; set; }
 
 		// TODO: Navigation properties
 

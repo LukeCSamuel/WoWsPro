@@ -75,12 +75,15 @@
 				background-color: $color-purple-medium;
 			}
 
-			&:hover {
-				background-color: $color-purple-medium;
-
+			&:hover,
+			&:focus {
 				&::after {
 					transform: translateX(-50%) scaleX(1);
 				}
+			}
+
+			&:hover {
+				background-color: $color-purple-medium;
 			}
 		}
 	}
