@@ -22,8 +22,7 @@
 
 	protected override async Task OnInitializedAsync ()
 	{
-		var tloads = TournamentService.ListTournamentsAsync();
-		TournamentsLoad = tloads;
-		Tournaments = await tloads;
+		TournamentsLoad = TournamentService.Previews.Load;
+		Tournaments = await TournamentService.Previews;
 	}
 }

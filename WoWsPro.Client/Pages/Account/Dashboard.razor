@@ -78,21 +78,20 @@
 
 	protected override async Task OnInitializedAsync ()
 	{
-		UserService.UserUpdate += OnUserUpdate;
-		AccountService.UserAccountUpdate += OnAccountUpdate;
+		UserService.User.Updated += OnUserUpdated;
+		AccountService.UserAccount.Updated += OnAccountUpdated;
 
-		User = await UserService.GetUserAsync();
-		var actLoaded = AccountService.GetUserAccountAsync();
-		AccountLoad = actLoaded;
-		Account = await actLoaded;
+		User = await UserService.User;
+		AccountLoad = AccountService.UserAccount.Load;
+		Account = await AccountService.UserAccount;
 	}
 
-	void OnUserUpdate (object sender, User user)
+	void OnUserUpdated (object sender, User user)
 	{
 		User = user;
 	}
 
-	void OnAccountUpdate (object sender, Account account)
+	void OnAccountUpdated (object sender, Account account)
 	{
 		Account = account;
 	}
@@ -100,18 +99,18 @@
 	async Task SetPrimaryDiscordUser (long discordId)
 	{
 		await Http.PostJsonAsync("/api/Account/primary/discord", discordId);
-		await AccountService.UpdateUserAccountAsync();
+		await AccountService.UserAccount.UpdateAsync();
 	}
 
 	async Task SetPrimaryWarshipsPlayer (long playerId)
 	{
 		await Http.PostJsonAsync("api/Account/primary/warships", playerId);
-		await AccountService.UpdateUserAccountAsync();
+		await AccountService.UserAccount.UpdateAsync();
 	}
 
 	public void Dispose ()
 	{
-		UserService.UserUpdate -= OnUserUpdate;
-		AccountService.UserAccountUpdate -= OnAccountUpdate;
+		UserService.User.Updated -= OnUserUpdated;
+		AccountService.UserAccount.Updated -= OnAccountUpdated;
 	}
 }

@@ -1,12 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using WoWsPro.Data.DB;
 using WoWsPro.Shared.Constants;
 using WoWsPro.Shared.Models;
 
@@ -18,16 +21,11 @@ namespace WoWsPro.Data.Services
 		Task<WarshipsPlayer> GetPlayerInfoAsync (Region region, long id);
 	}
 
-	public class WarshipsApi : IWarshipsApi, IDisposable
+	public class WarshipsApi : IWarshipsApi
 	{
-		IConfiguration Configuration { get; }
-		string ApiKey { get; }
-		Dictionary<Region, HttpClient> Http { get; }
-
-		public WarshipsApi (IConfiguration configuration)
+		static Dictionary<Region, HttpClient> Http { get; }
+		static WarshipsApi ()
 		{
-			Configuration = configuration;
-			ApiKey = Configuration["ApiKeys:Wargaming"];
 			Http = new Dictionary<Region, HttpClient>
 			{
 				[Region.NA] = new HttpClient() { BaseAddress = new Uri("https://api.worldofwarships.com/wows/") },
@@ -41,6 +39,25 @@ namespace WoWsPro.Data.Services
 				client.DefaultRequestHeaders.Accept.Clear();
 				client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			}
+
+			AppDomain.CurrentDomain.ProcessExit += (_, e) =>
+			{
+				foreach (var client in Http.Values)
+				{
+					client.Dispose();
+				}
+			};
+		}
+
+		IConfiguration Configuration { get; }
+		string ApiKey { get; }
+		Context DbContext { get; }
+
+		public WarshipsApi (IConfiguration configuration, Context context)
+		{
+			DbContext = context;
+			Configuration = configuration;
+			ApiKey = Configuration["ApiKeys:Wargaming"];
 		}
 
 		public async Task<IEnumerable<(long, string)>> SearchPlayerAsync (Region region, string search)
@@ -77,11 +94,12 @@ namespace WoWsPro.Data.Services
 				.Add("account_id", id.ToString())
 				;
 
-			var player = new WarshipsPlayer()
-			{
-				PlayerId = id,
-				Region = region
-			};
+			var player = DbContext.WarshipsPlayers.SingleOrDefault(p => p.PlayerId == id)
+				?? new DB.Models.WarshipsPlayer()
+				{
+					PlayerId = id,
+					Region = region
+				};
 
 			using var responseInfo = await Http[region].GetAsync($"account/info/{param}");
 			if (responseInfo.IsSuccessStatusCode)
@@ -112,6 +130,12 @@ namespace WoWsPro.Data.Services
 					var info = result.data.Values.First();
 					if (info != null)
 					{
+						// Clan information, update clan in database > if clan isn't currently in database!
+						if ((long?)info.clan_id is long clanId && !await DbContext.WarshipsClans.AnyAsync(c => c.ClanId == clanId))
+						{
+							await UpdateClanInfoAsync(region, clanId);
+						}
+
 						player.ClanId = (long?)info.clan_id;
 						player.JoinedClan = FromEpoch((long?)info.joined_at);
 						player.ClanRole = (string)info.role;
@@ -127,14 +151,53 @@ namespace WoWsPro.Data.Services
 				throw new HttpRequestException(responseClan.ReasonPhrase);
 			}
 
+			// Add player to database
+			await DbContext.WarshipsPlayers.AddOrUpdateAsync(player, p => p.PlayerId == player.PlayerId);
+			await DbContext.SaveChangesAsync();
+
 			return player;
 		}
-		public void Dispose ()
+
+		private async Task UpdateClanInfoAsync (Region region, long id)
 		{
-			foreach (var client in Http.Values)
+			var param = new ParamList(ApiKey)
+				.Add("clan_id", id.ToString())
+				;
+
+			var clan = await DbContext.WarshipsClans.SingleOrDefaultAsync(c => c.ClanId == id) 
+				?? new DB.Models.WarshipsClan()
+				{
+					ClanId = id,
+					Region = region
+				};
+
+			using var responseInfo = await Http[region].GetAsync($"clans/info/{param}");
+			if (responseInfo.IsSuccessStatusCode)
 			{
-				client.Dispose();
+				var result = await responseInfo.Content.ReadAsAsync<ApiResponse<Dictionary<string, dynamic>>>();
+				if (result.Ok)
+				{
+					var info = result.data.Values.First();
+					if (info != null)
+					{
+						clan.Created = (DateTime)FromEpoch((long?)info.created_at);
+						clan.MemberCount = info.members_count;
+						clan.Name = info.name;
+						clan.Tag = info.tag;
+					}
+				}
+				else
+				{
+					throw new WarshipsApiException(result.error);
+				}
 			}
+			else
+			{
+				throw new HttpRequestException(responseInfo.ReasonPhrase);
+			}
+
+			await DbContext.WarshipsClans.AddOrUpdateAsync(clan, c => c.ClanId == clan.ClanId);
+			await DbContext.SaveChangesAsync();
 		}
 
 		public static DateTime? FromEpoch (long? epoch) => epoch is long epoc ? (DateTime?)new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epoc) : null;
@@ -143,7 +206,7 @@ namespace WoWsPro.Data.Services
 	public static class WarshipsApiProvider
 	{
 		public static IServiceCollection AddWarshipsApi (this IServiceCollection services)
-			=> services.AddSingleton<IWarshipsApi, WarshipsApi>();
+			=> services.AddScoped<IWarshipsApi, WarshipsApi>();
 	}
 
 	internal class ParamList

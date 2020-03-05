@@ -48,29 +48,25 @@
 
 	protected override async Task OnInitializedAsync ()
 	{
-		AccountService.UserAccountUpdate += OnAccountUpdate;
+		AccountService.UserAccount.Updated += OnAccountUpdated;
 
-		var actLoaded = AccountService.GetUserAccountAsync();
-		AccountLoad = actLoaded;
-		Account = await actLoaded;
+		AccountLoad = AccountService.UserAccount.Load;
+		Account = await AccountService.UserAccount;
 	}
 
 	protected override async Task OnParametersSetAsync ()
 	{
-		var tload = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
-		TournamentLoad = tload;
-		await tload;
-
-		Tournament = TournamentService.Current;
+		TournamentLoad = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
+		Tournament = await TournamentService.Current;
 	}
 
-	void OnAccountUpdate (object sender, Account account)
+	void OnAccountUpdated (object sender, Account account)
 	{
 		Account = account;
 	}
 
 	public void Dispose ()
 	{
-		AccountService.UserAccountUpdate -= OnAccountUpdate;
+		AccountService.UserAccount.Updated -= OnAccountUpdated;
 	}
 }

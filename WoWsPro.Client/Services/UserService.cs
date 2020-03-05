@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using WoWsPro.Client.Utils;
 
 namespace WoWsPro.Client.Services
 {
@@ -14,63 +15,26 @@ namespace WoWsPro.Client.Services
 		public string PreferredName { get; set; }
 		public long? AccountId { get; set; }
 
-		public User ()
-		{
-			IsLoggedIn = false;
-			PreferredName = null;
-			AccountId = null;
-		}
-
-		public User (string name, long id)
-		{
-			IsLoggedIn = true;
-			PreferredName = name;
-			AccountId = id;
-		}
+		public User () { }
 
 		public override string ToString () => IsLoggedIn ? PreferredName : "Guest";
-
 	}
 
 	public interface IUserService
 	{
-		User User { get; }
-		Task<User> GetUserAsync ();
-		Task UpdateAsync ();
-
-		event EventHandler<User> UserUpdate;
+		Cache<User> User { get; }
 	}
 
 	public class UserService : IUserService
 	{
-		const string _address = "api/Account/User";
-		private readonly HttpClient _http;
+		HttpClient Http { get; }
 
-		public event EventHandler<User> UserUpdate;
+		public Cache<User> User { get; }
 
-		public User User
+		public UserService (HttpClient http)
 		{
-			get => _user;
-			private set
-			{
-				_user = value;
-				UserUpdate(this, _user);
-			}
-		}
-		private User _user;
-
-
-		public UserService (HttpClient http) => _http = http;
-
-		public async Task UpdateAsync () => User = await _http.GetJsonAsync<User>(_address);
-
-		public async Task<User> GetUserAsync ()
-		{
-			if (User is null)
-			{
-				await UpdateAsync();
-			}
-			return User;
+			Http = http;
+			User = new Cache<User>(() => Http.GetJsonAsync<User>("api/Account/User"));
 		}
 
 	}

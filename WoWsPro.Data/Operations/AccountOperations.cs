@@ -232,13 +232,14 @@ namespace WoWsPro.Data.Operations
 						Nickname = token.DiscordUser.Username,
 						Created = DateTime.UtcNow
 					};
-					AddDefaultClaims(account);
 					Context.Accounts.Add(account);
+					Context.SaveChanges();
 
+					AddDefaultClaims(account);
 					existing.IsPrimary = true;
 					existing.Account = account;
-
 					Context.SaveChanges();
+
 					AddOrReplaceDiscordToken(token);
 					return (account.Nickname, account.AccountId);
 				}
@@ -251,15 +252,16 @@ namespace WoWsPro.Data.Operations
 					Nickname = token.DiscordUser.Username,
 					Created = DateTime.UtcNow
 				};
-				AddDefaultClaims(account);
 				Context.Accounts.Add(account);
+				Context.SaveChanges();
 
+				AddDefaultClaims(account);
 				var dbUser = (DB.Models.DiscordUser)token.DiscordUser;
 				dbUser.IsPrimary = true;
 				dbUser.Account = account;
 				Context.DiscordUsers.Add(dbUser);
-
 				Context.SaveChanges();
+
 				AddOrReplaceDiscordToken(token);
 				return (account.Nickname, account.AccountId);
 			}
@@ -352,13 +354,14 @@ namespace WoWsPro.Data.Operations
 						Nickname = player.Nickname,
 						Created = DateTime.UtcNow
 					};
-					AddDefaultClaims(account);
 					Context.Accounts.Add(account);
+					Context.SaveChanges();
 
+					AddDefaultClaims(account);
 					existing.IsPrimary = true;
 					existing.Account = account;
-
 					Context.SaveChanges();
+
 					return (account.Nickname, account.AccountId);
 				}
 			}
@@ -370,15 +373,16 @@ namespace WoWsPro.Data.Operations
 					Nickname = player.Nickname,
 					Created = DateTime.UtcNow
 				};
-				AddDefaultClaims(account);
 				Context.Accounts.Add(account);
+				Context.SaveChanges();
 
+				AddDefaultClaims(account);
 				var dbPlayer = (DB.Models.WarshipsPlayer)player;
 				dbPlayer.IsPrimary = true;
 				dbPlayer.Account = account;
 				Context.WarshipsPlayers.Add(dbPlayer);
-
 				Context.SaveChanges();
+
 				return (account.Nickname, account.AccountId);
 			}
 		}

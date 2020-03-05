@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,7 +56,8 @@ namespace WoWsPro.Data.DB
 			.Entity<ApplicationSetting>(entity =>
 			{
 				entity.ToTable(nameof(ApplicationSetting))
-					.HasKey(e => e.ApplicationSettingId);
+					.HasKey(e => e.ApplicationSettingId)
+					;
 
 				entity.Property(e => e.Key)
 					.IsRequired()
@@ -527,9 +529,9 @@ namespace WoWsPro.Data.DB
 
 	public static class ContextExtensions
 	{
-		internal static async Task<EntityEntry<T>> AddOrUpdateAsync<T> (this DbSet<T> set, T entity, Func<T, T, bool> comparer) where T: class
+		internal static async Task<EntityEntry<T>> AddOrUpdateAsync<T> (this DbSet<T> set, T entity, Expression<Func<T, bool>> comparer) where T: class
 		{
-			return (await set.AsNoTracking().AnyAsync(e => comparer(entity, e)))
+			return (await set.AsNoTracking().AnyAsync(comparer))
 				? set.Update(entity)
 				: set.Add(entity);
 		}

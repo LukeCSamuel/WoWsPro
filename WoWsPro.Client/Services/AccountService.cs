@@ -5,63 +5,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using WoWsPro.Client.Utils;
 using WoWsPro.Shared.Models;
 
 namespace WoWsPro.Client.Services
 {
 	public interface IAccountService
 	{
-		Account UserAccount { get; }
-		Task<Account> GetUserAccountAsync ();
-		Task UpdateUserAccountAsync ();
-		event EventHandler<Account> UserAccountUpdate;
+		Cache<Account> UserAccount { get; }
 	}
 	
 	public class AccountService : IDisposable, IAccountService
 	{
-		public Account UserAccount { get; private set; }
+		public Cache<Account> UserAccount { get; private set; }
 
 		HttpClient Http { get; }
 		IUserService UserService { get; }
 		NavigationManager Navi { get; }
-
-		public event EventHandler<Account> UserAccountUpdate;
 
 		public AccountService (HttpClient http, IUserService userService, NavigationManager navi)
 		{
 			Http = http;
 			Navi = navi;
 			UserService = userService;
-			UserService.UserUpdate += OnUserUpdate;
-			UserAccountUpdate += (_, account) => UserAccount = account;
+			UserService.User.Updated += OnUserUpdated;
+			UserAccount = new Cache<Account>(GetUserAccount);
 		}
 
-		public async Task<Account> GetUserAccountAsync ()
-		{
-			if (UserAccount is null)
-			{
-				await UpdateUserAccountAsync();
-			}
-			return UserAccount;
-		}
-		public async Task UpdateUserAccountAsync ()
+		Task<Account> GetUserAccount ()
 		{
 			try
 			{
-				var account = await Http.GetJsonAsync<Account>($"api/Account");
-				UserAccountUpdate(this, account);
+				return Http.GetJsonAsync<Account>($"api/Account");
 			}
 			catch
 			{
 				Navi.NavigateTo("/account/login");
+				return Task.FromResult<Account>(null);
 			}
 		}
 
-		public Task<Account> GetAccount () => Http.GetJsonAsync<Account>($"api/Account/{UserService.User?.AccountId}");
+		public Task<Account> GetAccount (long id) => Http.GetJsonAsync<Account>($"api/Account/{id}");
 
-		private async void OnUserUpdate (object sender, User user) => await UpdateUserAccountAsync();
+		private async void OnUserUpdated (object sender, User user) => await UserAccount.UpdateAsync();
 
-		public void Dispose () => UserService.UserUpdate -= OnUserUpdate;
+		public void Dispose () => UserService.User.Updated -= OnUserUpdated;
 	}
 
 	public static class AccountServiceProvider

@@ -15,10 +15,7 @@
 
 	protected override async Task OnParametersSetAsync ()
 	{
-		var tload = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
-		TournamentLoad = tload;
-		await tload;
-
-		Tournament = TournamentService.Current;
+		TournamentLoad = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
+		Tournament = await TournamentService.Current;
 	}
 }

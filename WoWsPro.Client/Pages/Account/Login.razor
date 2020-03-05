@@ -48,6 +48,9 @@
 		string requestAddress = $"api/Account/WGOpenId/RequestBody/{region.ToString()}";
 		var request = await Http.GetJsonAsync<HtmlFormRequest>(requestAddress);
 		await JsRuntime.InvokeAsync<object>("autoform.submitOpenId", request.RequestAddress, request.Body);
+
+		// Will redirect, timeout to look like we're working!
+		await Task.Delay(2000);
 	}
 
 	protected async Task DiscordLogin ()
@@ -55,5 +58,8 @@
 		string requestAddress = $"api/Account/DiscordId/RequestBody";
 		var request = await Http.GetJsonAsync<HtmlFormRequest>(requestAddress);
 		await JsRuntime.InvokeAsync<object>("autoform.submitOauth2", request.RequestAddress, request.Body);
+
+		// Will redirect, timeout to look like we're working!
+		await Task.Delay(2000);
 	}
 }

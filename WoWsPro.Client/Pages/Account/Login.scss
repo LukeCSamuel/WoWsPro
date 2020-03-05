@@ -14,7 +14,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-content: center;
-		padding: 2rem;
+		padding: 1rem;
 		box-shadow: #333 0 2px 5px;
 
 		.auth-option {
@@ -23,8 +23,8 @@
 			display: flex;
 			border: 0.2rem solid $color-purple-medium;
 			border-radius: 0.5rem;
-			margin: 1rem 0;
-			font-size: 2rem;
+			margin: 0.5rem 0;
+			font-size: 1.5rem;
 			background: $color-purple-light;
 			overflow: hidden;
 

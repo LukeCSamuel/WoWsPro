@@ -4447,9 +4447,17 @@ readers do not read off random characters that represent icons */
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background: #1a1224;
+  background: #080010;
   color: #ffffff;
   margin: 0; }
+
+.app-container {
+  display: block;
+  width: 1366px;
+  margin: auto;
+  background: #0f081a;
+  /*box-shadow: #333 0px 0px 5px 2px;*/
+  box-shadow: 0px 0px 5px 3px rgba(63, 30, 85, 0.2); }
 
 a, a:visited {
   color: #29abe2;
@@ -4460,16 +4468,20 @@ a:hover, a:focus {
 
 .nav-menu {
   position: sticky;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  /*top: 0;*/
   width: 100%;
-  height: 3rem;
   padding: 0 10px;
   font-size: 1.5rem;
   background-color: #2b1043;
   color: #ffffff;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25); }
+  .nav-menu .app-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 3rem;
+    background: transparent;
+    box-shadow: none; }
   .nav-menu a {
     text-decoration: none;
     color: inherit; }
@@ -4610,31 +4622,42 @@ html, body, .body-fill {
           padding: 5px 10px;
           text-decoration: none;
           position: relative;
-          font-size: 1.25em; }
+          font-size: 1.25em;
+          border-left: 5px solid transparent; }
+          .tournament-layout > .side-nav .nav-container nav a::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 0.5em;
+            height: 14px;
+            border: transparent solid calc(0.5em + 5px);
+            border-right: #0f081a solid calc(0.5em);
+            border-left: 0;
+            transform: translateY(-50%) scaleX(0);
+            transform-origin: right;
+            transition: transform 150ms ease-in-out; }
           .tournament-layout > .side-nav .nav-container nav a.active {
-            background: linear-gradient(to right, #2b1043 75%, #1a1224); }
+            background: #2b1043;
+            border-left-color: #29abe2; }
             .tournament-layout > .side-nav .nav-container nav a.active::after {
-              content: "";
-              position: absolute;
-              right: -7px;
-              top: 50%;
-              transform: translateY(-50%);
-              width: 20px;
-              height: 14px;
-              border: transparent solid 7px;
-              border-right-width: 10px;
-              border-left: white solid 10px; }
-          .tournament-layout > .side-nav .nav-container nav a:hover, .tournament-layout > .side-nav .nav-container nav a:focus {
-            background: #2b1043; }
+              transform: translateY(-50%) scaleX(1); }
+          .tournament-layout > .side-nav .nav-container nav a:hover {
+            background: #5b3d78; }
+          .tournament-layout > .side-nav .nav-container nav a:focus {
+            text-decoration: underline; }
   .tournament-layout > .body {
     flex-grow: 1;
     padding: 0px 5px; }
 
 .feet {
   background: #2b1043;
-  color: #ffffff;
-  display: flex;
-  justify-content: right; }
+  color: #ffffff; }
+  .feet .app-container {
+    display: flex;
+    justify-content: right;
+    background: transparent;
+    box-shadow: none; }
   .feet .spacer {
     flex-grow: 1;
     /*background: linear-gradient(to right, $color-black-off, $color-purple-dark);*/ }
@@ -4663,7 +4686,7 @@ html, body, .body-fill {
   position: relative;
   min-height: 52px;
   min-width: 52px; }
-  .loading > object {
+  .loading > svg {
     position: absolute;
     width: 52px;
     height: 52px;
@@ -4736,7 +4759,7 @@ html, body, .body-fill {
   flex-direction: column;
   justify-content: center;
   align-content: center;
-  padding: 2rem;
+  padding: 1rem;
   box-shadow: #333 0 2px 5px; }
   .account-login .option-wrapper .auth-option {
     width: 100%;
@@ -4744,8 +4767,8 @@ html, body, .body-fill {
     display: flex;
     border: 0.2rem solid #3f1e55;
     border-radius: 0.5rem;
-    margin: 1rem 0;
-    font-size: 2rem;
+    margin: 0.5rem 0;
+    font-size: 1.5rem;
     background: #5b3d78;
     overflow: hidden; }
     .account-login .option-wrapper .auth-option .region-indicator {
@@ -4815,9 +4838,9 @@ html, body, .body-fill {
       text-align: center; }
     .dashboard .accounts .account {
       padding: 0.5em 0;
-      border-bottom: 1px solid #1a1224; }
+      border-bottom: 1px solid #0f081a; }
       .dashboard .accounts .account:first-child {
-        border-top: 1px solid #1a1224; }
+        border-top: 1px solid #0f081a; }
       .dashboard .accounts .account h3 {
         margin: 0 0.5em 0.75em 0; }
       .dashboard .accounts .account .NA, .dashboard .accounts .account .EU, .dashboard .accounts .account .CIS, .dashboard .accounts .account .APAC {
@@ -4834,7 +4857,10 @@ html, body, .body-fill {
         background-color: #0066ff; }
 
 .tournament-info {
-  margin: 1em;
-  max-width: 768px; }
+  margin: 1em; }
+  .tournament-info img {
+    display: block;
+    max-width: 100%;
+    margin: auto; }
   .tournament-info p {
     line-height: 1.5em; }

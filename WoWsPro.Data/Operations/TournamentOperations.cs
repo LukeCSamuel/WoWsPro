@@ -18,6 +18,22 @@ namespace WoWsPro.Data.Operations
 			.AsEnumerable();
 
 		[Public]
+		public IEnumerable<Shared.Models.Tournament> PreviewListTournaments ()
+		{
+			var tournaments = Context.Tournaments.AsEnumerable();
+			foreach (var tournament in tournaments)
+			{
+				yield return new Shared.Models.Tournament()
+				{
+					TournamentId = tournament.TournamentId,
+					Name = tournament.Name,
+					Icon = tournament.Icon,
+					Description = tournament.Description
+				};
+			}
+		}
+
+		[Public]
 		public IEnumerable<Shared.Models.TournamentTeam> ListTeams (long tournamentId) 
 			=> Context.TournamentTeams
 			.Where(t => t.TournamentId == tournamentId)

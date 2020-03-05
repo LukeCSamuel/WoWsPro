@@ -3,8 +3,13 @@
 .feet {
 	background: $color-purple-dark;
 	color: $color-white;
-	display: flex;
-	justify-content: right;
+
+	.app-container {
+		display: flex;
+		justify-content: right;
+		background: transparent;
+		box-shadow: none;
+	}
 
 	.spacer {
 		flex-grow: 1;

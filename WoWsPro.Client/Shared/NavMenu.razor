@@ -4,25 +4,27 @@
 @implements IDisposable
 
 <div class="nav-menu">
-    <NavLink href="" class="brand" Match="NavLinkMatch.All">
-        <div class="title">Wows.Pro</div>
-        <img class="logo" src="/res/Logo.svg" alt="" />
-    </NavLink>
+	<div class="app-container">
+		<NavLink href="" class="brand" Match="NavLinkMatch.All">
+			<div class="title">Wows.Pro</div>
+			<img class="logo" src="/res/Logo.svg" alt="" />
+		</NavLink>
 
-    <div class="nav-links">
-        @if (User?.IsLoggedIn ?? false)
-        {
-            <NavLink href="account">
-                @User.PreferredName
-            </NavLink>
-        }
-        else
-        {
-            <NavLink href="account/login">
-                Sign in
-            </NavLink>
-        }
-    </div>
+		<div class="nav-links">
+			@if (User?.IsLoggedIn ?? false)
+			{
+				<NavLink href="account">
+					@User.PreferredName
+				</NavLink>
+			}
+			else
+			{
+				<NavLink href="account/login">
+					Sign in
+				</NavLink>
+			}
+		</div>
+	</div>
 </div>
 
 @code {
@@ -32,9 +34,9 @@
 	protected override async Task OnInitializedAsync ()
 	{
 		Navigation.LocationChanged += OnLocationChanged;
-		UserService.UserUpdate += OnUserUpdated;
+		UserService.User.Updated += OnUserUpdated;
 
-		User = await UserService.GetUserAsync();
+		User = await UserService.User;
 	}
 
 	async void OnLocationChanged (object sender, LocationChangedEventArgs args)
@@ -53,7 +55,7 @@
 
 	public void Dispose ()
 	{
-		UserService.UserUpdate -= OnUserUpdated;
+		UserService.User.Updated -= OnUserUpdated;
 		Navigation.LocationChanged -= OnLocationChanged;
 	}
 }

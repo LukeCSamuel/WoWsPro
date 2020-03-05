@@ -41,6 +41,26 @@ namespace WoWsPro.Server.Controllers
 		}
 
 		[HttpGet]
-		public IEnumerable<Tournament> ListTournaments () => Tops.Do(t => t.ListTournaments()).Result;
+		public IActionResult ListTournaments ()
+		{
+			try
+			{
+				var result = Tops.Do(t => t.PreviewListTournaments());
+				return result.Success ? Ok(result.Result) : throw result.Exception;
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch (UnauthorizedException)
+			{
+				return Unauthorized();
+			}
+			catch
+			{
+				return StatusCode(500);
+			}
+		}
+
 	}
 }
