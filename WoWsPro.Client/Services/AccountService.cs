@@ -32,16 +32,16 @@ namespace WoWsPro.Client.Services
 			UserAccount = new Cache<Account>(GetUserAccount);
 		}
 
-		Task<Account> GetUserAccount ()
+		async Task<Account> GetUserAccount ()
 		{
-			try
+			if ((await UserService.User).IsLoggedIn)
 			{
-				return Http.GetJsonAsync<Account>($"api/Account");
+				return await Http.GetJsonAsync<Account>($"api/Account");
 			}
-			catch
+			else
 			{
 				Navi.NavigateTo("/account/login");
-				return Task.FromResult<Account>(null);
+				return null;
 			}
 		}
 

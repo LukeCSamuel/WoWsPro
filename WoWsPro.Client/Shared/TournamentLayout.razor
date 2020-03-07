@@ -3,8 +3,11 @@
 @inject ITournamentService TournamentService
 @implements IDisposable
 
+
+<div class="shadow @NavClass" @onclick="CloseNav"></div>
+
 <div class="tournament-layout">
-	<div class="side-nav">
+	<div class="side-nav @NavClass">
 		<div class="nav-container">
 			<div class="tournament-icon">
 				<NavLink class="home" href="/" Match="NavLinkMatch.All"><span class="fas fa-chevron-left"></span> Home</NavLink>
@@ -16,27 +19,34 @@
 			<nav>
 				@if (Context is Tournament)
 				{
-					<NavLink href="@($"/tournament/{Context.TournamentId}/info")">About</NavLink>
-					<NavLink href="@($"/tournament/{Context.TournamentId}/teams")">Teams</NavLink>
-					<NavLink href="@($"/tournament/{Context.TournamentId}/register")">Register</NavLink>
+					<NavLink @onclick="CloseNav" href="@($"/tournament/{Context.TournamentId}/info")">About</NavLink>
+					<NavLink @onclick="CloseNav" href="@($"/tournament/{Context.TournamentId}/teams")">Teams</NavLink>
+					<NavLink @onclick="CloseNav" href="@($"/tournament/{Context.TournamentId}/register")">Register</NavLink>
 				}
 			</nav>
-		</div>
-		<div class="close">
-			<button>
-				<span class="fas fa-chevron-left"></span>
-				<span class="fas fa-chevron-left"></span>
-			</button>
+			<div class="close">
+				<button @onclick="CloseNav">
+					<span class="fas fa-chevron-left"></span>
+					<span class="fas fa-chevron-left"></span>
+				</button>
+			</div>
 		</div>
 	</div>
 
 	<div class="body">
 		@Body
 	</div>
+
+	<div class="open @NavClass">
+		<button @onclick="OpenNav">
+			<span class="fas fa-bars"></span>
+		</button>
+	</div>
 </div>
 
 @code {
 	Tournament Context { get; set; }
+	string NavClass { get; set; } = "";
 
 	protected override async Task OnInitializedAsync ()
 	{
@@ -48,6 +58,16 @@
 	{
 		Context = tournament;
 		StateHasChanged();
+	}
+
+	void CloseNav ()
+	{
+		NavClass = "";
+	}
+
+	void OpenNav ()
+	{
+		NavClass = "show";
 	}
 
 	public void Dispose ()

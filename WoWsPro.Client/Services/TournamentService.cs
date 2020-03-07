@@ -32,7 +32,19 @@ namespace WoWsPro.Client.Services
 		{
 			Http = http;
 			Previews = new Cache<List<Tournament>>(() => Http.GetJsonAsync<List<Tournament>>($"api/Tournament"));
-			Current = new Cache<Tournament>(() => Http.GetJsonAsync<Tournament>($"api/Tournament/{CurrentTournamentId}")) ;
+			Current = new Cache<Tournament>(GetTournament);
+		}
+
+		public async Task<Tournament> GetTournament ()
+		{
+			try
+			{
+				return await Http.GetJsonAsync<Tournament>($"api/Tournament/{CurrentTournamentId}");
+			}
+			catch
+			{
+				return null;
+			}
 		}
 
 		public async Task SetCurrentTournamentIdAsync (long tournamentId)

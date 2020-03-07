@@ -1,1 +1,18 @@
-﻿
+﻿@import "../../Includes/colors.scss";
+
+.teams {
+
+	.team {
+		background-color: $color-purple-dark;
+		color: $color-white;
+		display: flex;
+		align-content: center;
+		margin: 0.4em 0.2em;
+
+		.icon {
+			max-height: 128px;
+			margin: 0.2em;
+		}
+	}
+
+}

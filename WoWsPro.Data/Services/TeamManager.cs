@@ -15,11 +15,11 @@ namespace WoWsPro.Data.Services
 		internal override Context Context { get; }
 		internal override long? UserId { get; }
 
-		public TeamManager (IAuthenticator authenticator, Context context)
+		public TeamManager (IAuthenticator authenticator, IWarshipsApi warshipsApi, Context context)
 		{
 			Context = context;
 			UserId = authenticator.AccountId;
-			Instance = new TeamOperations(this);
+			Instance = new TeamOperations(this, warshipsApi);
 		}
 	}
 
@@ -35,6 +35,12 @@ namespace WoWsPro.Data.Operations
 {
 	public partial class TeamOperations : Operations<TeamOperations>
 	{
-		internal TeamOperations (Manager<TeamOperations> manager) => Manager = manager;
+		IWarshipsApi WarshipsApi { get; }
+
+		internal TeamOperations (Manager<TeamOperations> manager, IWarshipsApi warshipsApi)
+		{
+			Manager = manager;
+			WarshipsApi = warshipsApi;
+		}
 	}
 }

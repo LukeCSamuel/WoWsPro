@@ -17,7 +17,7 @@ namespace WoWsPro.Data.Services
 {
 	public interface IWarshipsApi
 	{
-		Task<IEnumerable<(long, string)>> SearchPlayerAsync (Region region, string search);
+		Task<IEnumerable<(long Id, string Nickname)>> SearchPlayerAsync (Region region, string search);
 		Task<WarshipsPlayer> GetPlayerInfoAsync (Region region, long id);
 	}
 
@@ -88,6 +88,10 @@ namespace WoWsPro.Data.Services
 				throw new HttpRequestException(response.ReasonPhrase);
 			}
 		}
+
+		/// <summary>
+		/// Gets information for the given player identity.  If the player is found, it is added to the database.
+		/// </summary>
 		public async Task<WarshipsPlayer> GetPlayerInfoAsync (Region region, long id)
 		{
 			var param = new ParamList(ApiKey)

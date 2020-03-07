@@ -62,5 +62,28 @@ namespace WoWsPro.Server.Controllers
 			}
 		}
 
+		[HttpGet("{id:long}/teams")]
+		public IActionResult ListTeams (long tournamentId)
+		{
+			Tops.Manager.ScopeId = tournamentId;
+			try
+			{
+				var result = Tops.Do(t => t.ListTeams());
+				return result.Success ? Ok(result.Result) : throw result.Exception;
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch (UnauthorizedException)
+			{
+				return Unauthorized();
+			}
+			catch
+			{
+				return StatusCode(500);
+			}
+		}
+
 	}
 }

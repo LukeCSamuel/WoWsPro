@@ -14,6 +14,7 @@ namespace WoWsPro.Data.DB.Models
 		{
 			Seeds = new HashSet<TournamentSeed>();
 			AlphaMatches = new HashSet<TournamentMatch>();
+			BravoMatches = new HashSet<TournamentMatch>();
 			GamesWon = new HashSet<TournamentGame>();
 			Participants = new HashSet<TournamentParticipant>();
 		}
@@ -44,8 +45,10 @@ namespace WoWsPro.Data.DB.Models
 		public virtual ICollection<TournamentTeamClaim> Claims { get; set; }
 
 		[NotMapped]
+		[JsonIgnore]
 		public ICollection<TournamentMatch> Matches => AlphaMatches.Union(BravoMatches).ToHashSet();
 		[NotMapped]
+		[JsonIgnore]
 		long IScope.ScopeId => TeamId;
 
 

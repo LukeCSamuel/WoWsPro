@@ -34,9 +34,9 @@ namespace WoWsPro.Data.Operations
 		}
 
 		[Public]
-		public IEnumerable<Shared.Models.TournamentTeam> ListTeams (long tournamentId) 
+		public IEnumerable<Shared.Models.TournamentTeam> ListTeams () 
 			=> Context.TournamentTeams
-			.Where(t => t.TournamentId == tournamentId)
+			.Where(t => t.TournamentId == ScopeId)
 			.Cast<Shared.Models.TournamentTeam>()
 			.AsEnumerable();
 	}

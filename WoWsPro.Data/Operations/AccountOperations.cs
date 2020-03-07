@@ -165,6 +165,8 @@ namespace WoWsPro.Data.Operations
 			return account;
 		}
 
+		// TODO: Implement a proper merge operation so accounts don't go headless!
+
 
 		/// <summary>
 		/// Addes a Discord account to a WoWsPro account

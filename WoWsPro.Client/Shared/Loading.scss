@@ -16,28 +16,28 @@
 
 .loading {
 	position: relative;
-	min-height: 52px;
-	min-width: 52px;
+	min-height: 5.2em;
+	min-width: 5.2em;
 
 	& > svg {
 		position: absolute;
-		width: 52px;
-		height: 52px;
+		width: 5.2em;
+		height: 5.2em;
 		left: 50%;
 		top: 50%;
 		transform: translate(-50%, -50%);
-		border: 4px solid $color-blue-dark;
+		border: 0.4em solid $color-blue-dark;
 		border-radius: 50%;
 	}
 
 	& > div {
 		position: absolute;
-		width: 52px;
-		height: 52px;
+		width: 5.2em;
+		height: 5.2em;
 		left: 50%;
 		top: 50%;
 		transform: translate(-50%, -50%);
-		border-top: 4px solid $color-blue-light;
+		border-top: 0.4em solid $color-blue-light;
 		border-radius: 50%;
 		animation: spinny 1s linear infinite;
 	}

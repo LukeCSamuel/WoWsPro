@@ -4453,11 +4453,17 @@ body {
 
 .app-container {
   display: block;
-  width: 1366px;
   margin: auto;
   background: #0f081a;
   /*box-shadow: #333 0px 0px 5px 2px;*/
-  box-shadow: 0px 0px 5px 3px rgba(63, 30, 85, 0.2); }
+  box-shadow: 0px 0px 5px 3px rgba(63, 30, 85, 0.2);
+  width: 100%; }
+  @media (min-width: 1024px) and (max-width: 1365px) {
+    .app-container {
+      width: 1024px; } }
+  @media (min-width: 1366px) {
+    .app-container {
+      width: 1366px; } }
 
 a, a:visited {
   color: #29abe2;
@@ -4501,6 +4507,9 @@ a:hover, a:focus {
     font-size: 1.5em;
     text-shadow: 0px 0px 5px black;
     margin: 0; }
+    @media (max-width: 399px) {
+      .nav-menu .title {
+        display: none; } }
   .nav-menu .nav-links {
     position: relative;
     height: 100%;
@@ -4549,38 +4558,73 @@ html, body, .body-fill {
 .main-layout > .footer {
   flex-shrink: 0; }
 
+.shadow {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(8, 0, 16, 0.6); }
+  .shadow.show {
+    display: block; }
+
 .tournament-layout {
   display: flex;
   min-height: 100%;
   max-width: 100%; }
+  .tournament-layout .open {
+    position: fixed;
+    bottom: 0;
+    left: 0; }
+    @media (min-width: 1024px) and (max-width: 1365px) {
+      .tournament-layout .open {
+        display: none; } }
+    @media (min-width: 1366px) {
+      .tournament-layout .open {
+        display: none; } }
+    .tournament-layout .open.show {
+      visibility: hidden; }
+    .tournament-layout .open button {
+      float: right;
+      font-size: 1.8em;
+      color: #ffffff;
+      background-color: #3f1e55;
+      border: none;
+      border-radius: 0.2em;
+      padding: 0.2em 0.4em;
+      margin: 0.2em;
+      box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.2); }
+      .tournament-layout .open button:hover, .tournament-layout .open button:focus {
+        background-color: #5b3d78; }
   .tournament-layout > .side-nav {
     flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    bottom: 0;
     background: #3f1e55;
     width: 250px;
-    min-height: 100%; }
-    .tournament-layout > .side-nav .close {
-      display: none;
-      position: sticky;
-      bottom: 0; }
-      .tournament-layout > .side-nav .close button {
-        float: right;
-        font-size: 1.8em;
-        color: #ffffff;
-        background-color: #3f1e55;
-        border: none;
-        border-radius: 0.2em;
-        letter-spacing: -0.2em;
-        padding: 0.2em;
-        padding-right: 0.4em;
-        margin: 0.2em; }
-        .tournament-layout > .side-nav .close button:hover, .tournament-layout > .side-nav .close button:focus {
-          background-color: #2b1043; }
+    min-height: 100%;
+    transform-origin: left;
+    transform: translateX(-250px);
+    transition: transform 150ms ease-in;
+    overflow-y: auto; }
+    @media (min-width: 1024px) and (max-width: 1365px) {
+      .tournament-layout > .side-nav {
+        position: static;
+        transform: none; } }
+    @media (min-width: 1366px) {
+      .tournament-layout > .side-nav {
+        position: static;
+        transform: none; } }
+    .tournament-layout > .side-nav.show {
+      transform: translateX(0); }
     .tournament-layout > .side-nav .nav-container {
       position: sticky;
-      top: 0; }
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%; }
       .tournament-layout > .side-nav .nav-container .tournament-icon {
         position: relative; }
         .tournament-layout > .side-nav .nav-container .tournament-icon img {
@@ -4623,32 +4667,60 @@ html, body, .body-fill {
           text-decoration: none;
           position: relative;
           font-size: 1.25em;
-          border-left: 5px solid transparent; }
-          .tournament-layout > .side-nav .nav-container nav a::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 50%;
-            width: 0.5em;
-            height: 14px;
-            border: transparent solid calc(0.5em + 5px);
-            border-right: #0f081a solid calc(0.5em);
-            border-left: 0;
-            transform: translateY(-50%) scaleX(0);
-            transform-origin: right;
-            transition: transform 150ms ease-in-out; }
+          border-left: 5px solid transparent;
+          /*&::after {
+						content: "";
+						position: absolute;
+						right: 0;
+						top: 50%;
+						width: 0.5em;
+						height: 14px;
+						border: transparent solid calc(0.5em + 5px);
+						border-right: $color-black-off solid calc(0.5em);
+						border-left: 0;
+						transform: translateY(-50%) scaleX(0);
+						transform-origin: right;
+						transition: transform 150ms ease-in-out;
+					}*/ }
           .tournament-layout > .side-nav .nav-container nav a.active {
             background: #2b1043;
-            border-left-color: #29abe2; }
-            .tournament-layout > .side-nav .nav-container nav a.active::after {
-              transform: translateY(-50%) scaleX(1); }
+            border-left-color: #29abe2;
+            /*&::after {
+							transform: translateY(-50%) scaleX(1);
+						}*/ }
           .tournament-layout > .side-nav .nav-container nav a:hover {
             background: #5b3d78; }
           .tournament-layout > .side-nav .nav-container nav a:focus {
             text-decoration: underline; }
+      .tournament-layout > .side-nav .nav-container .close {
+        flex-grow: 1;
+        margin-top: 4em;
+        position: relative; }
+        @media (min-width: 1024px) and (max-width: 1365px) {
+          .tournament-layout > .side-nav .nav-container .close {
+            display: none; } }
+        @media (min-width: 1366px) {
+          .tournament-layout > .side-nav .nav-container .close {
+            display: none; } }
+        .tournament-layout > .side-nav .nav-container .close button {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          font-size: 1.8em;
+          color: #ffffff;
+          background-color: #3f1e55;
+          border: none;
+          border-radius: 0.2em;
+          letter-spacing: -0.2em;
+          padding: 0.2em;
+          padding-right: 0.4em;
+          margin: 0.2em; }
+          .tournament-layout > .side-nav .nav-container .close button:hover, .tournament-layout > .side-nav .nav-container .close button:focus {
+            background-color: #5b3d78; }
   .tournament-layout > .body {
     flex-grow: 1;
-    padding: 0px 5px; }
+    padding: 0px 5px;
+    max-width: 100%; }
 
 .feet {
   background: #2b1043;
@@ -4660,6 +4732,7 @@ html, body, .body-fill {
     box-shadow: none; }
   .feet .spacer {
     flex-grow: 1;
+    min-width: 4em;
     /*background: linear-gradient(to right, $color-black-off, $color-purple-dark);*/ }
   .feet .interior {
     display: flex;
@@ -4670,6 +4743,9 @@ html, body, .body-fill {
     .feet .interior h1, .feet .interior h2, .feet .interior h3, .feet .interior h4, .feet .interior h5, .feet .interior h6, .feet .interior p {
       margin: 0;
       text-align: right; }
+    @media (max-width: 399px) {
+      .feet .interior h3 {
+        display: none; } }
   .feet .personal-logo {
     margin: 0.5rem;
     height: 3rem; }
@@ -4684,25 +4760,25 @@ html, body, .body-fill {
 
 .loading {
   position: relative;
-  min-height: 52px;
-  min-width: 52px; }
+  min-height: 5.2em;
+  min-width: 5.2em; }
   .loading > svg {
     position: absolute;
-    width: 52px;
-    height: 52px;
+    width: 5.2em;
+    height: 5.2em;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    border: 4px solid #0071bc;
+    border: 0.4em solid #0071bc;
     border-radius: 50%; }
   .loading > div {
     position: absolute;
-    width: 52px;
-    height: 52px;
+    width: 5.2em;
+    height: 5.2em;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    border-top: 4px solid #29abe2;
+    border-top: 0.4em solid #29abe2;
     border-radius: 50%;
     animation: spinny 1s linear infinite; }
 
@@ -4759,29 +4835,31 @@ html, body, .body-fill {
   flex-direction: column;
   justify-content: center;
   align-content: center;
-  padding: 1rem;
+  padding: 1em;
   box-shadow: #333 0 2px 5px; }
   .account-login .option-wrapper .auth-option {
     width: 100%;
     cursor: pointer;
     display: flex;
-    border: 0.2rem solid #3f1e55;
-    border-radius: 0.5rem;
-    margin: 0.5rem 0;
-    font-size: 1.5rem;
+    align-items: center;
+    border: 0.2em solid #3f1e55;
+    border-radius: 0.5em;
+    margin: 0.3em 0;
+    font-size: 1.2rem;
     background: #5b3d78;
     overflow: hidden; }
     .account-login .option-wrapper .auth-option .region-indicator {
-      display: inline-block;
+      display: block;
       margin: 0;
-      padding: 1rem;
+      padding: 0.5em;
       color: #ffffff;
       text-align: right;
       flex-grow: 1; }
     .account-login .option-wrapper .auth-option .description {
-      display: inline-block;
+      display: block;
       margin: 0;
-      padding: 1rem;
+      padding: 0.5em;
+      white-space: nowrap;
       color: #ffffff; }
     .account-login .option-wrapper .auth-option:hover, .account-login .option-wrapper .auth-option:focus {
       border-color: #29abe2; }
@@ -4864,3 +4942,210 @@ html, body, .body-fill {
     margin: auto; }
   .tournament-info p {
     line-height: 1.5em; }
+
+.edit-team {
+  padding: 0.2em;
+  max-width: 100%; }
+  .edit-team .region-tabs {
+    display: inline-block;
+    overflow: hidden;
+    border-top-left-radius: 1em;
+    border-top-right-radius: 1em; }
+    .edit-team .region-tabs button {
+      border: none;
+      background: #5b3d78;
+      color: #ffffff;
+      font-size: 2em;
+      padding: 0.2em 0.4em; }
+      .edit-team .region-tabs button:hover, .edit-team .region-tabs button:focus {
+        background: #2b1043; }
+      .edit-team .region-tabs button.active.NA {
+        background: #009900; }
+      .edit-team .region-tabs button.active.EU {
+        background: #c26b0e; }
+      .edit-team .region-tabs button.active.CIS {
+        background: #b53a2f; }
+      .edit-team .region-tabs button.active.SEA {
+        background: #0066ff; }
+  .edit-team .modal {
+    background: #2b1043;
+    padding: 0.4em;
+    border-radius: 0.5em;
+    border-top-left-radius: 0; }
+    .edit-team .modal h3 {
+      font-size: 1.7em;
+      text-align: center;
+      margin: 0.5em; }
+    .edit-team .modal input {
+      color: #ffffff;
+      background: #0f081a;
+      border: none;
+      border-radius: 0.1em;
+      padding: 0.1em;
+      border: 0.15em solid transparent; }
+      .edit-team .modal input:focus {
+        background: #080010;
+        border-color: #0071bc; }
+      .edit-team .modal input.invalid {
+        border-color: #c10000; }
+    .edit-team .modal .team-title {
+      background: #5b3d78;
+      border-radius: 0.2em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 0.5em 0.2em; }
+      .edit-team .modal .team-title label,
+      .edit-team .modal .team-title input {
+        display: block; }
+      .edit-team .modal .team-title label {
+        max-width: 100%;
+        text-align: center;
+        margin: 0.3em 1em;
+        font-weight: bold; }
+      .edit-team .modal .team-title input {
+        font-size: 1.7em;
+        font-weight: bold; }
+      .edit-team .modal .team-title .team-tag {
+        position: relative; }
+        .edit-team .modal .team-title .team-tag input {
+          text-align: center;
+          max-width: 6em; }
+        .edit-team .modal .team-title .team-tag::before {
+          content: "[";
+          font-size: 2.7em;
+          position: absolute;
+          left: 0;
+          bottom: 0; }
+        .edit-team .modal .team-title .team-tag::after {
+          content: "]";
+          font-size: 2.7em;
+          position: absolute;
+          right: 0;
+          bottom: 0; }
+      .edit-team .modal .team-title .team-name input {
+        width: 20em; }
+        @media (max-width: 399px) {
+          .edit-team .modal .team-title .team-name input {
+            width: 100%; } }
+        @media (min-width: 400px) and (max-width: 767px) {
+          .edit-team .modal .team-title .team-name input {
+            width: 100%; } }
+    .edit-team .modal .players {
+      background: #3f1e55;
+      border-radius: 0.2em;
+      padding: 0.5em 0.5em;
+      margin: 0.5em 0em; }
+      .edit-team .modal .players .player {
+        background: #5b3d78;
+        border-radius: 0.2em;
+        padding: 0.2em 0.2em;
+        margin: 0.5em 0em;
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        font-size: 1.1em; }
+        .edit-team .modal .players .player input {
+          font-size: 1.1em;
+          width: 15em; }
+          @media (max-width: 399px) {
+            .edit-team .modal .players .player input {
+              width: 100%; } }
+          @media (min-width: 400px) and (max-width: 767px) {
+            .edit-team .modal .players .player input {
+              width: 100%; } }
+        .edit-team .modal .players .player .loading {
+          font-size: 0.3em; }
+        .edit-team .modal .players .player .status {
+          margin: 0.5em;
+          width: 2em;
+          text-align: center; }
+          .edit-team .modal .players .player .status .fa-times {
+            color: #c10000;
+            font-size: 1.2em; }
+          .edit-team .modal .players .player .status .fa-check {
+            color: #00c100;
+            font-size: 1.2em; }
+        .edit-team .modal .players .player .delete {
+          background: transparent;
+          border: none;
+          font-size: 1.2em;
+          margin-left: auto;
+          color: #ffffff; }
+          .edit-team .modal .players .player .delete:hover, .edit-team .modal .players .player .delete:focus {
+            color: #29abe2; }
+      .edit-team .modal .players .add {
+        border: none;
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #ffffff;
+        background: #5b3d78;
+        border-radius: 0.2em;
+        padding: 0.2em 0.6em; }
+        .edit-team .modal .players .add:hover, .edit-team .modal .players .add:focus {
+          background: #29abe2; }
+    .edit-team .modal .extras {
+      display: flex;
+      flex-direction: column;
+      align-items: center; }
+      .edit-team .modal .extras label {
+        display: flex;
+        flex-direction: column;
+        text-align: center; }
+      .edit-team .modal .extras .icon-field input {
+        font-size: 1em;
+        width: 24em; }
+        @media (max-width: 399px) {
+          .edit-team .modal .extras .icon-field input {
+            width: 100%; } }
+        @media (min-width: 400px) and (max-width: 767px) {
+          .edit-team .modal .extras .icon-field input {
+            width: 100%; } }
+      .edit-team .modal .extras .icon {
+        max-height: 196px;
+        max-width: 100%; }
+      .edit-team .modal .extras textarea {
+        color: #ffffff;
+        background: #0f081a;
+        border: none;
+        border-radius: 0.1em;
+        padding: 0.1em;
+        border: 0.15em solid transparent;
+        font-family: Arial, Helvetica, sans-serif;
+        min-width: 24em;
+        min-height: 7em;
+        max-width: 100%;
+        max-height: 50em; }
+        @media (max-width: 399px) {
+          .edit-team .modal .extras textarea {
+            min-width: 10em; } }
+        @media (min-width: 400px) and (max-width: 767px) {
+          .edit-team .modal .extras textarea {
+            min-width: 16em; } }
+        .edit-team .modal .extras textarea:focus {
+          background: #080010;
+          border-color: #0071bc; }
+        .edit-team .modal .extras textarea.invalid {
+          border-color: #c10000; }
+      .edit-team .modal .extras .submit {
+        border: 0;
+        border-radius: 0.2em;
+        background-color: #0071bc;
+        padding: 0.2em 0.6em;
+        margin: 0.4em;
+        font-size: 1.4em;
+        font-weight: bold;
+        color: #ffffff; }
+        .edit-team .modal .extras .submit:hover, .edit-team .modal .extras .submit:focus {
+          background-color: #e2c444; }
+
+.teams .team {
+  background-color: #2b1043;
+  color: #ffffff;
+  display: flex;
+  align-content: center;
+  margin: 0.4em 0.2em; }
+  .teams .team .icon {
+    max-height: 128px;
+    margin: 0.2em; }

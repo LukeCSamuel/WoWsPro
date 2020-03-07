@@ -1,3 +1,301 @@
-﻿.edit-team {
+﻿@import "../../Includes/colors.scss";
+@import "../../Includes/mediaq.scss";
+@import "../../Includes/fonts.scss";
 
+.edit-team {
+	padding: 0.2em;
+	max-width: 100%;
+
+	.region-tabs {
+		display: inline-block;
+		overflow: hidden;
+		border-top-left-radius: 1em;
+		border-top-right-radius: 1em;
+
+		button {
+			border: none;
+			background: $color-purple-light;
+			color: $color-white;
+			font-size: 2em;
+			padding: 0.2em 0.4em;
+
+			&:hover,
+			&:focus {
+				background: $color-purple-dark;
+			}
+
+			&.active {
+				&.NA {
+					background: $color-region-na;
+				}
+
+				&.EU {
+					background: $color-region-eu;
+				}
+
+				&.CIS {
+					background: $color-region-ru;
+				}
+
+				&.SEA {
+					background: $color-region-ap;
+				}
+			}
+		}
+	}
+
+	.modal {
+		background: $color-purple-dark;
+		padding: 0.4em;
+		border-radius: 0.5em;
+		border-top-left-radius: 0;
+
+		h3 {
+			font-size: 1.7em;
+			text-align: center;
+			margin: 0.5em;
+		}
+
+		input {
+			color: $color-white;
+			background: $color-black-off;
+			border: none;
+			border-radius: 0.1em;
+			padding: 0.1em;
+			border: 0.15em solid transparent;
+
+			&:focus {
+				background: $color-black;
+				border-color: $color-blue-dark;
+			}
+
+			&.invalid {
+				border-color: #c10000;
+			}
+		}
+
+		.team-title {
+			background: $color-purple-light;
+			border-radius: 0.2em;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-wrap: wrap;
+			padding: 0.5em 0.2em;
+
+			label,
+			input {
+				display: block;
+			}
+
+			label {
+				max-width: 100%;
+				text-align: center;
+				margin: 0.3em 1em;
+				font-weight: bold;
+			}
+
+			input {
+				font-size: 1.7em;
+				font-weight: bold;
+			}
+
+			.team-tag {
+				position: relative;
+
+				input {
+					text-align: center;
+					max-width: 6em;
+				}
+
+				&::before {
+					content: "[";
+					font-size: 2.7em;
+					position: absolute;
+					left: 0;
+					bottom: 0;
+				}
+
+				&::after {
+					content: "]";
+					font-size: 2.7em;
+					position: absolute;
+					right: 0;
+					bottom: 0;
+				}
+			}
+
+			.team-name {
+				input {
+					width: 20em;
+
+					@include phone {
+						width: 100%;
+					}
+
+					@include plus {
+						width: 100%;
+					}
+				}
+			}
+		}
+
+		.players {
+			background: $color-purple-medium;
+			border-radius: 0.2em;
+			padding: 0.5em 0.5em;
+			margin: 0.5em 0em;
+
+			.player {
+				background: $color-purple-light;
+				border-radius: 0.2em;
+				padding: 0.2em 0.2em;
+				margin: 0.5em 0em;
+				display: flex;
+				justify-content: left;
+				align-items: center;
+				font-size: 1.1em;
+
+				input {
+					font-size: 1.1em;
+					width: 15em;
+
+					@include phone {
+						width: 100%;
+					}
+
+					@include plus {
+						width: 100%;
+					}
+				}
+
+				.loading {
+					font-size: 0.3em;
+				}
+
+				.status {
+					margin: 0.5em;
+					width: 2em;
+					text-align: center;
+
+					.fa-times {
+						color: #c10000;
+						font-size: 1.2em;
+					}
+
+					.fa-check {
+						color: #00c100;
+						font-size: 1.2em;
+					}
+				}
+
+				.delete {
+					background: transparent;
+					border: none;
+					font-size: 1.2em;
+					margin-left: auto;
+					color: $color-white;
+
+					&:hover,
+					&:focus {
+						color: $color-blue-light;
+					}
+				}
+			}
+
+			.add {
+				border: none;
+				font-size: 1.2em;
+				font-weight: bold;
+				color: $color-white;
+				background: $color-purple-light;
+				border-radius: 0.2em;
+				padding: 0.2em 0.6em;
+
+				&:hover,
+				&:focus {
+					background: $color-blue-light;
+				}
+			}
+		}
+
+		.extras {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+
+			label {
+				display: flex;
+				flex-direction: column;
+				text-align: center;
+			}
+
+			.icon-field {
+				input {
+					font-size: 1em;
+					width: 24em;
+
+					@include phone {
+						width: 100%;
+					}
+
+					@include plus {
+						width: 100%;
+					}
+				}
+			}
+
+			.icon {
+				max-height: 196px;
+				max-width: 100%;
+			}
+
+			textarea {
+				color: $color-white;
+				background: $color-black-off;
+				border: none;
+				border-radius: 0.1em;
+				padding: 0.1em;
+				border: 0.15em solid transparent;
+				font-family: $font-copy;
+				min-width: 24em;
+				min-height: 7em;
+				max-width: 100%;
+				max-height: 50em;
+
+				@include phone {
+					min-width: 10em;
+				}
+
+				@include plus {
+					min-width: 16em;
+				}
+
+				&:focus {
+					background: $color-black;
+					border-color: $color-blue-dark;
+				}
+
+				&.invalid {
+					border-color: #c10000;
+				}
+			}
+
+			.submit {
+				border: 0;
+				border-radius: 0.2em;
+				background-color: $color-blue-dark;
+				padding: 0.2em 0.6em;
+				margin: 0.4em;
+				font-size: 1.4em;
+				font-weight: bold;
+				color: $color-white;
+
+				&:hover,
+				&:focus {
+					background-color: $color-gold;
+				}
+			}
+		}
+	}
 }

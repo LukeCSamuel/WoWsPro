@@ -4,25 +4,32 @@
 @inject NavigationManager Navi
 @implements IDisposable
 
-<Loading Until="TournamentLoad">
-	<Loading Until="AccountLoad">
+<Loading Until="TournamentLoad" NotNull="Tournament">
+	<Loading Until="AccountLoad" NotNull="Account">
 		<div class="register">
 
-			<h1>Registration has not begun.</h1>
-
-			@*@if (Account.GetAcceptedTeam(Tournament) is TournamentTeam team)
+			@if (Account.GetAcceptedTeam(Tournament) is TournamentTeam team)
 			{
 				<h2>@team.Region [@team.Tag] @team.Name</h2>
-				@foreach (var participant in team.Participants)
+				<p>Your teammates:</p>
+				<ul>
+					@foreach (var participant in team.Participants)
+					{
+						<li>@participant.Player.Nickname</li>
+					}
+				</ul>
+				@if (team.OwnerAccountId == Account.AccountId)
 				{
-					<p>@participant.Player.Nickname</p>
+					<NavLink href="@($"/tournament/{Tournament.TournamentId}/register/edit/{team.TeamId}")">
+						Edit your team &gt;
+					</NavLink>
 				}
 			}
 			else
 			{
 				<h1>
 					<NavLink href="@($"/tournament/{Tournament.TournamentId}/register/create")">
-						Create a Team
+						Create a Team &gt;
 					</NavLink>
 				</h1>
 				@foreach (var particpant in Account.GetInvitations(Tournament))
@@ -30,7 +37,7 @@
 					<h2>@particpant.Team.Region [@particpant.Team.Tag] @particpant.Team.Name</h2>
 					<p>@particpant.Status</p>
 				}
-			}*@
+			}
 
 		</div>
 	</Loading>

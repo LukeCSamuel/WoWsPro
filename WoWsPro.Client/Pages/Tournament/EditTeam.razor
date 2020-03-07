@@ -1,28 +1,297 @@
 ﻿@page "/tournament/{tournamentId:long}/register/create"
 @page "/tournament/{tournamentId:long}/register/edit/{teamId:long}"
-@inject ITournamentService TournamentService 
+@inject ITournamentService TournamentService
+@inject ITeamService TeamService
 @inject IAccountService AccountService
+@inject IWarshipsService WarshipsService
 @inject NavigationManager Navi
 @implements IDisposable
 
 <Loading Until="TournamentLoad">
 	<Loading Until="AccountLoad">
-		<div class="edit-team">
-			<h1>Registration has not begun.</h1>
-			@if (TeamId is null)
-			{
-				// Creating new team
-				
-			}
-			else
-			{
-				// Editing existing team
-				<Loading Until="TeamLoad">
+		<Loading Until="TeamLoad">
+			<div class="edit-team">
+				@if (TeamId is null)
+				{
+					<h2>Register team @(CurrentRules is null ? "" : " for " + CurrentRules.Region)</h2>
+					@*Display regions available for registration*@
+					<div class="region-tabs">
+						@foreach (var rules in Tournament.RegistrationRules)
+						{
+							<button type="button" class="@(CurrentRegion == rules.Region ? $"active {rules.Region}" : rules.Region.ToString())" @onclick="@(e => CurrentRegion = rules.Region)">@rules.Region</button>
+						}
+					</div>
+					<div class="modal">
+						@if (CurrentRules is null)
+						{
+							// Nothing to display
+							CurrentRules = Tournament.RegistrationRules.First();
+							StateHasChanged();
+						}
+						else if (CurrentRules.Open > DateTime.UtcNow)
+						{
+							<p>Registration will not open until @CurrentRules.Open.</p>
+						}
+						else if (CurrentRules.Close < DateTime.UtcNow)
+						{
+							<p>Registration has closed.</p>
+						}
+						else if (!Account.WarshipsAccounts.Any(p => p.Region == CurrentRules?.Region))
+						{
+							<p>You haven't linked a World of Warships account for the @CurrentRules?.Region server.</p>
+							<NavLink href="account/login">Add an account &gt;</NavLink>
+						}
+						else if (CurrentRules?.Rules.HasFlag(RegistrationRules.RequireTeamOwnerDiscord) is true && Account.DiscordAccounts.Count < 1)
+						{
+							<p>A Discord account is required to register a team for @Tournament.Name. </p>
+							<NavLink href="account/login/discord">Connect to Discord &gt;</NavLink>
+						}
+						else
+						{
+							<EditForm EditContext="@EditContext" OnValidSubmit="SubmitCreateAsync">
+								<DataAnnotationsValidator />
+								<ValidationSummary />
 
-				</Loading>
-			}
+								<div class="team-title">
+									<label class="team-tag">
+										Tag
+										<InputText @bind-Value="Team.Tag"
+												   @attributes="@(new Dictionary<string, object> { ["placeholder"] = "TAG", ["maxlength"] = "5" })" />
+									</label>
+									<label class="team-name">
+										Team Name
+										<InputText @bind-Value="Team.Name"
+												   @attributes="@(new Dictionary<string, object> { ["placeholder"] = "Team Name" })" />
+									</label>
+								</div>
+								<div class="players">
+									<h3>Players</h3>
+									@foreach (var participant in Team.Participants)
+									{
+										<div class="player">
+											<label class="nickname">
+												<input type="text" value="@participant.Player.Nickname" placeholder="Player Name"
+													   @oninput="@(e => OnPlayerNameInput(e, participant, cooldown: true))"
+													   @onchange="@(e => OnPlayerNameInput(e, participant))" />
+											</label>
+											@*Check if there is a *reasonable* list of possible players*@
+											<span class="status">
+												<Loading Until="PlayerLookups[participant]">
+													@if (PlayerLookups[participant].Result is IEnumerable<WarshipsPlayer> players)
+													{
+														if (players.Count() == 1)
+														{
+															<span class="fas fa-check"></span>
+														}
+														else if (players.Count() > 0 && players.Count() < 26)
+														{
+															<select value="@participant.Player.Nickname" tabindex="-1"
+																	@onchange="@(e => OnPlayerNameInput(e, participant))">
+																@foreach (var player in players)
+																{
+																	<option value="@player.Nickname" selected="@(player == players.First())">@player.Nickname</option>
+																}
+															</select>
+														}
+														else
+														{
+															<span class="fas fa-times"></span>
+														}
+													}
+												</Loading>
+											</span>
+											@if (Team.Participants.Count > CurrentRules.MinTeamSize)
+											{
+												<button class="delete" tabindex="-1" type="button" @onclick="@(e => RemoveMember(participant))"><span class="fas fa-trash-alt"></span></button>
+											}
+										</div>
+									}
+									@if (Team.Participants.Count < CurrentRules.MaxTeamSize)
+									{
+										<button class="add" type="button" @onclick="@(e => AddMember())">+ Add Member</button>
+									}
+								</div>
+								<div class="extras">
+									<h3>Extras</h3>
+									<label class="icon-field">
+										Logo Link:
+										<InputText @bind-Value="Team.Icon"
+												   @attributes="@(new Dictionary<string, object> { ["placeholder"] = "ex. https://i.imgur.com/GIP7GPs.png" })" />
+									</label>
+									@if (Team.Icon is string)
+									{
+										<img class="icon" src="@Team.Icon" alt="Your logo could not be loaded!" />
+									}
+									<div>
+										<label class="description">
+											Description:
+											<InputTextArea @bind-Value="Team.Description"
+														   @attributes="@(new Dictionary<string, object> { ["placeholder"] = "A short description of your team." })" />
+										</label>
+									</div>
+									@if (Submitting is null || Submitting.IsCompleted)
+									{
+										<button class="submit" type="submit" disabled="@FormInvalid">Submit</button>
+									}
+									else
+									{
+										<Loading Until="Submitting"></Loading>
+									}
+									@if (!string.IsNullOrEmpty(ResultMessage))
+									{
+										<span>@ResultMessage</span>
+									}
+								</div>
+							</EditForm>
+						}
+					</div>
+				}
+				else
+				{
+					@if (CurrentRules is object)
+					{
+						<div class="modal">
+							@*Editing existing team*@
+							<EditForm EditContext="@EditContext" OnValidSubmit="SubmitUpdateAsync">
+								<DataAnnotationsValidator />
+								<ValidationSummary />
 
-		</div>
+								@if (CurrentRules.Close > DateTime.UtcNow)
+								{
+									<div class="team-title">
+										<label class="team-tag">
+											Tag
+											<InputText @bind-Value="Team.Tag"
+													   @attributes="@(new Dictionary<string, object> { ["placeholder"] = "TAG" })" />
+										</label>
+										<label class="team-name">
+											Name
+											<InputText @bind-Value="Team.Name"
+													   @attributes="@(new Dictionary<string, object> { ["placeholder"] = "Team Name" })" />
+										</label>
+									</div>
+								}
+								else
+								{
+									<div>
+										<span>@Team.Tag</span><span>@Team.Name</span>
+									</div>
+								}
+
+								@if (CurrentRules.Close > DateTime.UtcNow || CurrentRules.Rules.HasFlag(RegistrationRules.AllowRosterChanges))
+								{
+									<div class="players">
+										<h3>Players</h3>
+										@foreach (var participant in Team.Participants)
+										{
+											<div class="player">
+												<label>
+													<input type="text" value="@participant.Player.Nickname" placeholder="Player Name"
+														   @oninput="@(e => OnPlayerNameInput(e, participant, cooldown: true))"
+														   @onchange="@(e => OnPlayerNameInput(e, participant))" />
+												</label>
+												@*Check if there is a *reasonable* list of possible players*@
+												<span class="status">
+													<Loading Until="PlayerLookups[participant]">
+														@if (PlayerLookups[participant].Result is IEnumerable<WarshipsPlayer> players)
+														{
+															if (players.Count() == 1)
+															{
+																<span class="fas fa-check"></span>
+															}
+															else if (players.Count() > 0 && players.Count() < 26)
+															{
+																<select value="@participant.Player.Nickname"
+																		@onchange="@(e => OnPlayerNameInput(e, participant))">
+																	@foreach (var player in players)
+																	{
+																		<option value="@player.Nickname" selected="@(player == players.First())">@player.Nickname</option>
+																	}
+																</select>
+															}
+															else
+															{
+																<span class="fas fa-times"></span>
+															}
+														}
+													</Loading>
+												</span>
+												@if (Team.Participants.Count > CurrentRules.MinTeamSize)
+												{
+													<button class="delete" type="button" @onclick="@(e => RemoveMember(participant))"><span class="fas fa-trash-alt"></span></button>
+												}
+											</div>
+										}
+										@if (Team.Participants.Count < CurrentRules.MaxTeamSize)
+										{
+											<button class="add" type="button" @onclick="@(e => AddMember())">Add Member</button>
+										}
+									</div>
+								}
+								else
+								{
+									<p>The roster is locked.</p>
+									<ul>
+										@foreach (var participant in Team.Participants)
+										{
+											<li>@participant.Player.Nickname</li>
+										}
+									</ul>
+								}
+
+								@if (CurrentRules.Close > DateTime.UtcNow)
+								{
+									<div class="extras">
+										<h3>Extras</h3>
+										<label class="icon-field">
+											Logo Link:
+											<InputText @bind-Value="Team.Icon"
+													   @attributes="@(new Dictionary<string, object> { ["placeholder"] = "ex. https://i.imgur.com/GIP7GPs.png" })" />
+										</label>
+										@if (Team.Icon is string)
+										{
+											<img class="icon" src="@Team.Icon" alt="Your logo could not be loaded!" />
+										}
+										<div>
+											<label class="description">
+												Description:
+												<InputTextArea @bind-Value="Team.Description"
+															   @attributes="@(new Dictionary<string, object> { ["placeholder"] = "A short description of your team." })" />
+											</label>
+										</div>
+									</div>
+								}
+								else
+								{
+									@if (Team.Icon is string)
+									{
+										<img src="@Team.Icon" alt="Your logo could not be loaded!" />
+									}
+									<p>
+										@Team.Description
+									</p>
+								}
+
+								<div class="extras">
+									@if (Submitting is null || Submitting.IsCompleted)
+									{
+										<button class="submit" type="submit" disabled="@FormInvalid">Submit</button>
+									}
+									else
+									{
+										<Loading Until="Submitting"></Loading>
+									}
+									@if (!string.IsNullOrEmpty(ResultMessage))
+									{
+										<span>@ResultMessage</span>
+									}
+								</div>
+							</EditForm>
+						</div>
+					}
+				}
+			</div>
+		</Loading>
 	</Loading>
 </Loading>
 
@@ -33,7 +302,7 @@
 	[Parameter]
 	public long? TeamId { get; set; }
 
-	Task TeamLoad { get; set; }
+	Task<TournamentTeam> TeamLoad { get; set; }
 	TournamentTeam Team { get; set; }
 
 	Task TournamentLoad { get; set; }
@@ -42,18 +311,34 @@
 	Task AccountLoad { get; set; }
 	Account Account { get; set; }
 
+	Region? CurrentRegion
+	{
+		get => CurrentRules?.Region;
+		set
+		{
+			if (CurrentRegion != value)
+			{
+				// Don't reselect the same rules...
+				SetRules(Tournament.RegistrationRules.SingleOrDefault(r => r.Region == value));
+			}
+		}
+	}
+	TournamentRegistrationRules CurrentRules { get; set; }
+
+	EditContext EditContext { get; set; }
+	bool FormInvalid { get; set; } = true;
+	string ResultMessage { get; set; } = "";
+
+
+	Dictionary<TournamentParticipant, Task<IEnumerable<WarshipsPlayer>>> PlayerLookups { get; set; }
+		= new Dictionary<TournamentParticipant, Task<IEnumerable<WarshipsPlayer>>>();
+
 	protected override async Task OnInitializedAsync ()
 	{
 		AccountService.UserAccount.Updated += OnAccountUpdated;
 
 		AccountLoad = AccountService.UserAccount.Load;
 		Account = await AccountService.UserAccount;
-
-		// Forward to edit page if on a team
-		if (Account.GetAcceptedTeam(Tournament) is TournamentTeam team && TeamId != team.TeamId)
-		{
-			Navi.NavigateTo($"/tournament/{Tournament.TournamentId}/register/edit/{team.TeamId}");
-		}
 	}
 
 	protected override async Task OnParametersSetAsync ()
@@ -61,14 +346,167 @@
 		TournamentLoad = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
 		Tournament = await TournamentService.Current;
 
-		if (TeamId is null)
+		// Forward to edit page if on a team
+		if (Account.GetAcceptedTeam(Tournament) is TournamentTeam team && TeamId != team.TeamId)
 		{
-			Team = new TournamentTeam();
+			Navi.NavigateTo($"/tournament/{Tournament.TournamentId}/register/edit/{team.TeamId}");
+		}
+
+		if (TeamId is long id)
+		{
+			TeamLoad = TeamService.GetTeamByIdAsync(id);
+			Team = await TeamLoad;
+
+			// For now, only owners will have edit access
+			if (Team.OwnerAccountId != Account.AccountId)
+			{
+				Navi.NavigateTo($"/tournament/{Tournament.TournamentId}/register");
+			}
+
+			CurrentRules = Team.Tournament.RegistrationRules.Single(r => r.Region == Team.Region);
+			foreach (var participant in Team.Participants)
+			{
+				PlayerLookups[participant] = SearchPlayerAsync(participant.Player.Nickname);
+			}
 		}
 		else
 		{
-			// Get Team from Team Service?
+			Team = new TournamentTeam()
+			{
+				OwnerAccountId = Account.AccountId,
+				TournamentId = Tournament.TournamentId
+			};
+			TeamLoad = Task.FromResult(Team);
+			CurrentRegion = Account.GetPrimaryWarshipsAccount()?.Region;
 		}
+
+		EditContext = new EditContext(Team);
+		EditContext.OnFieldChanged += (_, __) => ValidateForm();
+	}
+
+	Task Submitting { get; set; }
+
+	async void SubmitCreateAsync ()
+	{
+		// Submits a team for creation
+		var submitted = TeamService.CreateTeamAsync(Team);
+		Submitting = submitted;
+		long? teamId = await submitted;
+		if (teamId is long id)
+		{
+			Navi.NavigateTo($"/tournament/{Tournament.TournamentId}/register/edit/{id}");
+		}
+		else
+		{
+			ResultMessage = "Uh oh, something went wrong... try again.";
+			StateHasChanged();
+		}
+	}
+
+	async void SubmitUpdateAsync ()
+	{
+		var submitted = TeamService.UpdateTeamAsync(Team);
+		Submitting = submitted;
+		bool result = await submitted;
+		if (result)
+		{
+			ResultMessage = "Update applied successfully.";
+		}
+		else
+		{
+			ResultMessage = "Uh oh, something went wrong... try again.";
+		}
+		StateHasChanged();
+	}
+
+
+
+	void SetRules (TournamentRegistrationRules rules)
+	{
+		// This should only ever be called when creating a new team
+		CurrentRules = rules;
+		Team.Region = CurrentRules.Region;
+		// Clearing is okay, because switching rules == switching region
+		Team.Participants = new List<TournamentParticipant>();
+		PlayerLookups.Clear();
+		for (int i = 0; i < CurrentRules.MinTeamSize; i++)
+		{
+			AddMember(flagState: false);
+		}
+		StateHasChanged();
+	}
+
+	void AddMember (bool flagState = true)
+	{
+		var participant = new TournamentParticipant()
+		{
+			Player = new WarshipsPlayer()
+		};
+		Team.Participants.Add(participant);
+		PlayerLookups[participant] = Task.FromResult<IEnumerable<WarshipsPlayer>>(new List<WarshipsPlayer>());
+		if (flagState)
+		{
+			StateHasChanged();
+		}
+	}
+
+	void RemoveMember (TournamentParticipant participant)
+	{
+		Team.Participants.Remove(participant);
+		StateHasChanged();
+	}
+
+
+
+	Dictionary<TournamentParticipant, DateTime> _cooldown = new Dictionary<TournamentParticipant, DateTime>();
+	async void OnPlayerNameInput (ChangeEventArgs e, TournamentParticipant participant, bool cooldown = false)
+	{
+		var ocd = DateTime.Now;
+		_cooldown[participant] = ocd;
+
+		if (cooldown)
+		{
+			await Task.Delay(2500);
+		}
+
+		if (!cooldown || ocd == _cooldown[participant])
+		{
+			PlayerLookups[participant] = SearchPlayerAsync(e.Value.ToString());
+			participant.Player.Nickname = e.Value.ToString();
+			participant.PlayerId = 0;
+			StateHasChanged();
+
+			var players = await PlayerLookups[participant];
+			if (players.Count() == 1)
+			{
+				participant.Player.Nickname = players.Single().Nickname;
+				participant.PlayerId = players.Single().PlayerId;
+			}
+			ValidateForm();
+			StateHasChanged();
+		}
+	}
+
+	void ValidateForm ()
+	{
+		FormInvalid = !(
+			// Validate regular properties
+			EditContext.Validate()
+			// Guarantee all players exist
+			&& Team.Participants.All(p => p.PlayerId > 0)
+			// Guarantee there are no duplicates
+			&& !Team.Participants.GroupBy(p => p.PlayerId).Any(g => g.Count() > 1)
+			);
+		StateHasChanged();
+	}
+
+	async Task<IEnumerable<WarshipsPlayer>> SearchPlayerAsync (string name)
+	{
+		var result = await (CurrentRegion is Region r && !string.IsNullOrEmpty(name)
+		? WarshipsService.SearchPlayersAsync(r, name)
+		: Task.FromResult<IEnumerable<WarshipsPlayer>>(new List<WarshipsPlayer>()));
+		StateHasChanged();
+		return result;
 	}
 
 	void OnAccountUpdated (object sender, Account account)

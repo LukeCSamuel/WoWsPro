@@ -22,6 +22,7 @@ namespace WoWsPro.Client
 			services.AddAccountService();
 			services.AddTournamentService();
 			services.AddTeamService();
+			services.AddWarshipsService();
 		}
 	}
 }

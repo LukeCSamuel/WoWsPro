@@ -2,7 +2,22 @@
 @inject ITournamentService TournamentService
 
 <Loading Until="TournamentLoad">
-	<h1>Registration has not begun.</h1>
+	<div class="teams">
+		<h1>All Teams</h1>
+		@foreach (var team in Tournament.Teams.OrderBy(t => t.Tag))
+		{
+			<div class="team">
+				@if (!string.IsNullOrEmpty(team.Icon))
+				{
+					<img class="icon" src="@team.Icon" />
+				}
+				<div>
+					<h3>@($"[{team.Tag}] {team.Name}")</h3>
+					<p>@team.Description</p>
+				</div>
+			</div>
+		}
+	</div>
 </Loading>
 
 

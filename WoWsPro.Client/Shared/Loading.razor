@@ -1,11 +1,10 @@
-﻿@if (Until?.IsCompletedSuccessfully == true)
-{
-	
+﻿@if (Until?.IsCompletedSuccessfully == true && NotNull is object)
+{	
 	@ChildContent
 }
 else
 {
-	// TODO: handle load failures
+	// TODO: handle load failures???
 
 	<div class="loading">
 		@*<object data="/res/Logo.svg" type="image/svg+xml"></object>*@
@@ -46,4 +45,7 @@ else
 
 	[Parameter]
 	public Task Until { get; set; }
+
+	[Parameter]
+	public object NotNull { get; set; } = new object();
 }

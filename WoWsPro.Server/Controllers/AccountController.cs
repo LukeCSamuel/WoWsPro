@@ -93,8 +93,9 @@ namespace WoWsPro.Server.Controllers
 				_user.Login(token);
 				return RedirectToReferer();
 			}
-			catch
+			catch (Exception ex)
 			{
+				Console.WriteLine(ex);
 				// FIXME: refine exceptions
 				return StatusCode(500);
 			}
