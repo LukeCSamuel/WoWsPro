@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,94 @@ namespace WoWsPro.Data.Operations
 		public string GetNickname () => Context.Accounts.SingleOrDefault(a => a.AccountId == ScopeId)?.Nickname;
 
 		[Public]
-		public Shared.Models.Account GetAccount () => Context.Accounts.SingleOrDefault(a => a.AccountId == ScopeId) ?? throw new KeyNotFoundException();
+		public Shared.Models.Account GetAccount ()
+		{
+			return Context.Accounts
+				.Include(a => a.WarshipsAccounts).ThenInclude(p => p.Participations).ThenInclude(pp => pp.Team)
+				.Include(a => a.DiscordAccounts)
+				.Include(a => a.OwnedTeams).ThenInclude(t => t.Participants).ThenInclude(p => p.Player)
+				.Where(a => a.AccountId == ScopeId)
+				.Select(a => new Shared.Models.Account()
+				{
+					AccountId = a.AccountId,
+					Nickname = a.Nickname,
+					Created = a.Created,
+					WarshipsAccounts = a.WarshipsAccounts.Select(p => new Shared.Models.WarshipsPlayer()
+					{
+						AccountId = p.AccountId,
+						PlayerId = p.PlayerId, 
+						Region = p.Region,
+						Nickname = p.Nickname,
+						Created = p.Created,
+						ClanId = p.ClanId,
+						ClanRole = p.ClanRole,
+						JoinedClan = p.JoinedClan,
+						IsPrimary = p.IsPrimary,
+						Participations = p.Participations.Select(pp => new Shared.Models.TournamentParticipant()
+						{
+							ParticipantId = pp.ParticipantId,
+							TeamId = pp.TeamId,
+							PlayerId = pp.PlayerId,
+							Status = pp.Status,
+							Team = new Shared.Models.TournamentTeam()
+							{
+								TeamId = pp.TeamId,
+								TournamentId = pp.Team.TournamentId,
+								Name = pp.Team.Name,
+								Tag = pp.Team.Tag,
+								Description = pp.Team.Description,
+								Icon = pp.Team.Icon,
+								OwnerAccountId = pp.Team.OwnerAccountId,
+								Status = pp.Team.Status,
+								Region = pp.Team.Region,
+								Created = pp.Team.Created
+							}
+						}).ToList()
+					}).ToList(),
+					DiscordAccounts = a.DiscordAccounts.Select(u => new Shared.Models.DiscordUser()
+					{
+						DiscordId = u.DiscordId,
+						AccountId = u.AccountId,
+						Username = u.Username,
+						Discriminator = u.Discriminator,
+						Avatar = u.Avatar,
+						IsPrimary = u.IsPrimary
+					}).ToList(),
+					OwnedTeams = a.OwnedTeams.Select(t => new Shared.Models.TournamentTeam()
+					{
+						TeamId = t.TeamId,
+						TournamentId = t.TournamentId,
+						Name = t.Name,
+						Tag = t.Tag,
+						Description = t.Description,
+						Icon = t.Icon,
+						OwnerAccountId = t.OwnerAccountId,
+						Status = t.Status,
+						Region = t.Region,
+						Created = t.Created,
+						Participants = t.Participants.Select(p => new Shared.Models.TournamentParticipant()
+						{
+							ParticipantId = p.ParticipantId,
+							TeamId = p.TeamId,
+							PlayerId = p.PlayerId,
+							Status = p.Status,
+							Player = new Shared.Models.WarshipsPlayer()
+							{
+								AccountId = p.Player.AccountId,
+								PlayerId = p.Player.PlayerId,
+								Region = p.Player.Region,
+								Nickname = p.Player.Nickname,
+								Created = p.Player.Created,
+								ClanId = p.Player.ClanId,
+								ClanRole = p.Player.ClanRole,
+								JoinedClan = p.Player.JoinedClan,
+								IsPrimary = p.Player.IsPrimary
+							}
+						}).ToList()
+					}).ToList()
+				})
+				.SingleOrDefault() ?? throw new KeyNotFoundException();
+		}
 
 		[Public]
 		public IEnumerable<(long, string)> FindPlayer (Region region, string name) => WarshipsApi.SearchPlayerAsync(region, name).GetAwaiter().GetResult();

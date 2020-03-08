@@ -26,6 +26,16 @@ namespace WoWsPro.Shared.Models
 
 		public TournamentTeam GetAcceptedTeam (Tournament tournament)
 		{
+			// Return any team which is owned
+			foreach (var team in OwnedTeams)
+			{
+				if (team.TournamentId == tournament.TournamentId)
+				{
+					return team;
+				}
+			}
+			
+			// Return any team which is accepted
 			foreach (var player in WarshipsAccounts)
 			{
 				foreach (var participation in player.Participations)

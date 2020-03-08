@@ -72,6 +72,11 @@ namespace WoWsPro.Data.Operations
 				}
 
 				// Verify creator does not have team
+				if (owner.OwnedTeams.Any(t => t.TournamentId == team.TournamentId))
+				{
+					throw new NotSupportedException("Owner cannot own two teams.");
+				}
+
 				foreach (var player in owner.WarshipsAccounts)
 				{
 					if (GetJoinedTeam(player.PlayerId, team.TournamentId) is Shared.Models.TournamentTeam)
@@ -114,11 +119,18 @@ namespace WoWsPro.Data.Operations
 					initStatus = TeamStatus.WaitListed;
 				}
 
+				// Check that the tag and name are not taken
+				team.Tag = team.Tag.ToUpper();
+				if (Context.TournamentTeams.Any(t => t.Tag == team.Tag || t.Name.ToLower() == team.Name.ToLower()))
+				{
+					throw new NotSupportedException("Duplicate team is not permitted.");
+				}
+
 				// Check that there are no duplicate participants
 				if (team.Participants.GroupBy(p => p.PlayerId).Any(g => g.Count() > 1))
 				{
 					// Contains duplicates, reject!
-					throw new NotSupportedException("Duplicate participatns are not allowed.");
+					throw new NotSupportedException("Duplicate participants are not allowed.");
 				}
 
 				// Ready to create the team
@@ -203,6 +215,13 @@ namespace WoWsPro.Data.Operations
 			}
 			else
 			{
+				// Check that the tag and name are not taken
+				team.Tag = team.Tag.ToUpper();
+				if (Context.TournamentTeams.Any(t => t.Tag == team.Tag || t.Name.ToLower() == team.Name.ToLower()))
+				{
+					throw new NotSupportedException("Duplicate team is not permitted.");
+				}
+
 				context.Tag = team.Tag is string && team.Tag.Length > 1 && team.Tag.Length < 6 ? team.Tag : context.Tag;
 				context.Name = team.Name is string && team.Name.Length > 0 ? team.Name : context.Name;
 				context.Icon = team.Icon;

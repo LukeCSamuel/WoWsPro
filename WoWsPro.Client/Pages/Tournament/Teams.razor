@@ -2,22 +2,24 @@
 @inject ITournamentService TournamentService
 
 <Loading Until="TournamentLoad">
-	<div class="teams">
-		<h1>All Teams</h1>
-		@foreach (var team in Tournament.Teams.OrderBy(t => t.Tag))
-		{
-			<div class="team">
-				@if (!string.IsNullOrEmpty(team.Icon))
-				{
-					<img class="icon" src="@team.Icon" />
-				}
-				<div>
-					<h3>@($"[{team.Tag}] {team.Name}")</h3>
-					<p>@team.Description</p>
+	<Loading Until="TeamsLoad">
+		<div class="teams">
+			<h1>All Teams</h1>
+			@foreach (var team in TeamsList.OrderBy(t => t.Tag))
+			{
+				<div class="team">
+					@if (!string.IsNullOrEmpty(team.Icon))
+					{
+						<img class="icon" src="@team.Icon" />
+					}
+					<div>
+						<h3>@($"[{team.Tag}] {team.Name}")</h3>
+						<p>@team.Description</p>
+					</div>
 				</div>
-			</div>
-		}
-	</div>
+			}
+		</div>
+	</Loading>
 </Loading>
 
 
@@ -28,9 +30,15 @@
 	Task TournamentLoad { get; set; }
 	Tournament Tournament { get; set; }
 
+	Task TeamsLoad { get; set; }
+	List<TournamentTeam> TeamsList { get; set; }
+
 	protected override async Task OnParametersSetAsync ()
 	{
 		TournamentLoad = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
 		Tournament = await TournamentService.Current;
+
+		TeamsLoad = TournamentService.CurrentTeams.Load;
+		TeamsList = await TournamentService.CurrentTeams;
 	}
 }

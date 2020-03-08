@@ -394,7 +394,8 @@
 		long? teamId = await submitted;
 		if (teamId is long id)
 		{
-			Navi.NavigateTo($"/tournament/{Tournament.TournamentId}/register/edit/{id}");
+			await TournamentService.CurrentTeams.UpdateAsync();
+			Navi.NavigateTo($"/tournament/{Tournament.TournamentId}/register/");
 		}
 		else
 		{
@@ -410,6 +411,7 @@
 		bool result = await submitted;
 		if (result)
 		{
+			await TournamentService.CurrentTeams.UpdateAsync();
 			ResultMessage = "Update applied successfully.";
 		}
 		else

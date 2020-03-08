@@ -62,7 +62,7 @@ namespace WoWsPro.Server.Controllers
 			}
 		}
 
-		[HttpGet("{id:long}/teams")]
+		[HttpGet("{tournamentId:long}/teams")]
 		public IActionResult ListTeams (long tournamentId)
 		{
 			Tops.Manager.ScopeId = tournamentId;

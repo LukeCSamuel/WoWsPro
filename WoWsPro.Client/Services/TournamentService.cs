@@ -15,6 +15,7 @@ namespace WoWsPro.Client.Services
 		long CurrentTournamentId { get; }
 		Cache<Tournament> Current { get; }
 		Cache<List<Tournament>> Previews { get; }
+		Cache<List<TournamentTeam>> CurrentTeams { get; }
 
 
 		Task SetCurrentTournamentIdAsync (long tournamentId);
@@ -25,6 +26,8 @@ namespace WoWsPro.Client.Services
 		public long CurrentTournamentId { get; private set; }
 		public Cache<Tournament> Current { get; }
 		public Cache<List<Tournament>> Previews { get;}
+		public Cache<List<TournamentTeam>> CurrentTeams { get; }
+
 
 		HttpClient Http { get; }
 
@@ -33,13 +36,36 @@ namespace WoWsPro.Client.Services
 			Http = http;
 			Previews = new Cache<List<Tournament>>(() => Http.GetJsonAsync<List<Tournament>>($"api/Tournament"));
 			Current = new Cache<Tournament>(GetTournament);
+			CurrentTeams = new Cache<List<TournamentTeam>>(GetCurrentTeams);
 		}
 
 		public async Task<Tournament> GetTournament ()
 		{
 			try
 			{
+				if (CurrentTournamentId == 0)
+				{
+					return null;
+				}
+
 				return await Http.GetJsonAsync<Tournament>($"api/Tournament/{CurrentTournamentId}");
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		public async Task<List<TournamentTeam>> GetCurrentTeams ()
+		{
+			try
+			{
+				if (CurrentTournamentId == 0)
+				{
+					return null;
+				}
+
+				return await Http.GetJsonAsync<List<TournamentTeam>>($"api/Tournament/{CurrentTournamentId}/teams");
 			}
 			catch
 			{
