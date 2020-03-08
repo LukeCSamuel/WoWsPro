@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.IO;
 
@@ -24,6 +25,11 @@ namespace WoWsPro.Server
 					{
 						config.AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true);
 					}
+				})
+				.ConfigureLogging(logging =>
+				{
+					logging.ClearProviders();
+					logging.AddConsole();
 				})
 				.UseStartup<Startup>()
 				.Build();

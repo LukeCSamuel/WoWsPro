@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -11,7 +12,73 @@ namespace WoWsPro.Data.Operations
 	public partial class TeamOperations
 	{
 		[Public]
-		public Shared.Models.TournamentTeam GetTeamById (long teamId) => Context.TournamentTeams.SingleOrDefault(t => t.TeamId == teamId) ?? throw new KeyNotFoundException();
+		public Shared.Models.TournamentTeam GetTeamById (long teamId)
+		{
+			return Context.TournamentTeams
+				.Where(t => t.TeamId == teamId)
+				.Include(t => t.Participants).ThenInclude(p => p.Player)
+				.Include(t => t.Tournament).ThenInclude(t => t.RegistrationRules)
+				.Select(t => new Shared.Models.TournamentTeam()
+				{
+					TeamId = t.TeamId,
+					TournamentId = t.TournamentId,
+					Name = t.Name,
+					Tag = t.Tag,
+					Description = t.Description,
+					Icon = t.Icon,
+					OwnerAccountId = t.OwnerAccountId,
+					Status = t.Status,
+					Region = t.Region,
+					Created = t.Created,
+					Participants = t.Participants.Select(p => new Shared.Models.TournamentParticipant()
+					{
+						ParticipantId = p.ParticipantId,
+						TeamId = p.TeamId,
+						PlayerId = p.PlayerId,
+						Status = p.Status,
+						Player = new Shared.Models.WarshipsPlayer()
+						{
+							PlayerId = p.PlayerId,
+							AccountId = p.Player.AccountId,
+							Region = p.Player.Region,
+							Nickname = p.Player.Nickname,
+							Created = p.Player.Created,
+							ClanId = p.Player.ClanId,
+							ClanRole = p.Player.ClanRole,
+							JoinedClan = p.Player.JoinedClan,
+							IsPrimary = p.Player.IsPrimary
+						}
+					}).ToList(),
+					Tournament = new Shared.Models.Tournament()
+					{
+						TournamentId = t.TournamentId,
+						GuildId = t.Tournament.GuildId,
+						Name = t.Tournament.Name,
+						Icon = t.Tournament.Icon,
+						Description = t.Tournament.Description,
+						OwnerAccountId = t.Tournament.OwnerAccountId,
+						Created = t.Tournament.Created,
+						ParticipantRoleId = t.Tournament.ParticipantRoleId,
+						TeamOwnerRoleId = t.Tournament.TeamOwnerRoleId,
+						RegistrationRules = t.Tournament.RegistrationRules.Select(r => new Shared.Models.TournamentRegistrationRules()
+						{
+							TournamentRegistrationRulesId = r.TournamentRegistrationRulesId,
+							TournamentId = r.TournamentId,
+							Region = r.Region,
+							Open = r.Open,
+							Close = r.Close,
+							Capacity = r.Capacity,
+							MinTeamSize = r.MinTeamSize,
+							MaxTeamSize = r.MaxTeamSize,
+							Rules = r.Rules,
+							RegionParticipantRoleId = r.RegionParticipantRoleId,
+							RegionTeamOwnerRoleId = r.RegionTeamOwnerRoleId
+						}).ToList()
+					}
+				})
+				.SingleOrDefault() ?? throw new KeyNotFoundException();
+		}
+		//Context.TournamentTeams.SingleOrDefault(t => t.TeamId == teamId) ?? throw new KeyNotFoundException();
 
 		/// <summary>
 		/// Gets the team to which an account belongs, if one exists.
@@ -217,7 +284,7 @@ namespace WoWsPro.Data.Operations
 			{
 				// Check that the tag and name are not taken
 				team.Tag = team.Tag.ToUpper();
-				if (Context.TournamentTeams.Any(t => t.Tag == team.Tag || t.Name.ToLower() == team.Name.ToLower()))
+				if (Context.TournamentTeams.Any(t => t.TeamId != team.TeamId && (t.Tag == team.Tag || t.Name.ToLower() == team.Name.ToLower())))
 				{
 					throw new NotSupportedException("Duplicate team is not permitted.");
 				}

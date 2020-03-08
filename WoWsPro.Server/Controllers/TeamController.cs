@@ -107,8 +107,9 @@ namespace WoWsPro.Server.Controllers
 			{
 				return Unauthorized();
 			}
-			catch (NotSupportedException)
+			catch (NotSupportedException ex)
 			{
+				Console.WriteLine(ex);
 				return BadRequest();
 			}
 			catch
