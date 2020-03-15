@@ -159,7 +159,18 @@ namespace WoWsPro.Data.Services
 			await DbContext.WarshipsPlayers.AddOrUpdateAsync(player, p => p.PlayerId == player.PlayerId);
 			await DbContext.SaveChangesAsync();
 
-			return player;
+			return new WarshipsPlayer()
+			{
+				PlayerId = player.PlayerId,
+				AccountId = player.AccountId,
+				Region = player.Region,
+				Nickname = player.Nickname,
+				Created = player.Created,
+				ClanId = player.ClanId,
+				ClanRole = player.ClanRole,
+				JoinedClan = player.JoinedClan,
+				IsPrimary = player.IsPrimary
+			};
 		}
 
 		private async Task UpdateClanInfoAsync (Region region, long id)

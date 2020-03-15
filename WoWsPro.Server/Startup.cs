@@ -65,7 +65,7 @@ namespace WoWsPro.Server
 			services.AddUserService();
 			services.AddAuthenticator<UserService>();
 
-			services.AddDataContextPool();
+			services.AddDataContextPool(poolSize: 1);
 			services.AddAccountManager();
 			services.AddTournamentManager();
 			services.AddTeamManager();

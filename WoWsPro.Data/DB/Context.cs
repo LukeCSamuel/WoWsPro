@@ -543,7 +543,7 @@ namespace WoWsPro.Data.DB
 				: JsonConvert.DeserializeObject<R>(JsonConvert.SerializeObject(obj, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
 		}
 
-		public static IServiceCollection AddDataContextPool (this IServiceCollection services)
+		public static IServiceCollection AddDataContextPool (this IServiceCollection services, int poolSize)
 		{
 			return services.AddDbContextPool<Context>((serviceProvider, options) =>
 			{
@@ -555,7 +555,7 @@ namespace WoWsPro.Data.DB
 						.UseSqlServer(config["ConnectionStrings:WoWsPro"])
 						.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.LazyLoadOnDisposedContextWarning));
 				}
-			});
+			}, poolSize);
 		}
 	}
 }
