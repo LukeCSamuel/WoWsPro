@@ -278,7 +278,8 @@ namespace WoWsPro.Data.Operations
 			}
 			else if (rules.Close < DateTime.UtcNow)
 			{
-				throw new NotSupportedException("Registration has closed.");
+				return false;
+				//throw new NotSupportedException("Registration has closed.");
 			}
 			else
 			{

@@ -331,3 +331,6 @@ ASALocalRun/
 
 # Application settings
 appsettings*.json
+
+# Notebooks
+*.ipynb

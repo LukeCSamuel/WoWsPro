@@ -95,8 +95,8 @@ namespace WoWsPro.Server.Controllers
 				Tops.Manager.ScopeId = team.TeamId;
 				var detailResult = Tops.Do(t => t.UpdateTeam(team));
 				var memberResult = Tops.Do(t => t.UpdateTeamMembers(team));
-				return detailResult.Success && memberResult.Success 
-					? Ok(detailResult.Result && memberResult.Result) 
+				return detailResult.Success || memberResult.Success 
+					? Ok(detailResult.Result || memberResult.Result) 
 					: throw new AggregateException(detailResult.Exception, memberResult.Exception); 
 			}
 			catch (KeyNotFoundException)
