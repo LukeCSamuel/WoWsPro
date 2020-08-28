@@ -1,0 +1,60 @@
+﻿<div class="c-TeamRoster">
+	<div class="c-TeamRoster_Header">
+		<h2 class="c-TeamRoster_Header_Region @Team.Region">
+			@Team.Region
+		</h2>
+		<h2 class="c-TeamRoster_Header_Name">
+			@($"[{Team.Tag}] {Team.Name}")
+		</h2>
+		@if (IsCollapsable)
+		{
+			<button class="c-TeamRoster_Header_Collapse @(IsCollapsed ? "-Collapsed" : "")" @onclick="@(e => IsCollapsed = !IsCollapsed)">
+				<span class="fas fa-chevron-down"></span>
+			</button>
+		}
+	</div>
+	@if (IsCollapsable && !IsCollapsed)
+	{
+		<div class="c-TeamRoster_Detail">
+			<div class="c-TeamRoster_Detail_Info">
+				<img class="c-TeamRoster_Detail_Icon" src="@Team.Icon" />
+				<p>
+					@Team.Description
+				</p>
+			</div>
+			<ul class="c-TeamRoster_Detail_List @(IsCollapsable && IsCollapsed ? "-Collapsed" : "")">
+
+				@foreach (var player in Team.Participants.Select(p => p.Player).OrderByDescending(p => p?.AccountId == Team.OwnerAccountId).ThenBy(p => p.Nickname))
+				{
+					<li class="c-TeamRoster_Detail_List_Player">
+						@if (player?.AccountId == Team.OwnerAccountId)
+						{
+							<span class="fas fa-crown"></span>
+						}
+						<a target="_blank" href="@GetWowsNumbersUrl(player)">@player.Nickname</a>
+					</li>
+				}
+			</ul>
+		</div>
+	}
+</div>
+
+@code {
+	[Parameter]
+	public TournamentTeam Team { get; set; }
+
+	[Parameter]
+	public bool IsCollapsable { get; set; }
+
+	bool IsCollapsed { get; set; } = true;
+
+	public string GetWowsNumbersUrl (WarshipsPlayer player)
+	{
+		var subdomain = player.Region.Subdomain() + ".";
+		if (subdomain == "eu.")
+		{
+			subdomain = "";
+		}
+		return $"https://{subdomain}wows-numbers.com/player/{player.PlayerId},{player.Nickname}/";
+	}
+}

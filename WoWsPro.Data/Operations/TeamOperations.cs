@@ -188,7 +188,7 @@ namespace WoWsPro.Data.Operations
 
 				// Check that the tag and name are not taken
 				team.Tag = team.Tag.ToUpper();
-				if (Context.TournamentTeams.Any(t => t.Tag == team.Tag || t.Name.ToLower() == team.Name.ToLower()))
+				if (rules.Tournament.Teams.Any(t => t.Tag == team.Tag || t.Name.ToLower() == team.Name.ToLower()))
 				{
 					throw new NotSupportedException("Duplicate team is not permitted.");
 				}
@@ -271,7 +271,7 @@ namespace WoWsPro.Data.Operations
 		public bool UpdateTeam (Shared.Models.TournamentTeam team)
 		{
 			var rules = Context.TournamentRegistrationRules.SingleOrDefault(r => r.TournamentId == team.TournamentId && r.Region == team.Region);
-			var context = Context.TournamentTeams.SingleOrDefault(t => t.TeamId == team.TeamId);
+			var context = Context.TournamentTeams.SingleOrDefault(t => t.TournamentId == team.TournamentId && t.TeamId == team.TeamId);
 			if (context is null)
 			{
 				throw new KeyNotFoundException();
@@ -285,7 +285,7 @@ namespace WoWsPro.Data.Operations
 			{
 				// Check that the tag and name are not taken
 				team.Tag = team.Tag.ToUpper();
-				if (Context.TournamentTeams.Any(t => t.TeamId != team.TeamId && (t.Tag == team.Tag || t.Name.ToLower() == team.Name.ToLower())))
+				if (Context.TournamentTeams.Any(t => t.TournamentId == team.TournamentId && t.TeamId != team.TeamId && (t.Tag == team.Tag || t.Name.ToLower() == team.Name.ToLower())))
 				{
 					throw new NotSupportedException("Duplicate team is not permitted.");
 				}
@@ -306,7 +306,7 @@ namespace WoWsPro.Data.Operations
 		public bool UpdateTeamMembers (Shared.Models.TournamentTeam team)
 		{
 			var rules = Context.TournamentRegistrationRules.SingleOrDefault(r => r.TournamentId == team.TournamentId && r.Region == team.Region);
-			var context = Context.TournamentTeams.SingleOrDefault(t => t.TeamId == team.TeamId);
+			var context = Context.TournamentTeams.SingleOrDefault(t => t.TournamentId == team.TournamentId && t.TeamId == team.TeamId);
 			if (rules is null || context is null)
 			{
 				throw new KeyNotFoundException();

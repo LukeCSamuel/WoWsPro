@@ -4456,7 +4456,6 @@ body {
   margin: auto;
   background: #0f081a;
   /*box-shadow: #333 0px 0px 5px 2px;*/
-  box-shadow: 0px 0px 5px 3px rgba(63, 30, 85, 0.2);
   width: 100%; }
   @media (min-width: 1024px) and (max-width: 1365px) {
     .app-container {
@@ -4781,6 +4780,69 @@ html, body, .body-fill {
     border-top: 0.4em solid #29abe2;
     border-radius: 50%;
     animation: spinny 1s linear infinite; }
+
+.c-TeamRoster {
+  background-color: #2b1043;
+  color: #ffffff;
+  margin: 0.4em 0.2em;
+  border-radius: 0.2em;
+  overflow: hidden; }
+  .c-TeamRoster_Header {
+    display: flex;
+    align-content: center; }
+    .c-TeamRoster_Header_Region {
+      padding: 0.2em 0.4em;
+      margin: 0;
+      margin-right: 0.2em; }
+      .c-TeamRoster_Header_Region.NA {
+        background-color: #009900; }
+      .c-TeamRoster_Header_Region.EU {
+        background-color: #c26b0e; }
+      .c-TeamRoster_Header_Region.CIS {
+        background-color: #b53a2f; }
+      .c-TeamRoster_Header_Region.SEA {
+        background-color: #0066ff; }
+    .c-TeamRoster_Header_Name {
+      flex-grow: 1;
+      padding: 0.2em;
+      margin: 0; }
+    .c-TeamRoster_Header_Collapse {
+      align-self: flex-end;
+      font-size: 1.2em;
+      margin: 0.2em;
+      transition: transform ease-in-out 200ms;
+      background-color: transparent;
+      color: #ffffff;
+      border: none;
+      border-radius: 50%;
+      width: 1.5em;
+      height: 1.5em;
+      position: relative;
+      transform: rotate(180deg); }
+      .c-TeamRoster_Header_Collapse > span {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); }
+      .c-TeamRoster_Header_Collapse:hover {
+        background-color: #3f1e55; }
+      .c-TeamRoster_Header_Collapse:focus {
+        outline: none;
+        border: 2px #29abe2 solid; }
+      .c-TeamRoster_Header_Collapse.-Collapsed {
+        transform: rotate(0deg); }
+  .c-TeamRoster_Detail_Info {
+    display: flex; }
+  .c-TeamRoster_Detail_Icon {
+    max-height: 128px;
+    max-width: 128px;
+    margin: 0.2em; }
+  .c-TeamRoster_Detail_List {
+    list-style-type: none;
+    margin: 0.2em;
+    padding: 0.2em; }
+    .c-TeamRoster_Detail_List_Player {
+      margin: 0.3em; }
 
 .index {
   padding: 1em; }
@@ -5166,5 +5228,6 @@ html, body, .body-fill {
   margin: 0.4em 0.2em; }
   .teams .team .icon {
     max-height: 128px;
+    max-width: 128px;
     margin: 0.2em;
     flex-shrink: 0; }

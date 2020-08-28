@@ -30,7 +30,7 @@
 						}
 						else if (CurrentRules.Open > DateTime.UtcNow)
 						{
-							<p>Registration will not open until @CurrentRules.Open.</p>
+							<p>Registration will not open until @CurrentRules.Open.ToString().</p>
 						}
 						else if (CurrentRules.Close < DateTime.UtcNow)
 						{

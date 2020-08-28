@@ -23,7 +23,7 @@ body {
 	margin: auto;
 	background: $color-black-off;
 	/*box-shadow: #333 0px 0px 5px 2px;*/
-	box-shadow: 0px 0px 5px 3px rgba($color-purple-medium, 0.2);
+	//box-shadow: 0px 0px 5px 3px rgba($color-purple-medium, 0.2);
 	width: 100%;
 
 	@include pc-sm {
@@ -50,6 +50,8 @@ a:hover, a:focus {
 @import "Shared/TournamentLayout.scss";
 @import "Shared/Feet.scss";
 @import "Shared/Loading.scss";
+
+@import "Shared/Team/TeamRoster.scss";
 
 // Pages
 @import "Pages/Index.scss";

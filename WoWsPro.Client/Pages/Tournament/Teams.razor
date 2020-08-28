@@ -5,18 +5,9 @@
 	<Loading Until="TeamsLoad">
 		<div class="teams">
 			<h1>All Teams</h1>
-			@foreach (var team in TeamsList.OrderBy(t => t.Tag))
+			@foreach (var team in TeamsList.OrderBy(t => t.Region).ThenBy(t => t.Tag))
 			{
-				<div class="team">
-					@if (!string.IsNullOrEmpty(team.Icon))
-					{
-						<img class="icon" src="@team.Icon" />
-					}
-					<div>
-						<h3>@($"[{team.Tag}] {team.Name}")</h3>
-						<p>@team.Description</p>
-					</div>
-				</div>
+				<TeamRoster Team="team" IsCollapsable="true" />
 			}
 		</div>
 	</Loading>

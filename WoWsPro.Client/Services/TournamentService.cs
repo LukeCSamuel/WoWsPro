@@ -79,6 +79,7 @@ namespace WoWsPro.Client.Services
 			{
 				CurrentTournamentId = tournamentId;
 				await Current.UpdateAsync();
+				await CurrentTeams.UpdateAsync();
 			}
 		}
 	}
