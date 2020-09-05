@@ -7,6 +7,7 @@
       https://dotnet.myget.org/F/blazor-dev/api/v3/index.json;
     </RestoreAdditionalProjectSources>
     <LangVersion>8.0</LangVersion>
+    <UserSecretsId>40d13c94-c669-4cbd-91da-278d45c56538</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

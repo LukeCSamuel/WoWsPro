@@ -4,10 +4,14 @@
 <Loading Until="TournamentLoad">
 	<Loading Until="TeamsLoad">
 		<div class="teams">
-			<h1>All Teams</h1>
-			@foreach (var team in TeamsList.OrderBy(t => t.Region).ThenBy(t => t.Tag))
+			@foreach (var region in Tournament.RegistrationRules)
 			{
-				<TeamRoster Team="team" IsCollapsable="true" />
+				var teams = TeamsList.Where(t => t.Region == region.Region).OrderBy(t => t.Tag).ToList();
+				<h2>@region.Region Teams (@teams.Count):</h2>
+				@foreach (var team in teams)
+				{
+					<TeamRoster TeamsList="TeamsList" Team="team" IsCollapsable="true" />
+				}
 			}
 		</div>
 	</Loading>

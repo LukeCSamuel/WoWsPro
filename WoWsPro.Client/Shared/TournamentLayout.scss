@@ -66,7 +66,6 @@
 		transform-origin: left;
 		transform: translateX(-250px);
 		transition: transform 150ms ease-in;
-		overflow-y: auto;
 
 		@include pc-sm {
 			position: static;
@@ -88,6 +87,7 @@
 			display: flex;
 			flex-direction: column;
 			min-height: 100%;
+			overflow-y: auto;
 
 			.tournament-icon {
 				position: relative;
@@ -146,7 +146,6 @@
 					position: relative;
 					font-size: 1.25em;
 					border-left: 5px solid transparent;
-
 					/*&::after {
 						content: "";
 						position: absolute;
@@ -161,22 +160,17 @@
 						transform-origin: right;
 						transition: transform 150ms ease-in-out;
 					}*/
-
 					&.active {
 						background: $color-purple-dark;
 						border-left-color: $color-blue-light;
-
 						/*&::after {
 							transform: translateY(-50%) scaleX(1);
 						}*/
 					}
 
-					&:hover {
-						background: $color-purple-light;
-					}
-
+					&:hover,
 					&:focus {
-						text-decoration: underline;
+						background: $color-purple-light;
 					}
 				}
 			}

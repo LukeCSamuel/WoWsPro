@@ -18,9 +18,24 @@
 		<div class="c-TeamRoster_Detail">
 			<div class="c-TeamRoster_Detail_Info">
 				<img class="c-TeamRoster_Detail_Icon" src="@Team.Icon" />
-				<p>
-					@Team.Description
-				</p>
+				<div>
+					<p>
+						@Team.Description
+					</p>
+					<table class="c-TeamRoster_Detail_Properties">
+						<tr>
+							<td>Team Status:</td>
+							<td>
+								@Team.Status.ToVerb()
+								@if (Team.Status == TeamStatus.WaitListed)
+								{
+									(int place, int size) = GetPlaceOnWaitList();
+									<span>(@place of @size)</span>
+								}
+							</td>
+						</tr>
+					</table>
+				</div>
 			</div>
 			<ul class="c-TeamRoster_Detail_List @(IsCollapsable && IsCollapsed ? "-Collapsed" : "")">
 
@@ -40,6 +55,10 @@
 </div>
 
 @code {
+	// TODO: Ideally, Tournament.Teams could be accessible from the Navigation property on Team
+	[Parameter]
+	public List<TournamentTeam> TeamsList { get; set; }
+
 	[Parameter]
 	public TournamentTeam Team { get; set; }
 
@@ -56,5 +75,11 @@
 			subdomain = "";
 		}
 		return $"https://{subdomain}wows-numbers.com/player/{player.PlayerId},{player.Nickname}/";
+	}
+
+	public (int place, int size) GetPlaceOnWaitList ()
+	{
+		var waitlist = TeamsList.Where(t => t.Status == TeamStatus.WaitListed).OrderBy(t => t.Created).ToList();
+		return (waitlist.IndexOf(Team) + 1, waitlist.Count);
 	}
 }

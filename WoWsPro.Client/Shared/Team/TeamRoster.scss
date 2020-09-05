@@ -84,7 +84,12 @@
 		&_Icon {
 			max-height: 128px;
 			max-width: 128px;
+			flex-shrink: 0;
 			margin: 0.2em;
+		}
+
+		&_Properties {
+			font-size: 0.9em;
 		}
 
 		&_List {

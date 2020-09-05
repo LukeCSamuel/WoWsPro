@@ -4606,8 +4606,7 @@ html, body, .body-fill {
     min-height: 100%;
     transform-origin: left;
     transform: translateX(-250px);
-    transition: transform 150ms ease-in;
-    overflow-y: auto; }
+    transition: transform 150ms ease-in; }
     @media (min-width: 1024px) and (max-width: 1365px) {
       .tournament-layout > .side-nav {
         position: static;
@@ -4623,7 +4622,8 @@ html, body, .body-fill {
       top: 0;
       display: flex;
       flex-direction: column;
-      min-height: 100%; }
+      min-height: 100%;
+      overflow-y: auto; }
       .tournament-layout > .side-nav .nav-container .tournament-icon {
         position: relative; }
         .tournament-layout > .side-nav .nav-container .tournament-icon img {
@@ -4687,10 +4687,8 @@ html, body, .body-fill {
             /*&::after {
 							transform: translateY(-50%) scaleX(1);
 						}*/ }
-          .tournament-layout > .side-nav .nav-container nav a:hover {
+          .tournament-layout > .side-nav .nav-container nav a:hover, .tournament-layout > .side-nav .nav-container nav a:focus {
             background: #5b3d78; }
-          .tournament-layout > .side-nav .nav-container nav a:focus {
-            text-decoration: underline; }
       .tournament-layout > .side-nav .nav-container .close {
         flex-grow: 1;
         margin-top: 4em;
@@ -4836,7 +4834,10 @@ html, body, .body-fill {
   .c-TeamRoster_Detail_Icon {
     max-height: 128px;
     max-width: 128px;
+    flex-shrink: 0;
     margin: 0.2em; }
+  .c-TeamRoster_Detail_Properties {
+    font-size: 0.9em; }
   .c-TeamRoster_Detail_List {
     list-style-type: none;
     margin: 0.2em;
