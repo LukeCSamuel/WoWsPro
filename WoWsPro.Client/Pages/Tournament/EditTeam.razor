@@ -173,9 +173,9 @@
 								}
 								else
 								{
-									<div>
-										<span>@Team.Tag</span><span>@Team.Name</span>
-									</div>
+									<h1>
+										<span>[@Team.Tag]</span> <span>@Team.Name</span>
+									</h1>
 								}
 
 								@if (CurrentRules.Close > DateTime.UtcNow || CurrentRules.Rules.HasFlag(RegistrationRules.AllowRosterChanges))
