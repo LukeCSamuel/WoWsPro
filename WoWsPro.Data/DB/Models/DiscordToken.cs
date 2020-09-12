@@ -17,9 +17,5 @@ namespace WoWsPro.Data.DB.Models
 		public string Scope { get; set; }
 
 		public virtual DiscordUser DiscordUser { get; set; }
-
-		public static implicit operator Shared.Models.DiscordToken (DiscordToken token) => token.ConvertObject<DiscordToken, Shared.Models.DiscordToken>();
-		public static implicit operator DiscordToken (Shared.Models.DiscordToken token) => token.ConvertObject<Shared.Models.DiscordToken, DiscordToken>();
-		
 	}
 }

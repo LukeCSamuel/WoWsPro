@@ -536,13 +536,6 @@ namespace WoWsPro.Data.DB
 				: set.Add(entity);
 		}
 
-		internal static R ConvertObject<T, R> (this T obj) where T : class where R : class
-		{
-			return obj is null
-				? null
-				: JsonConvert.DeserializeObject<R>(JsonConvert.SerializeObject(obj, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
-		}
-
 		public static IServiceCollection AddDataContextPool (this IServiceCollection services, int poolSize)
 		{
 			return services.AddDbContextPool<Context>((serviceProvider, options) =>

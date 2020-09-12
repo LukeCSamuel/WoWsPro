@@ -99,7 +99,20 @@ namespace WoWsPro.Data.Operations
 				if (teams.SingleOrDefault() is DB.Models.TournamentParticipant result)
 				{
 					// Return the player's team.
-					return result.Team;
+					return new Shared.Models.TournamentTeam()
+					{
+						OwnerAccountId = result.Team.OwnerAccountId,
+						Created = result.Team.Created,
+						Description = result.Team.Description,
+						Icon = result.Team.Icon,
+						Name = result.Team.Name,
+						//Participants = result.Team.Participants,
+						Region = result.Team.Region,
+						Status = result.Team.Status,
+						Tag = result.Team.Tag,
+						TeamId = result.Team.TeamId,
+						TournamentId = result.Team.TournamentId
+					};
 				}
 				else if (teams.Count() > 0)
 				{

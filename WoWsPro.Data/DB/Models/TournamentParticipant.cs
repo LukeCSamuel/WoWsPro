@@ -17,9 +17,5 @@ namespace WoWsPro.Data.DB.Models
 
 		public virtual TournamentTeam Team { get; set; }
 		public virtual WarshipsPlayer Player { get; set; }
-
-
-		public static implicit operator Shared.Models.TournamentParticipant (TournamentParticipant participant) => participant.ConvertObject<TournamentParticipant, Shared.Models.TournamentParticipant>();
-		public static implicit operator TournamentParticipant (Shared.Models.TournamentParticipant participant) => participant.ConvertObject<Shared.Models.TournamentParticipant, TournamentParticipant>();
 	}
 }

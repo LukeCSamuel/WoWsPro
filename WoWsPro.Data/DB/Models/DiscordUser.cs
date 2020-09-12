@@ -23,10 +23,5 @@ namespace WoWsPro.Data.DB.Models
 		public virtual Account Account { get; set; }
 
 		public virtual ICollection<DiscordToken> DiscordTokens { get; set; }
-
-
-		public static implicit operator Shared.Models.DiscordUser (DiscordUser user) => user.ConvertObject<DiscordUser, Shared.Models.DiscordUser>();
-		public static implicit operator DiscordUser (Shared.Models.DiscordUser user) => user.ConvertObject<Shared.Models.DiscordUser, DiscordUser>();
-
 	}
 }

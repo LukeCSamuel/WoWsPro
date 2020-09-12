@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using WoWsPro.Data.Attributes;
 using WoWsPro.Data.DB;
+using WoWsPro.Data.DB.Models;
 using WoWsPro.Shared.Constants;
 
 namespace WoWsPro.Data.Operations
@@ -119,9 +120,31 @@ namespace WoWsPro.Data.Operations
 			if (dbPlayer is null)
 			{
 				// Add and return
-				var result = Context.WarshipsPlayers.Add(player).Entity;
+				var result = Context.WarshipsPlayers.Add(new WarshipsPlayer()
+				{
+					AccountId = player.AccountId,
+					ClanId = player.ClanId,
+					ClanRole = player.ClanRole,
+					JoinedClan = player.JoinedClan,
+					Created = player.Created,
+					IsPrimary = player.IsPrimary,
+					Nickname = player.Nickname,
+					PlayerId = player.PlayerId,
+					Region = player.Region
+				}).Entity;
 				Context.SaveChanges();
-				return result;
+				return new Shared.Models.WarshipsPlayer()
+				{
+					AccountId = result.AccountId,
+					ClanId = result.ClanId,
+					ClanRole = result.ClanRole,
+					JoinedClan = result.JoinedClan,
+					Created = result.Created,
+					IsPrimary = result.IsPrimary,
+					Nickname = result.Nickname,
+					PlayerId = result.PlayerId,
+					Region = result.Region
+				};;
 			}
 			else
 			{
@@ -130,7 +153,18 @@ namespace WoWsPro.Data.Operations
 				dbPlayer.ClanRole = player.ClanRole;
 				dbPlayer.JoinedClan = player.JoinedClan;
 				Context.SaveChanges();
-				return dbPlayer;
+				return new Shared.Models.WarshipsPlayer()
+				{
+					AccountId = player.AccountId,
+					ClanId = player.ClanId,
+					ClanRole = player.ClanRole,
+					JoinedClan = player.JoinedClan,
+					Created = player.Created,
+					IsPrimary = player.IsPrimary,
+					Nickname = player.Nickname,
+					PlayerId = player.PlayerId,
+					Region = player.Region
+				}; ;
 			}
 		}
 
@@ -159,7 +193,25 @@ namespace WoWsPro.Data.Operations
 				}
 				else
 				{
-					return bestToken;
+					return new Shared.Models.DiscordToken()
+					{
+						AccessToken = bestToken.AccessToken,
+						DiscordId = bestToken.DiscordId,
+						DiscordTokenId = bestToken.DiscordTokenId,
+						DiscordUser = new Shared.Models.DiscordUser()
+						{
+							DiscordId = bestToken.DiscordUser.DiscordId,
+							AccountId = bestToken.DiscordUser.AccountId,
+							Avatar = bestToken.DiscordUser.Avatar,
+							Discriminator = bestToken.DiscordUser.Discriminator,
+							Username = bestToken.DiscordUser.Username,
+							IsPrimary = bestToken.DiscordUser.IsPrimary
+						},
+						Expires = bestToken.Expires,
+						RefreshToken = bestToken.RefreshToken,
+						Scope = bestToken.Scope,
+						TokenType = bestToken.TokenType
+					};
 				}
 			}
 		}
@@ -250,7 +302,46 @@ namespace WoWsPro.Data.Operations
 		public Shared.Models.Account GetAccount (long accountId)
 		{
 			var account = Context.Accounts.Single(a => a.AccountId == accountId);
-			return account;
+			return new Shared.Models.Account()
+			{
+				AccountId = account.AccountId,
+				Created = account.Created,
+				Nickname = account.Nickname,
+				DiscordAccounts = account.DiscordAccounts.Select(du => new Shared.Models.DiscordUser()
+				{
+					AccountId = du.AccountId,
+					Avatar = du.Avatar,
+					DiscordId = du.DiscordId,
+					Discriminator = du.Discriminator,
+					Username = du.Username,
+					IsPrimary = du.IsPrimary
+				}).ToList(),
+				WarshipsAccounts = account.WarshipsAccounts.Select(wp => new Shared.Models.WarshipsPlayer()
+				{
+					AccountId = wp.AccountId,
+					ClanId = wp.ClanId,
+					ClanRole = wp.ClanRole,
+					Created = wp.Created,
+					IsPrimary = wp.IsPrimary,
+					JoinedClan = wp.JoinedClan,
+					Nickname = wp.Nickname,
+					PlayerId = wp.PlayerId,
+					Region = wp.Region
+				}).ToList(),
+				OwnedTeams = account.OwnedTeams.Select(tt => new Shared.Models.TournamentTeam()
+				{
+					TeamId = tt.TeamId,
+					TournamentId = tt.TournamentId,
+					OwnerAccountId = tt.OwnerAccountId,
+					Created = tt.Created,
+					Description = tt.Description,
+					Icon = tt.Icon,
+					Name = tt.Name,
+					Region = tt.Region,
+					Status = tt.Status,
+					Tag = tt.Tag
+				}).ToList()
+			};
 		}
 
 		// TODO: Implement a proper merge operation so accounts don't go headless!
@@ -285,7 +376,15 @@ namespace WoWsPro.Data.Operations
 			}
 			else
 			{
-				var dbUser = (DB.Models.DiscordUser)token.DiscordUser;
+				var dbUser = new DiscordUser()
+				{
+					AccountId = accountId,
+					Avatar = token.DiscordUser.Avatar,
+					DiscordId = token.DiscordUser.DiscordId,
+					Discriminator = token.DiscordUser.Discriminator,
+					IsPrimary = token.DiscordUser.IsPrimary,
+					Username = token.DiscordUser.Username
+				};
 				dbUser.Account = account;
 				dbUser.IsPrimary = !hasPrimary;
 				Context.DiscordUsers.Add(dbUser);
@@ -346,7 +445,15 @@ namespace WoWsPro.Data.Operations
 				Context.SaveChanges();
 
 				AddDefaultClaims(account);
-				var dbUser = (DB.Models.DiscordUser)token.DiscordUser;
+				var dbUser = new DiscordUser()
+				{
+					AccountId = token.DiscordUser.AccountId,
+					Avatar = token.DiscordUser.Avatar,
+					DiscordId = token.DiscordUser.DiscordId,
+					Discriminator = token.DiscordUser.Discriminator,
+					IsPrimary = token.DiscordUser.IsPrimary,
+					Username = token.DiscordUser.Username
+				};
 				dbUser.IsPrimary = true;
 				dbUser.Account = account;
 				Context.DiscordUsers.Add(dbUser);
@@ -370,14 +477,50 @@ namespace WoWsPro.Data.Operations
 			if (existing is null)
 			{
 				token.DiscordUser = null;
-				Context.DiscordTokens.Add(token);
+				Context.DiscordTokens.Add(new DiscordToken()
+				{
+					AccessToken = token.AccessToken,
+					DiscordId = token.DiscordId,
+					DiscordTokenId = token.DiscordTokenId,
+					DiscordUser = new DiscordUser()
+					{
+						DiscordId = token.DiscordUser.DiscordId,
+						AccountId = token.DiscordUser.AccountId,
+						Avatar = token.DiscordUser.Avatar,
+						Discriminator = token.DiscordUser.Discriminator,
+						Username = token.DiscordUser.Username,
+						IsPrimary = token.DiscordUser.IsPrimary
+					},
+					Expires = token.Expires,
+					RefreshToken = token.RefreshToken,
+					Scope = token.Scope,
+					TokenType = token.TokenType
+				});
 				Context.SaveChanges();
 			}
 			else if (existing.Expires < token.Expires)
 			{
 				Context.DiscordTokens.RemoveRange(Context.DiscordTokens.Where(t => t.DiscordId == token.DiscordId));
 				token.DiscordUser = null;
-				Context.DiscordTokens.Add(token);
+				Context.DiscordTokens.Add(new DiscordToken()
+				{
+					AccessToken = token.AccessToken,
+					DiscordId = token.DiscordId,
+					DiscordTokenId = token.DiscordTokenId,
+					DiscordUser = new DiscordUser()
+					{
+						DiscordId = token.DiscordUser.DiscordId,
+						AccountId = token.DiscordUser.AccountId,
+						Avatar = token.DiscordUser.Avatar,
+						Discriminator = token.DiscordUser.Discriminator,
+						Username = token.DiscordUser.Username,
+						IsPrimary = token.DiscordUser.IsPrimary
+					},
+					Expires = token.Expires,
+					RefreshToken = token.RefreshToken,
+					Scope = token.Scope,
+					TokenType = token.TokenType
+				});
 				Context.SaveChanges();
 			}
 		}
@@ -412,7 +555,18 @@ namespace WoWsPro.Data.Operations
 			else
 			{
 				// Player is not in database, can be added
-				var dbPlayer = (DB.Models.WarshipsPlayer)player;
+				var dbPlayer = new WarshipsPlayer()
+				{
+					AccountId = player.AccountId,
+					ClanId = player.ClanId,
+					ClanRole = player.ClanRole,
+					JoinedClan = player.JoinedClan,
+					Created = player.Created,
+					IsPrimary = player.IsPrimary,
+					Nickname = player.Nickname,
+					PlayerId = player.PlayerId,
+					Region = player.Region
+				};
 				dbPlayer.Account = account;
 				dbPlayer.IsPrimary = !hasPrimary;
 				Context.WarshipsPlayers.Add(dbPlayer);
@@ -467,7 +621,18 @@ namespace WoWsPro.Data.Operations
 				Context.SaveChanges();
 
 				AddDefaultClaims(account);
-				var dbPlayer = (DB.Models.WarshipsPlayer)player;
+				var dbPlayer = new WarshipsPlayer()
+				{
+					AccountId = player.AccountId,
+					ClanId = player.ClanId,
+					ClanRole = player.ClanRole,
+					JoinedClan = player.JoinedClan,
+					Created = player.Created,
+					IsPrimary = player.IsPrimary,
+					Nickname = player.Nickname,
+					PlayerId = player.PlayerId,
+					Region = player.Region
+				}; ;
 				dbPlayer.IsPrimary = true;
 				dbPlayer.Account = account;
 				Context.WarshipsPlayers.Add(dbPlayer);

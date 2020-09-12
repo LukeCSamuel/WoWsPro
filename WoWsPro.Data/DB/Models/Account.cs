@@ -87,10 +87,5 @@ namespace WoWsPro.Data.DB.Models
 				throw new NotImplementedException();
 			}
 		}
-
-
-		public static implicit operator Shared.Models.Account (Account account) => account.ConvertObject<Account, Shared.Models.Account>();
-		public static implicit operator Account (Shared.Models.Account account) => account.ConvertObject<Shared.Models.Account, Account>();
-
 	}
 }

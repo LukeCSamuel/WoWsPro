@@ -14,8 +14,5 @@ namespace WoWsPro.Data.DB.Models
 		public string Name { get; set; }
 
 		public virtual DiscordGuild Guild { get; set; }
-
-		public static implicit operator Shared.Models.DiscordRole (DiscordRole role) => role.ConvertObject<DiscordRole, Shared.Models.DiscordRole>();
-		public static implicit operator DiscordRole (Shared.Models.DiscordRole role) => role.ConvertObject<Shared.Models.DiscordRole, DiscordRole>();
 	}
 }

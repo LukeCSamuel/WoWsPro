@@ -27,10 +27,5 @@ namespace WoWsPro.Data.DB.Models
 		public virtual WarshipsClan Clan { get; set; }
 
 		public virtual ICollection<TournamentParticipant> Participations { get; set; }
-
-
-		public static implicit operator Shared.Models.WarshipsPlayer (WarshipsPlayer player) => player.ConvertObject<WarshipsPlayer, Shared.Models.WarshipsPlayer>();
-		public static implicit operator WarshipsPlayer (Shared.Models.WarshipsPlayer player) => player.ConvertObject<Shared.Models.WarshipsPlayer, WarshipsPlayer>();
-
 	}
 }

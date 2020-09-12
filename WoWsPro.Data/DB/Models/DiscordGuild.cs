@@ -19,10 +19,5 @@ namespace WoWsPro.Data.DB.Models
 
 		public virtual ICollection<DiscordRole> Roles { get; set; }
 		public virtual ICollection<Tournament> Tournaments { get; set; }
-
-
-
-		public static implicit operator Shared.Models.DiscordGuild (DiscordGuild obj) => obj.ConvertObject<DiscordGuild, Shared.Models.DiscordGuild>();
-		public static implicit operator DiscordGuild (Shared.Models.DiscordGuild obj) => obj.ConvertObject<Shared.Models.DiscordGuild, DiscordGuild>();
 	}
 }

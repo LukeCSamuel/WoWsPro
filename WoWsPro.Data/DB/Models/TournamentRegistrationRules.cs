@@ -26,9 +26,5 @@ namespace WoWsPro.Data.DB.Models
 		public virtual Tournament Tournament { get; set; }
 		public virtual DiscordRole RegionParticipantRole { get; set; }
 		public virtual DiscordRole RegionTeamOwnerRole { get; set; }
-
-
-		public static implicit operator Shared.Models.TournamentRegistrationRules (TournamentRegistrationRules rules) => rules.ConvertObject<TournamentRegistrationRules, Shared.Models.TournamentRegistrationRules>();
-		public static implicit operator TournamentRegistrationRules (Shared.Models.TournamentRegistrationRules rules) => rules.ConvertObject<Shared.Models.TournamentRegistrationRules, TournamentRegistrationRules>();
 	}
 }

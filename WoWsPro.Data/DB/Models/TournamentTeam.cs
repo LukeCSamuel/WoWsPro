@@ -50,9 +50,5 @@ namespace WoWsPro.Data.DB.Models
 		[NotMapped]
 		[JsonIgnore]
 		long IScope.ScopeId => TeamId;
-
-
-		public static implicit operator Shared.Models.TournamentTeam (TournamentTeam team) => team.ConvertObject<TournamentTeam, Shared.Models.TournamentTeam>();
-		public static implicit operator TournamentTeam (Shared.Models.TournamentTeam team) => team.ConvertObject<Shared.Models.TournamentTeam, TournamentTeam>();
 	}
 }
