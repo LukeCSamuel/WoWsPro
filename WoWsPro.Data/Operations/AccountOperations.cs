@@ -507,15 +507,6 @@ namespace WoWsPro.Data.Operations
 					AccessToken = token.AccessToken,
 					DiscordId = token.DiscordId,
 					DiscordTokenId = token.DiscordTokenId,
-					DiscordUser = new DiscordUser()
-					{
-						DiscordId = token.DiscordUser.DiscordId,
-						AccountId = token.DiscordUser.AccountId,
-						Avatar = token.DiscordUser.Avatar,
-						Discriminator = token.DiscordUser.Discriminator,
-						Username = token.DiscordUser.Username,
-						IsPrimary = token.DiscordUser.IsPrimary
-					},
 					Expires = token.Expires,
 					RefreshToken = token.RefreshToken,
 					Scope = token.Scope,
