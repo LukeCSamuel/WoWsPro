@@ -14,6 +14,7 @@ namespace WoWsPro.Server.Services
 		string BaseUrl { get; }
 		string DiscordClientId { get; }
 		string DiscordClientSecret { get; }
+		string OauthSalt { get; }
 	}
 
 	public class Settings : ISettings
@@ -29,6 +30,7 @@ namespace WoWsPro.Server.Services
 		public string BaseUrl => _config["Urls:BaseUrl"];
 		public string DiscordClientId => _config["ApiKeys:Discord:ClientId"];
 		public string DiscordClientSecret => _config["ApiKeys:Discord:ClientSecret"];
+		public string OauthSalt => _config["OauthSalt"];
 	}
 
 	public static class SettingsProvider

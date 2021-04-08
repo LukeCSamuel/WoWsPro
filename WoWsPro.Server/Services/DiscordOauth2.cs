@@ -1,9 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using WoWsPro.Shared.Models.Discord;
@@ -20,48 +23,18 @@ namespace WoWsPro.Server.Services
 
 	public class Oauth2State
 	{
-		public TimeSpan ExpirationInterval { get; set; }
+		public Nonce State => Nonce.NonceBatch(Key)[0];
 
-		private Nonce _currentState;
-		private Nonce _lastState;
-		private DateTime _expiration;
+		private string Key { get; }
 
-		public Nonce State
-		{
-			get
-			{
-				var now = DateTime.Now;
-				if (now < _expiration)
-				{
-					return _currentState;
-				}
-				else if (now < _expiration + ExpirationInterval)
-				{
-					_lastState = _currentState;
-					return _currentState = Nonce.NewNonce();
-				}
-				else
-				{
-					_lastState = null;
-					return _currentState = Nonce.NewNonce();
-				}
-			}
-		}
-
-		public Oauth2State () : this(new TimeSpan(0, 15, 0)) { }
-
-		public Oauth2State (TimeSpan expiration) {
-			ExpirationInterval = expiration;
-			_currentState = Nonce.NewNonce();
-			_expiration = DateTime.Now + ExpirationInterval;
+		public Oauth2State (ISettings settings) {
+			Key = settings.OauthSalt;
 		}
 
 		public bool Matches (string state)
 		{
-			return State.Matches(state) 
-				|| (_lastState is not null && _lastState.Matches(state));
+			return Nonce.NonceBatch(Key, 2).Any(n => n.Matches(state));
 		}
-
 
 		public class Nonce
 		{
@@ -69,10 +42,24 @@ namespace WoWsPro.Server.Services
 
 			public Nonce () { }
 
-			public static Nonce NewNonce () => new Nonce()
+			public static Nonce[] NonceBatch (string salt, int count = 1)
 			{
-				State = TokenGenerator.GenerateToken()
-			};
+				using var sha = SHA256.Create();
+				var now = DateTime.UtcNow;
+				var nonces = new Nonce[count];
+				for (int i = 0; i < nonces.Length; i++)
+				{
+					string key = $"{salt}{(now - TimeSpan.FromMinutes(5 * i)).Ticks / TimeSpan.FromMinutes(5).Ticks}";
+					var bytes = Encoding.UTF8.GetBytes(key);
+					var hash = sha.ComputeHash(bytes);
+					string state = Convert.ToBase64String(hash);
+					nonces[i] = new Nonce()
+					{
+						State = state
+					};
+				}
+				return nonces;
+			}
 
 			public bool Matches (string nonce) => State == nonce;
 
@@ -194,7 +181,7 @@ namespace WoWsPro.Server.Services
 				RequestUri = new Uri($"{Http.BaseAddress}users/@me"),
 				Method = HttpMethod.Get
 			};
-			message.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+			message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 			var response = await Http.SendAsync(message);
 			if (response.IsSuccessStatusCode)
@@ -243,7 +230,7 @@ namespace WoWsPro.Server.Services
 	{
 		public static IServiceCollection AddDiscordOauth2 (this IServiceCollection services)
 			=> services
-			.AddSingleton(new Oauth2State())
+			.AddSingleton<Oauth2State>()
 			.AddSingleton<DiscordHttpClient, DiscordHttpClient>()
 			.AddScoped<IDiscordOauth2, DiscordOauth2>()
 			;

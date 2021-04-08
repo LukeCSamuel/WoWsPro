@@ -90,6 +90,9 @@ namespace WoWsPro.Data.Operations
 		/// <param name="team">The team that should be created</param>
 		public async Task CreateTeamAsync (TournamentTeam team)
 		{
+			// Normalize team
+			team.Tag = team.Tag.ToUpper();
+
 			// Validate that registration rules are adhered to
 			var rules = await Context.TournamentRegistrationRules
 				.Include(r => r.Tournament).ThenInclude(t => t.Teams)
@@ -128,6 +131,9 @@ namespace WoWsPro.Data.Operations
 		/// <param name="team">The new values for the team</param>
 		public async Task EditTeamInfoAsync (TournamentTeam team)
 		{
+			// Normalize team
+			team.Tag = team.Tag.ToUpper();
+
 			// TODO don't use find??
 			var existing = await Context.TournamentTeams
 				.Where(t => t.TeamId == team.TeamId)
