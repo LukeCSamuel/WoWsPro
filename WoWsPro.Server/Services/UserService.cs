@@ -127,9 +127,8 @@ namespace WoWsPro.Server.Services
 					bool isValid = AccountOps.VerifyToken(accountId, token.Token);
 					if (isValid)
 					{
-						// Replace the old cookie with a new one
-						SetUser(token.User);
-						return _user;
+						CookieToken.ExtendCookie(token, ResponseCookies);
+						return _user = token.User;
 					}
 				}
 
@@ -190,6 +189,19 @@ namespace WoWsPro.Server.Services
 						Secure = true
 					});
 				}
+			}
+
+			public static void ExtendCookie (CookieToken cookie, IResponseCookies jar)
+			{
+				// Convert token to Base64
+				var cookieValue = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(cookie)));
+				jar.Append(_cookieName, cookieValue, new CookieOptions()
+				{
+					MaxAge = AdminAccountOperations.TokenExpiration,
+					Expires = DateTime.UtcNow + AdminAccountOperations.TokenExpiration,
+					IsEssential = true,
+					Secure = true
+				});
 			}
 		}
 	}

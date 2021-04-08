@@ -239,8 +239,10 @@ namespace WoWsPro.Data.Operations
 			bool isValid = false;
 			foreach (var t in tokens)
 			{
-				if (now < t.Created + TokenExpiration)
+				if (!isValid && now < t.Created + TokenExpiration)
 				{
+					// Extend this token
+					t.Created = now + TokenExpiration;
 					isValid = true;
 				}
 				else
