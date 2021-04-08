@@ -92,6 +92,9 @@ namespace WoWsPro.Server.Controllers
 			}
 			catch (Exception ex)
 			{
+				Console.WriteLine("\n\n\n" + ex.Message);
+				Console.WriteLine(ex.StackTrace);
+				Console.WriteLine("\n\n\n");
                 return Error(ex);
 			}
 		}

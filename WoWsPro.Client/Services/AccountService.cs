@@ -48,16 +48,7 @@ namespace WoWsPro.Client.Services
             }
 			else
 			{
-				try
-				{
-					Navi.NavigateTo("/account/login");
-					return null;
-				}
-				catch (NavigationException)
-				{
-					// Can't redirect, just stay on this page
-					return null;
-				}
+				return null;
 			}
 		}
 

@@ -383,7 +383,8 @@ else
 
 		if (!AccountService.IsLoggedIn)
 		{
-			Navi.NavigateTo($"/tournament/{Tournament.TournamentId}");
+			// TODO: put this in an authorize component
+			Navi.NavigateTo($"/account/login/");
 		}
 
 		if (TeamId is long id)
