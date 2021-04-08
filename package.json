@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "dev": "bash start.sh",
+		"start": "dotnet run WoWsPro.Server",
+
+		"client": "dotnet watch --project WoWsPro.Client build",
+		"server": "dotnet watch --project WoWsPro.Server run",
+		"shared": "dotnet watch --project WoWsPro.Shared build",
+		"sass": "sass --style=compressed WoWsPro.Client/App.scss WoWsPro.Client/wwwroot/css/site.min.css",
+		"sass-watch": "sass --style=compressed --watch WoWsPro.Client/App.scss:WoWsPro.Client/wwwroot/css/site.min.css"
+  },
+  "devDependencies": {
+    "sass": "^1.32.6"
+  }
+}

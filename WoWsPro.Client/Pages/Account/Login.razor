@@ -7,17 +7,23 @@
 <div class="account-login">
 	<Loading Until="Loaded">
 		<div class="option-wrapper">
-			@foreach (Region region in (Region[])Enum.GetValues(typeof(Region)))
+			@if (Service is null || Service == "wg")
 			{
-				<div class="auth-option" @onclick="@(e => Loaded = WGOpenIdLogin(region))" tabindex="0">
-					<p class="description">World of Warships</p>
-					<h3 class="region-indicator @region.ToString()">@region.ToString()</h3>
+				@foreach (Region region in (Region[])Enum.GetValues(typeof(Region)))
+				{
+					<div class="auth-option" @onclick="@(e => Loaded = WGOpenIdLogin(region))" tabindex="0">
+						<p class="description">World of Warships</p>
+						<h3 class="region-indicator @region.ToString()">@region.ToString()</h3>
+					</div>
+				}
+			}
+			@if (Service is null || Service == "discord")
+			{
+				<div class="auth-option" @onclick="@(e => Loaded = DiscordLogin())" tabindex="1">
+					<p class="description">Discord</p>
+					<h3 class="region-indicator"><i class="fab fa-discord"></i></h3>
 				</div>
 			}
-			<div class="auth-option" @onclick="@(e => Loaded = DiscordLogin())" tabindex="1">
-				<p class="description">Discord</p>
-				<h3 class="region-indicator"><i class="fab fa-discord"></i></h3>
-			</div>
 		</div>
 	</Loading>
 </div>
@@ -46,7 +52,7 @@
 	protected async Task WGOpenIdLogin (Region region)
 	{
 		string requestAddress = $"api/Account/WGOpenId/RequestBody/{region.ToString()}";
-		var request = await Http.GetJsonAsync<HtmlFormRequest>(requestAddress);
+		var request = await Http.GetAsAsync<HtmlFormRequest>(requestAddress);
 		await JsRuntime.InvokeAsync<object>("autoform.submitOpenId", request.RequestAddress, request.Body);
 
 		// Will redirect, timeout to look like we're working!
@@ -56,7 +62,7 @@
 	protected async Task DiscordLogin ()
 	{
 		string requestAddress = $"api/Account/DiscordId/RequestBody";
-		var request = await Http.GetJsonAsync<HtmlFormRequest>(requestAddress);
+		var request = await Http.GetAsAsync<HtmlFormRequest>(requestAddress);
 		await JsRuntime.InvokeAsync<object>("autoform.submitOauth2", request.RequestAddress, request.Body);
 
 		// Will redirect, timeout to look like we're working!

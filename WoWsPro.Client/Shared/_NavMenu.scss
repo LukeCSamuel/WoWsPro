@@ -1,0 +1,82 @@
+﻿.nav-menu {
+	position: sticky;
+	top: 0;
+	width: 100%;
+	color: $color-white;
+	// box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
+	z-index: $z-nav-menu;
+
+	.g-container {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		height: 3rem;
+		background-color: $color-neutral-darker;
+		box-shadow: none;
+	}
+
+	a {
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.brand {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		height: 100%;
+	}
+
+	.logo {
+		height: calc(100% - #{px2rem(10)});
+		margin: px2rem(5);
+	}
+
+	.nav-links {
+		position: relative;
+		height: 100%;
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+
+		.fas {
+			margin-right: px2rem(5);
+		}
+
+		a {
+			@include font-size(md);
+			height: 100%;
+			position: relative;
+			$padding-sides: 10px;
+			padding: 0.5em $padding-sides;
+
+			&::after {
+				content: "";
+				display: block;
+				position: absolute;
+				background-color: $color-primary;
+				left: 50%;
+				transform: translateX(-50%) scaleX(0);
+				transform-origin: center;
+				transition: transform ease-in-out 150ms;
+				bottom: 0;
+				height: 0.2em;
+				border-radius: 0.1em;
+				width: calc(100% - 4 * #{$padding-sides});
+			}
+
+			&.active,
+			&:hover,
+			&:focus {
+				&::after {
+					transform: translateX(-50%) scaleX(1);
+				}
+			}
+
+			&:hover {
+				background-color: $color-neutral-dark;
+			}
+		}
+	}
+}

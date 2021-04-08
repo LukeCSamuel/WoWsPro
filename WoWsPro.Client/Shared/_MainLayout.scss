@@ -1,0 +1,26 @@
+﻿html, body, .body-fill {
+	height: 100%;
+}
+
+.body-fill {
+	display: flex;
+	flex-direction: column;
+}
+
+.main-layout {
+
+	& > .not-footer {
+		display: flex;
+		flex: 1 0 auto;
+		flex-direction: column;
+
+		& > .main-body {
+			flex-grow: 1;
+			width: 100%;
+		}
+	}
+
+	& > .footer {
+		flex-shrink: 0;
+	}
+}

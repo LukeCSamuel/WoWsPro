@@ -4,22 +4,20 @@
 @inject HttpClient Http 
 @implements IDisposable
 
-<div class="dashboard">
+<Loading Until="AccountLoad" NotNull="Account">
+	<div class="dashboard">
 
-	<div class="name">
 		<h1>@User?.PreferredName</h1>
-		<a href="/account/logout">Sign out</a>
-	</div>
+		<p><a href="/account/logout">Sign out</a></p>
 
-	<div class="container">
-		<div class="accounts">
-			<h2>Warships Accounts</h2>
-			<div>
-				<Loading Until="AccountLoad">
+		<div class="container">
+			<div class="accounts">
+				<h2>Warships Accounts</h2>
+				<div>
 					@foreach (var player in Account.WarshipsAccounts.OrderByDescending(a => a.IsPrimary))
 					{
 						<div class="account">
-							<h3><span class="@player.Region.ToString()">@player.Region.ToString()</span> @player.Nickname</h3>
+							<h3><RegionBadge Region="player.Region" /> @player.Nickname</h3>
 							@if (player.IsPrimary)
 							{
 								<p>This is your primary World of Warships account.</p>
@@ -30,17 +28,15 @@
 							}
 						</div>
 					}
-					<NavLink class="add-account" href="account/login">
+					<NavLink class="add-account" href="account/login/wg">
 						Add Account
 					</NavLink>
-				</Loading>
+				</div>
 			</div>
-		</div>
 
-		<div class="accounts">
-			<h2>Discord Accounts</h2>
-			<div>
-				<Loading Until="AccountLoad">
+			<div class="accounts">
+				<h2>Discord Accounts</h2>
+				<div>
 					@foreach (var user in Account.DiscordAccounts.OrderByDescending(a => a.IsPrimary))
 					{
 						<div class="account">
@@ -66,12 +62,12 @@
 							<span>Add Account</span>
 						}
 					</NavLink>
-				</Loading>
+				</div>
 			</div>
 		</div>
-	</div>
 
-</div>
+	</div>
+</Loading>
 
 @code {
 	User User { get; set; }
@@ -101,13 +97,13 @@
 
 	async Task SetPrimaryDiscordUser (long discordId)
 	{
-		await Http.PostJsonAsync("/api/Account/primary/discord", discordId);
+		await Http.PostAsAsync("/api/Account/primary/discord", discordId);
 		await AccountService.UserAccount.UpdateAsync();
 	}
 
 	async Task SetPrimaryWarshipsPlayer (long playerId)
 	{
-		await Http.PostJsonAsync("api/Account/primary/warships", playerId);
+		await Http.PostAsAsync("api/Account/primary/warships", playerId);
 		await AccountService.UserAccount.UpdateAsync();
 	}
 

@@ -1,0 +1,38 @@
+﻿.feet {
+	display: flex;
+	justify-content: right;
+	background: transparent;
+	box-shadow: none;
+	
+	.spacer {
+		flex-grow: 1;
+	}
+
+	.align-end {
+		align-items: flex-end;
+	}
+
+	.interior {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		margin: 0.25rem 1rem;
+
+		p {
+			@include font-size(sm);
+		}
+	}
+
+	.questions {
+		text-align: right;
+	}
+
+	.logo {
+		margin: 0.5rem;
+		height: 3rem;
+
+		@include bp($to: md) {
+			display: none;
+		}
+	}
+}

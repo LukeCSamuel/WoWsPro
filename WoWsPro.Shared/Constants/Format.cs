@@ -7,7 +7,9 @@ namespace WoWsPro.Shared.Constants
 	public enum Format
 	{
 		SingleElimination,
-		Swiss,
-		RoundRobin
+		DoubleElimination,
+		DoubleElimGroup,
+		RoundRobin,
+		Swiss
 	}
 }

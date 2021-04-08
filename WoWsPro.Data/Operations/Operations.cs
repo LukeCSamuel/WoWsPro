@@ -2,15 +2,20 @@
 using System.Collections.Generic;
 using System.Text;
 using WoWsPro.Data.DB;
-using WoWsPro.Data.Services;
+using WoWsPro.Data.WarshipsApi;
+using WoWsPro.Shared.Permissions;
 
 namespace WoWsPro.Data.Operations
 {
-	public abstract class Operations<T>
+	public abstract class Operations
 	{
-		protected internal Context Context => Manager.Context;
-		protected internal long? ScopeId => Manager.ScopeId;
-		protected internal long? UserId => Manager.UserId;
-		protected internal Manager<T> Manager { get; set; }
+		protected internal Context Context { get; private set; }
+		protected internal IAuthorizer Authorizer { get; private set; }
+
+        public Operations (Context context, IAuthorizer authorizer)
+		{
+            Context = context;
+            Authorizer = authorizer;
+        }
 	}
 }

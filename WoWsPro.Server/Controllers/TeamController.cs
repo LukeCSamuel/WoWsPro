@@ -3,118 +3,117 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WoWsPro.Data.Exceptions;
 using WoWsPro.Data.Operations;
-using WoWsPro.Data.Services;
-using WoWsPro.Shared.Models;
+using WoWsPro.Data.WarshipsApi;
+using WoWsPro.Shared.Constants;
+using WoWsPro.Shared.Exceptions;
+using WoWsPro.Shared.Models.Tournaments;
 
 namespace WoWsPro.Server.Controllers
 {
 	[Route("api/[controller]")]
-	public class TeamController : Controller
+	public class TeamController : WowsProApiController
 	{
-		IAuthorizer<TeamOperations> Tops { get; }
+		TeamOperations Tops { get; }
 
-		public TeamController (IAuthorizer<TeamOperations> tOps) => Tops = tOps;
+		public TeamController (TeamOperations tOps) => Tops = tOps;
 
 		[HttpGet("{id:long}")]
-		public IActionResult GetTeam (long id)
+		public async Task<IActionResult> GetTeamAsync (long id)
 		{
 			try
 			{
-				var result = Tops.Do(t => t.GetTeamById(id));
-				return result.Success ? Ok(result.Result) : throw result.Exception;
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch (UnauthorizedException)
-			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return StatusCode(500);
-			}
+				var result = await Tops.GetTeamByIdAsync(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
 		}
 
 		[HttpGet("joined/{tournamentId:long}/{playerId:long}")]
-		public IActionResult GetTeam (long playerId, long tournamentId)
+		public async Task<IActionResult> GetTeamAsync (long playerId, long tournamentId)
 		{
 			try
 			{
-				var result = Tops.Do(t => t.GetJoinedTeam(playerId, tournamentId));
-				return result.Success ? Ok(result.Result) : throw result.Exception;
+				var result = await Tops.GetJoinedTeamAsync(playerId, tournamentId);
+				return Ok(result);
 			}
-			catch (KeyNotFoundException)
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+		}
+
+		[HttpGet("me/{tournamentId:long}")]
+		public async Task<IActionResult> GetInvolvedTeams (long tournamentId)
+		{
+			try 
 			{
-				return NotFound();
-			}
-			catch (UnauthorizedException)
+                var joinedTeams = (await Tops.GetUserInvitesAsync(tournamentId))
+                    .Where(p => p.Status == ParticipantStatus.Accepted)
+                    .Select(p => p.TeamId);
+                var managedTeams = (await Tops.GetManagedTeamsAsync(tournamentId))
+					.Select(t => t.TeamId);
+
+                var teams = new List<TournamentTeam>();
+				foreach (var joined in joinedTeams)
+				{
+                    teams.Add(await Tops.GetTeamByIdAsync(joined));
+                }
+				foreach (var managed in managedTeams)
+				{
+                    teams.Add(await Tops.GetTeamByIdAsync(managed));
+                }
+
+                return Ok(teams);
+            }
+			catch (Exception ex)
 			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return StatusCode(500);
-			}
+                return Error(ex);
+            }
 		}
 
 		[HttpPost("create")]
-		public IActionResult CreateTeam ([FromBody] TournamentTeam team)
+		public async Task<IActionResult> CreateTeamAsync ([FromBody] TournamentTeam team)
 		{
 			try
 			{
-				var result = Tops.Do(t => t.CreateNewTeam(team));
-				return result.Success ? Ok(result.Result) : throw result.Exception;
+				await Tops.CreateTeamAsync(team);
+				return Ok();
 			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch (UnauthorizedException)
-			{
-				return Unauthorized();
-			}
-			catch (NotSupportedException)
-			{
-				return BadRequest();
-			}
-			catch
-			{
-				return StatusCode(500);
-			}
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
 		}
 
-		[HttpPost("update")]
-		public IActionResult UpdateTeam ([FromBody] TournamentTeam team)
+		[HttpPost("update/info")]
+		public async Task<IActionResult> UpdateTeamInfoAsync ([FromBody] TournamentTeam team)
 		{
 			try
 			{
-				Tops.Manager.ScopeId = team.TeamId;
-				var detailResult = Tops.Do(t => t.UpdateTeam(team));
-				var memberResult = Tops.Do(t => t.UpdateTeamMembers(team));
-				return detailResult.Success || memberResult.Success 
-					? Ok(detailResult.Result || memberResult.Result) 
-					: throw new AggregateException(detailResult.Exception, memberResult.Exception); 
+				await Tops.EditTeamInfoAsync(team);
+				return Ok();
 			}
-			catch (KeyNotFoundException)
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+		}
+
+		[HttpPost("update/roster")]
+		public async Task<IActionResult> UpdateTeamRosterAsync ([FromBody] TournamentTeam team)
+		{
+			try
 			{
-				return NotFound();
+				await Tops.EditTeamRosterAsync(team);
+				return Ok();
 			}
-			catch (UnauthorizedException)
+			catch (Exception ex)
 			{
-				return Unauthorized();
-			}
-			catch (NotSupportedException ex)
-			{
-				Console.WriteLine(ex);
-				return BadRequest();
-			}
-			catch
-			{
-				return StatusCode(500);
+				return Error(ex);
 			}
 		}
 	}

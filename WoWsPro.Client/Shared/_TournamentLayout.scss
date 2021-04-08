@@ -1,0 +1,115 @@
+﻿.tournament-layout {
+	&-hero {
+		display: flex;
+		width: 100%;
+		background: $color-neutral-darker;
+
+		@include bp($to: lg) {
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+		}
+	}
+
+	&-logo {
+		display: block;
+		width: 12rem;
+		height: 12rem;
+	}
+
+	&-info {
+		padding: px2rem(10) px2rem(15);
+
+		&-title {
+			margin: 0;
+			margin-top: px2rem(25);
+		}
+
+		&-desc {
+			margin: 0;
+			margin-top: px2rem(15);
+		}
+
+		&-regionList {
+			padding: 0;
+			margin: 0;
+			margin-top: px2rem(10);
+			display: flex;
+		
+			@include bp ($to: lg) {
+				justify-content: center;
+			}
+
+			li {
+				display: block;
+				margin-left: px2rem(10);
+				list-style: none;
+			}
+		}
+	}
+
+	&-nav {
+		height: 3rem;
+		background: $color-neutral-dark;
+		box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
+		position: sticky;
+		// 3rem is nav-height, if i was smart this would be a var
+		top: 3rem;
+		z-index: $z-nav-menu;
+
+		ul {
+			margin: 0;
+			padding: 0;
+			display: flex;
+			justify-content: center;
+			height: 100%;
+
+			li {
+				display: block;
+				list-style: none;
+				height: 100%;
+
+				a {
+					@include font-size(md);
+					display: flex;
+					position: relative;
+					$padding-sides: 10px;
+					padding: 0 $padding-sides;
+					align-items: center;
+					color: $color-white;
+					height: 100%;
+
+					&::after {
+						content: "";
+						display: block;
+						position: absolute;
+						background-color: $color-primary;
+						left: 50%;
+						transform: translateX(-50%) scaleX(0);
+						transform-origin: center;
+						transition: transform ease-in-out 150ms;
+						bottom: 0;
+						height: 0.2em;
+						border-radius: 0.1em;
+						width: calc(100% - 4 * #{$padding-sides});
+					}
+
+					&.active,
+					&:hover,
+					&:focus {
+						&::after {
+							transform: translateX(-50%) scaleX(1);
+						}
+					}
+
+					&:hover {
+						background-color: $color-neutral;
+					}
+				}
+			}
+		}
+	}
+
+	&-body {
+	}
+}

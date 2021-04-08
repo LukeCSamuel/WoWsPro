@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using WoWsPro.Client.Utils;
 using WoWsPro.Shared.Constants;
-using WoWsPro.Shared.Models;
+using WoWsPro.Shared.Models.Warships;
 
 namespace WoWsPro.Client.Services
 {
@@ -22,7 +23,7 @@ namespace WoWsPro.Client.Services
 		public WarshipsService (HttpClient http) => Http = http;
 
 		public Task<IEnumerable<WarshipsPlayer>> SearchPlayersAsync (Region region, string name) 
-			=> Http.GetJsonAsync<IEnumerable<WarshipsPlayer>>($"/api/WarshipsApi/{region}/player/{name}");
+			=> Http.GetAsAsync<IEnumerable<WarshipsPlayer>>($"/api/WarshipsApi/{region}/player/{name}");
 	}
 
 	public static class WarshipsServiceProvider

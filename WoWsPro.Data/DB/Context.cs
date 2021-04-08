@@ -3,15 +3,22 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using WoWsPro.Shared.Models;
+using WoWsPro.Shared.Models.Discord;
+using WoWsPro.Shared.Models.Tournaments;
+using WoWsPro.Shared.Models.Warships;
 
-using WoWsPro.Data.DB.Models;
+// TODO: large endeavour: convert purely to shared models
+// TODO: modify permissions system to new claims-based system
+//       i.e. Account -< Claim (title: string, value: JSON)
+//       e.g. Account(00duke) has Claim("TeamOwner", {teamId})
+//          > we know what type we are comparing the claim value against, so we can try to deserialize to that type
 
 namespace WoWsPro.Data.DB
 {
@@ -22,11 +29,10 @@ namespace WoWsPro.Data.DB
 
 		#region Tables
 		internal virtual DbSet<ApplicationSetting> ApplicationSettings { get; set; }
-		internal virtual DbSet<FileContent> Files { get; set; }
 
 		internal virtual DbSet<Account> Accounts { get; set; }
+		internal virtual DbSet<AccountToken> AccountTokens { get; set; }
 		internal virtual DbSet<Claim> Claims { get; set; }
-		internal virtual DbSet<AccountClaim> AccountClaims { get; set; }
 
 		internal virtual DbSet<DiscordUser> DiscordUsers { get; set; }
 		internal virtual DbSet<DiscordGuild> DiscordGuilds { get; set; }
@@ -39,15 +45,15 @@ namespace WoWsPro.Data.DB
 
 		internal virtual DbSet<Tournament> Tournaments { get; set; }
 		internal virtual DbSet<TournamentRegistrationRules> TournamentRegistrationRules { get; set; }
-		internal virtual DbSet<TournamentClaim> TournamentClaims { get; set; }
 		internal virtual DbSet<TournamentStage> TournamentStages { get; set; }
 		internal virtual DbSet<TournamentGroup> TournamentGroups { get; set; }
 		internal virtual DbSet<TournamentTeam> TournamentTeams { get; set; }
-		internal virtual DbSet<TournamentTeamClaim> TournamentTeamClaims { get; set; }
-		internal virtual DbSet<TournamentSeed> TournamentSeads { get; set; }
+		internal virtual DbSet<TournamentSeed> TournamentSeeds { get; set; }
 		internal virtual DbSet<TournamentMatch> TournamentMatches { get; set; }
 		internal virtual DbSet<TournamentGame> TournamentGames { get; set; }
 		internal virtual DbSet<TournamentParticipant> TournamentParticipants { get; set; }
+		internal virtual DbSet<RegistrationQuestion> RegistrationQuestions { get; set; }
+		internal virtual DbSet<RegistrationQuestionResponse> RegistrationQuestionResponses { get; set; }
 		#endregion
 
 		#region Table Configuration
@@ -73,16 +79,6 @@ namespace WoWsPro.Data.DB
 					.IsUnicode(false);
 			})
 
-			.Entity<FileContent>(entity =>
-			{
-				entity.ToTable(nameof(FileContent))
-					.HasKey(e => e.FileContentId);
-
-				entity.Property(e => e.Title)
-					.HasMaxLength(255)
-					.IsUnicode(false);
-			})
-
 			.Entity<Account>(entity =>
 			{
 				entity.ToTable(nameof(Account))
@@ -94,31 +90,34 @@ namespace WoWsPro.Data.DB
 					.IsUnicode();
 			})
 
+			.Entity<AccountToken>(entity =>
+			{
+				entity.ToTable(nameof(AccountToken))
+					.HasKey(e => e.TokenId);
+
+				entity.HasOne(d => d.Account)
+					.WithMany(p => p.AccountTokens)
+					.HasForeignKey(d => d.AccountId);
+			})
+
 			.Entity<Claim>(entity =>
 			{
 				entity.ToTable(nameof(Claim))
 					.HasKey(e => e.ClaimId);
 
-				entity.Property(e => e.Permission)
+				entity.Property(e => e.Title)
 					.IsRequired()
 					.HasMaxLength(255)
 					.IsUnicode(false);
-			})
 
-			.Entity<AccountClaim>(entity =>
-			{
-				entity.ToTable(nameof(AccountClaim))
-					.HasKey(e => new { e.AccountId, e.ClaimId });
+				entity.Property(e => e.Value)
+					.IsRequired()
+					.IsUnicode(false);
 
 				entity.HasOne(d => d.Account)
-					.WithMany(p => p.AccountClaims)
+					.WithMany(p => p.Claims)
 					.HasForeignKey(d => d.AccountId);
-
-				entity.HasOne(d => d.Claim)
-					.WithMany(p => p.AccountClaims)
-					.HasForeignKey(d => d.ClaimId);
 			})
-
 
 			.Entity<DiscordUser>(entity =>
 			{
@@ -309,8 +308,8 @@ namespace WoWsPro.Data.DB
 				entity.Property(e => e.ParticipantRoleId)
 					.HasColumnName("ParticipantRole");
 
-				entity.Property(e => e.TeamOwnerRoleId)
-					.HasColumnName("TeamOwnerRole");
+				entity.Property(e => e.TeamRepRoleId)
+					.HasColumnName("TeamRepRole");
 
 				entity.HasOne(d => d.Guild)
 					.WithMany(p => p.Tournaments)
@@ -324,9 +323,9 @@ namespace WoWsPro.Data.DB
 					.WithMany()
 					.HasForeignKey(d => d.ParticipantRoleId);
 
-				entity.HasOne(d => d.TeamOwnerRole)
+				entity.HasOne(d => d.TeamRepRole)
 					.WithMany()
-					.HasForeignKey(d => d.TeamOwnerRoleId);
+					.HasForeignKey(d => d.TeamRepRoleId);
 			})
 
 			.Entity<TournamentRegistrationRules>(entity =>
@@ -337,8 +336,8 @@ namespace WoWsPro.Data.DB
 				entity.Property(e => e.RegionParticipantRoleId)
 					.HasColumnName("RegionParticipantRole");
 
-				entity.Property(e => e.RegionTeamOwnerRoleId)
-					.HasColumnName("RegionTeamOwnerRole");
+				entity.Property(e => e.RegionRepRoleId)
+					.HasColumnName("RegionRepRole");
 
 				entity.HasOne(d => d.Tournament)
 					.WithMany(p => p.RegistrationRules)
@@ -348,27 +347,9 @@ namespace WoWsPro.Data.DB
 					.WithMany()
 					.HasForeignKey(d => d.RegionParticipantRoleId);
 
-				entity.HasOne(d => d.RegionTeamOwnerRole)
+				entity.HasOne(d => d.RegionRepRole)
 					.WithMany()
-					.HasForeignKey(d => d.RegionTeamOwnerRoleId);
-			})
-
-			.Entity<TournamentClaim>(entity =>
-			{
-				entity.ToTable(nameof(TournamentClaim))
-					.HasKey(e => new { e.TournamentId, e.AccountId, e.ClaimId });
-
-				entity.HasOne(d => d.Tournament)
-					.WithMany(p => p.Claims)
-					.HasForeignKey(d => d.TournamentId);
-
-				entity.HasOne(d => d.Account)
-					.WithMany(p => p.TournamentClaims)
-					.HasForeignKey(d => d.AccountId);
-
-				entity.HasOne(d => d.Claim)
-					.WithMany(p => p.TournamentClaims)
-					.HasForeignKey(d => d.ClaimId);
+					.HasForeignKey(d => d.RegionRepRoleId);
 			})
 
 			.Entity<TournamentStage>(entity =>
@@ -438,24 +419,6 @@ namespace WoWsPro.Data.DB
 					.HasForeignKey(d => d.OwnerAccountId);
 			})
 
-			.Entity<TournamentTeamClaim>(entity =>
-			{
-				entity.ToTable(nameof(TournamentTeamClaim))
-					.HasKey(e => new { e.TeamId, e.AccountId, e.ClaimId });
-
-				entity.HasOne(d => d.Team)
-					.WithMany(p => p.Claims)
-					.HasForeignKey(d => d.TeamId);
-
-				entity.HasOne(d => d.Account)
-					.WithMany(p => p.TeamClaims)
-					.HasForeignKey(d => d.AccountId);
-
-				entity.HasOne(d => d.Claim)
-					.WithMany(p => p.TeamClaims)
-					.HasForeignKey(d => d.ClaimId);
-			})
-
 			.Entity<TournamentSeed>(entity =>
 			{
 				entity.ToTable(nameof(TournamentSeed))
@@ -522,6 +485,41 @@ namespace WoWsPro.Data.DB
 					.HasForeignKey(d => d.PlayerId);
 			})
 
+			.Entity<RegistrationQuestion>(entity =>
+			{
+				entity.ToTable(nameof(RegistrationQuestion))
+					.HasKey(e => e.RegistrationQuestionId);
+
+				entity.Property(e => e.Prompt)
+					.HasMaxLength(1024)
+					.IsUnicode()
+					.IsRequired();
+
+				entity.Property(e => e.Options)
+					.HasMaxLength(2048)
+					.IsUnicode()
+					.IsRequired(false);
+
+				entity.HasOne(d => d.TournamentRegistrationRules)
+					.WithMany(p => p.RegistrationQuestions)
+					.HasForeignKey(d => d.TournamentRegistrationRulesId);
+			})
+
+			.Entity<RegistrationQuestionResponse>(entity =>
+			{
+				entity.ToTable(nameof(RegistrationQuestionResponse))
+					.HasKey(e => e.RegistrationQuestionResponseId);
+
+				entity.Property(e => e.Response)
+					.HasMaxLength(2048)
+					.IsUnicode()
+					.IsRequired();
+
+				entity.HasOne(d => d.Team)
+					.WithMany(p => p.QuestionResponses)
+					.HasForeignKey(d => d.TeamId);
+			})
+
 			;
 
 		#endregion
@@ -531,7 +529,7 @@ namespace WoWsPro.Data.DB
 	{
 		internal static async Task<EntityEntry<T>> AddOrUpdateAsync<T> (this DbSet<T> set, T entity, Expression<Func<T, bool>> comparer) where T: class
 		{
-			return (await set.AsNoTracking().AnyAsync(comparer))
+			return (await set.AnyAsync(comparer))
 				? set.Update(entity)
 				: set.Add(entity);
 		}
@@ -544,9 +542,8 @@ namespace WoWsPro.Data.DB
 				{
 					var config = serviceProvider.GetRequiredService<IConfiguration>();
 					options
-						.UseLazyLoadingProxies()
 						.UseSqlServer(config["ConnectionStrings:WoWsPro"])
-						.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.LazyLoadOnDisposedContextWarning));
+						.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 				}
 			}, poolSize);
 		}

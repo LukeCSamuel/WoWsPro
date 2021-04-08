@@ -1,0 +1,38 @@
+@mixin link-styles {
+	@include font-weight(medium);
+	color: $color-link;
+	letter-spacing: px2em(0.8);
+	position: relative;
+	text-decoration: none;
+	z-index: $z-body-link;
+
+	&::after {
+		background: $color-primary;
+		bottom: px2em(-3);
+		content: "";
+		display: block;
+		height: px2em(2);
+		left: 0;
+		opacity: 1;
+		position: absolute;
+		transition: transform linear 100ms, opacity linear 0ms 100ms;
+		transform-origin: bottom;
+		width: 100%;
+	}
+	
+	&:hover::after {
+		background: $color-primary;
+		opacity: 0.15;
+		transform: scaleY(#{$font-lineHeight / px2em(2)});
+		transition: transform linear 100ms;
+	}
+}
+
+p a {
+    @include link-styles;
+}
+
+a {
+	color: $color-link;
+	text-decoration: none;
+}

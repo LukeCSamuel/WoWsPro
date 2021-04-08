@@ -1,0 +1,42 @@
+﻿@page "/tournament/{tournamentId:long}/join"
+@inject ITournamentService TournamentService
+@inject NavigationManager Navi
+
+<Loading Until="UserTeamsLoad" NotNull="UserTeams">
+	<div class="register">
+		<h3>Your Team(s)</h3>
+		@if (UserTeams.Count < 1)
+		{
+			<p>You're not associated with any teams.  Click "Create a Team" below to get started.</p>
+		}
+
+		@foreach (var team in UserTeams)
+		{
+			<TeamRoster Team="team" IsCollapsible="true" />
+		}
+
+		<NavLink class="create" href="@($"/tournament/{TournamentId}/register/create")">
+			Create a Team
+		</NavLink>
+	</div>
+</Loading>
+
+@code {
+	[Parameter]
+	public long TournamentId { get; set; }
+
+	Task TournamentLoad { get; set; }
+	Tournament Tournament { get; set; }
+
+	Task UserTeamsLoad { get; set; }
+	List<TournamentTeam> UserTeams { get; set; }
+
+	protected override async Task OnParametersSetAsync ()
+	{
+		TournamentService.CurrentTournamentId = TournamentId;
+		TournamentLoad = TournamentService.Current.Load;
+		Tournament = await TournamentService.Current;
+		UserTeamsLoad = TournamentService.UserTeams.Load;
+		UserTeams = await TournamentService.UserTeams;
+	}
+}

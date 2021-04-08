@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WoWsPro.Shared.Constants;
+using WoWsPro.Shared.Models.Discord;
+using WoWsPro.Shared.Models.Warships;
+using WoWsPro.Shared.Models.Tournaments;
 
 namespace WoWsPro.Shared.Models
 {
@@ -15,6 +18,8 @@ namespace WoWsPro.Shared.Models
 		public DateTime Created { get; set; }
 
 
+		public ICollection<AccountToken> AccountTokens { get; set; }
+		public ICollection<Claim> Claims { get; set; }
 		public ICollection<DiscordUser> DiscordAccounts { get; set; }
 		public ICollection<WarshipsPlayer> WarshipsAccounts { get; set; }
 		public ICollection<Tournament> OwnedTournaments { get; set; }
@@ -64,6 +69,19 @@ namespace WoWsPro.Shared.Models
 					}
 				}
 			}
+		}
+
+		public Region GetBestRegion (IEnumerable<Region> choices = null) {
+			if (choices is null) {
+                choices = new Region[] { Region.NA, Region.EU, Region.CIS, Region.SEA };
+            }
+
+			if (WarshipsAccounts is not null && WarshipsAccounts.Count > 0)
+			{
+                return WarshipsAccounts.OrderByDescending(p => p.IsPrimary).ThenBy(p => p.Created).Select(p => p.Region).FirstOrDefault(region => choices.Contains(region));
+            }
+
+			return default;
 		}
 	}
 }

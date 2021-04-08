@@ -1,15 +1,14 @@
 -- DROP TABLE Account
+-- DROP TABLE AccountToken
 -- DROP TABLE ApplicationSetting
 -- DROP TABLE Claim
 -- DROP TABLE DiscordGuild
 -- DROP TABLE DiscordRole
 -- DROP TABLE DiscordUser
 -- DROP TABLE DiscordToken
--- DROP TABLE FileContent
 -- DROP TABLE SessionCache
 -- DROP TABLE Tournament
 -- DROP TABLE TournamentRegistrationRules
--- DROP TABLE TournamentClaim
 -- DROP TABLE TournamentGame
 -- DROP TABLE TournamentGroup
 -- DROP TABLE TournamentMatch
@@ -17,7 +16,8 @@
 -- DROP TABLE TournamentSeed
 -- DROP TABLE TournamentStage
 -- DROP TABLE TournamentTeam
--- DROP TABLE TournamentTeamClaim
+-- DROP TABLE RegistrationQuestion
+-- DROP TABLE RegistrationQuestionResponse
 -- DROP TABLE WarshipsClan
 -- DROP TABLE WarshipsMap
 -- DROP TABLE WarshipsPlayer
@@ -35,6 +35,22 @@ CREATE TABLE Account (
     Nickname nvarchar(255) NOT NULL,
     Created datetime2 NOT NULL
 )
+
+CREATE TABLE AccountToken (
+    TokenId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    Token uniqueidentifier NOT NULL UNIQUE,
+    AccountId bigint NOT NULL FOREIGN KEY REFERENCES Account(AccountId),
+    Created datetime2 NOT NULL
+)
+CREATE INDEX AccountTokenAccount ON AccountToken(AccountId)
+
+CREATE TABLE Claim (
+    ClaimId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    AccountId bigint NOT NULL FOREIGN KEY REFERENCES Account(AccountId),
+    Title varchar(255) NOT NULL,
+    [Value] varchar(MAX) NOT NULL
+)
+CREATE INDEX ClaimAccountTitle ON Claim(AccountId, Title)
 
 CREATE TABLE DiscordGuild (
     GuildId bigint NOT NULL PRIMARY KEY,
@@ -59,6 +75,7 @@ CREATE TABLE DiscordUser (
     Avatar varchar(255),
     IsPrimary bit NOT NULL
 )
+CREATE INDEX DiscordUserAccount ON DiscordUser(AccountId)
 
 CREATE TABLE DiscordToken (
     DiscordTokenId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
@@ -69,6 +86,7 @@ CREATE TABLE DiscordToken (
     RefreshToken varchar(255),
     Scope varchar(255) NOT NULL
 )
+CREATE INDEX DiscordTokenDiscordUser ON DiscordToken(DiscordId)
 
 CREATE TABLE WarshipsClan (
     ClanId bigint NOT NULL PRIMARY KEY,
@@ -90,6 +108,8 @@ CREATE TABLE WarshipsPlayer (
     JoinedClan datetime2,
     IsPrimary bit NOT NULL
 )
+CREATE INDEX WarshipsPlayerAccount ON WarshipsPlayer(AccountId)
+CREATE INDEX WarshipsPlayerClan ON WarshipsPlayer(ClanId)
 
 CREATE TABLE WarshipsMap (
     MapId bigint NOT NULL PRIMARY KEY,
@@ -107,7 +127,10 @@ CREATE TABLE Tournament (
     [Owner] bigint NOT NULL FOREIGN KEY REFERENCES Account(AccountId),
     Created datetime2 NOT NULL,
     ParticipantRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId),
-    TeamOwnerRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId)
+    TeamRepRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId),
+    ShortDescription nvarchar(255) NULL,
+    Published bit NOT NULL DEFAULT(0),
+    Archived bit NOT NULL DEFAULT(0)
 )
 
 CREATE TABLE TournamentRegistrationRules (
@@ -120,10 +143,13 @@ CREATE TABLE TournamentRegistrationRules (
     MinTeamSize int NOT NULL,
     MaxTeamSize int NOT NULL,
     Rules int NOT NULL,
+    MinReps int,
+    MaxReps int,
     RegionParticipantRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId),
-    RegionTeamOwnerRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId),
+    RegionRepRole bigint FOREIGN KEY REFERENCES DiscordRole(RoleKeyId),
     CONSTRAINT UNQ_TournamentRegion UNIQUE (TournamentId, Region)
 )
+CREATE INDEX TournamentRegistrationRulesTournament ON TournamentRegistrationRules(TournamentId)
 
 CREATE TABLE TournamentStage (
     StageId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
@@ -153,6 +179,7 @@ CREATE TABLE TournamentTeam (
     Region int NOT NULL,
     Created datetime2 NOT NULL
 )
+CREATE INDEX TournamentTeamTournament ON TournamentTeam(TournamentId)
 
 CREATE TABLE TournamentSeed (
     GroupSeedId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
@@ -186,39 +213,30 @@ CREATE TABLE TournamentParticipant (
     ParticipantId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
     TeamId bigint NOT NULL FOREIGN KEY REFERENCES TournamentTeam(TeamId),
     PlayerId bigint NOT NULL FOREIGN KEY REFERENCES WarshipsPlayer(PlayerId),
+    TeamRep bit NOT NULL DEFAULT(0),
     [Status] int NOT NULL
 )
+CREATE INDEX TournamentParticipantTeam ON TournamentParticipant(TeamId)
+CREATE INDEX TournamentParticipantPlayer ON TournamentParticipant(PlayerId)
 
-CREATE TABLE Claim (
-    ClaimId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    Permission varchar(255) NOT NULL
+CREATE TABLE RegistrationQuestion (
+    RegistrationQuestionId bigint NOT NULL PRIMARY KEY,
+    TournamentRegistrationRulesId bigint NOT NULL FOREIGN KEY REFERENCES TournamentRegistrationRules(TournamentRegistrationRulesId),
+    Prompt nvarchar(1024) NOT NULL,
+    QuestionType int NOT NULL,
+    [IsRequired] bit NOT NULL,
+    Options nvarchar(2048)
 )
+CREATE INDEX RegistrationQuestionRegistrationRules ON RegistrationQuestion(TournamentRegistrationRulesId)
 
-CREATE TABLE AccountClaim (
-    AccountId bigint NOT NULL FOREIGN KEY REFERENCES Account(AccountId),
-    ClaimId bigint NOT NULL FOREIGN KEY REFERENCES Claim(ClaimId),
-    PRIMARY KEY (AccountId, ClaimId)
-)
-
-CREATE TABLE TournamentClaim (
-    TournamentId bigint NOT NULL FOREIGN KEY REFERENCES Tournament(TournamentId),
-    AccountId bigint NOT NULL FOREIGN KEY REFERENCES Account(AccountId),
-    ClaimId bigint NOT NULL FOREIGN KEY REFERENCES [Claim](ClaimId),
-    PRIMARY KEY (TournamentId, AccountId, ClaimId)
-)
-
-CREATE TABLE TournamentTeamClaim (
+CREATE TABLE RegistrationQuestionResponse (
+    RegistrationQuestionResponseId bigint NOT NULL PRIMARY KEY,
+    RegistrationQuestionId bigint NOT NULL FOREIGN KEY REFERENCES RegistrationQuestion(RegistrationQuestionId),
     TeamId bigint NOT NULL FOREIGN KEY REFERENCES TournamentTeam(TeamId),
-    AccountId bigint NOT NULL FOREIGN KEY REFERENCES Account(AccountId),
-    ClaimId bigint NOT NULL FOREIGN KEY REFERENCES [Claim](ClaimId),
-    PRIMARY KEY (TeamId, AccountId, ClaimId)
+    Response nvarchar(2048) NOT NULL
 )
-
-CREATE TABLE FileContent (
-    FileContentId bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    Title varchar(255) NOT NULL,
-    Content varbinary(MAX)
-)
+CREATE INDEX RegistrationQuestionResponseRegistrationQuestion ON RegistrationQuestionResponse(RegistrationQuestionId)
+CREATE INDEX RegistrationQuestionResponseTeam ON RegistrationQuestionResponse(TeamId)
 
 CREATE TABLE SessionCache (
     Id nvarchar(449) NOT NULL PRIMARY KEY,

@@ -1,0 +1,19 @@
+.region-badge {
+    display: inline-block;
+    color: $color-white;
+    border-radius: px2rem(3);
+    padding: px2rem(1) px2rem(7);
+
+    &.NA { 
+        background: $color-region-na;
+    }
+    &.EU {
+        background: $color-region-eu;
+    }
+    &.CIS {
+        background: $color-region-ru;
+    }
+    &.SEA {
+        background: $color-region-ap;
+    }
+}

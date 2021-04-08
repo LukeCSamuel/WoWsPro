@@ -2,30 +2,52 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using WoWsPro.Data.Operations;
-using WoWsPro.Data.Services;
+using WoWsPro.Data.WarshipsApi;
 using WoWsPro.Shared.Constants;
 using WoWsPro.Shared.Models;
+using WoWsPro.Shared.Models.Tournaments;
 
 namespace Tests
 {
 	public class App
 	{
-
-		FileOperations Filoio { get; }
-
-		public App (FileOperations fileio) => Filoio = fileio;
-
 		public async Task RunAsync ()
 		{
-			using var file = new FileStream(@"C:\OneDrive\Tournaments\King of the Sea\KotS 10\Art\KoTS-X_banner-512.png", FileMode.Open);
-			using var mem = new MemoryStream();
+			var client = new HttpClient();
+			client.BaseAddress = new Uri("https://localhost:4200");
 
-			file.CopyTo(mem);
-			(long id, string name) = Filoio.SaveFile("KoTS-X_banner-512.png", mem.ToArray());
-			Console.WriteLine($"api/SampleData/{id}/{name}");
+			var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) {
+				ReferenceHandler = ReferenceHandler.Preserve
+			};
+
+			// var sample = new Sample () {
+			// 	Hello = "Hello",
+			// 	World = "World"
+			// };
+			// var list = new List<Sample>() { sample };
+
+			// var serialized = JsonSerializer.Serialize(list, options);
+			// Console.WriteLine(serialized);
+			// var deserialized = JsonSerializer.Deserialize<List<Sample>>(serialized, options);
+			// Console.WriteLine(deserialized[0].Hello);
+
+
+			
+			var result = await client.GetStringAsync("api/tournament");
+			Console.WriteLine(result);
+			var tournaments = await client.GetFromJsonAsync<List<Tournament>>("api/tournament", options);
+			Console.WriteLine(JsonSerializer.Serialize(tournaments[0]));
+		}
+
+		class Sample {
+			public string Hello { get; set; }
+			public string World { get; set; }
 		}
 	}
 }

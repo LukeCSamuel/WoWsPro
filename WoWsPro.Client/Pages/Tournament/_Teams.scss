@@ -1,0 +1,31 @@
+﻿.teams-header {
+	display: flex;
+	align-items: baseline;
+	padding: px2rem(10);
+
+	.spacer {
+		flex-grow: 1;
+	}
+
+	.region {
+		margin-left: px2rem(10);
+		cursor: pointer;
+		display: block;
+		padding: px2rem(2) px2rem(7);
+		border-radius: px2rem(3);
+		background: $color-neutral-dark;
+
+		&.NA.selected { 
+        	background: $color-region-na;
+		}
+		&.EU.selected {
+			background: $color-region-eu;
+		}
+		&.CIS.selected {
+			background: $color-region-ru;
+		}
+		&.SEA.selected {
+			background: $color-region-ap;
+		}
+	}
+}

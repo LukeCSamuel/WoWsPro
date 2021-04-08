@@ -1,0 +1,17 @@
+{
+	"cSpell.words": [
+		"aspnetcore",
+		"blazor",
+		"hsts",
+		"onclick",
+		"subnav"
+	],
+	"emmet.includeLanguages": {
+		"aspnetcorerazor": "html"
+	},
+	"files.exclude": {
+		"**/bin": true,
+		"**/obj": true,
+		"**/lib": true
+	}
+}

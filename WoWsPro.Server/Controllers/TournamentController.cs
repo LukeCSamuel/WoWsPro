@@ -3,87 +3,77 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WoWsPro.Data.Exceptions;
 using WoWsPro.Data.Operations;
-using WoWsPro.Data.Services;
+using WoWsPro.Data.WarshipsApi;
+using WoWsPro.Shared.Constants;
+using WoWsPro.Shared.Exceptions;
 using WoWsPro.Shared.Models;
 
 namespace WoWsPro.Server.Controllers
 {
-	[Route("api/[controller]")]
-	public class TournamentController : Controller
-	{
-		IAuthorizer<TournamentOperations> Tops { get; }
+    [Route("api/[controller]")]
+    public class TournamentController : WowsProApiController
+    {
+        TournamentOperations Tops { get; }
 
-		public TournamentController (IAuthorizer<TournamentOperations> tOps) => Tops = tOps;
+        public TournamentController(TournamentOperations tOps) => Tops = tOps;
 
-		[HttpGet("{id:long}")]
-		public IActionResult GetTournament (long id)
-		{
-			Tops.Manager.ScopeId = id;
-			try
-			{
-				var result = Tops.Do(t => t.GetTournament(id));
-				return result.Success ? Ok(result.Result) : throw result.Exception;
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch (UnauthorizedException)
-			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return StatusCode(500);
-			}
-		}
+        [HttpGet("{id:long}")]
+        public IActionResult GetTournament(long id)
+        {
+            try
+            {
+                var result = Tops.GetTournament(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
 
-		[HttpGet]
-		public IActionResult ListTournaments ()
-		{
-			try
-			{
-				var result = Tops.Do(t => t.PreviewListTournaments());
-				return result.Success ? Ok(result.Result) : throw result.Exception;
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch (UnauthorizedException)
-			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return StatusCode(500);
-			}
-		}
+        [HttpGet]
+        public IActionResult ListTournaments()
+        {
+            try
+            {
+                var result = Tops.ListTournaments();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
 
-		[HttpGet("{tournamentId:long}/teams")]
-		public IActionResult ListTeams (long tournamentId)
-		{
-			Tops.Manager.ScopeId = tournamentId;
-			try
+        [HttpGet("{tournamentId:long}/teams")]
+        public IActionResult ListTeams(long tournamentId)
+        {
+            try
+            {
+                var result = Tops.ListTeamsAsync(tournamentId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        [HttpGet("{tournamentId:long}/{region}/waitlist")]
+        public IActionResult GetWaitList(long tournamentId, Region region)
+        {
+            try
+            {
+                var result = Tops.GetWaitList(tournamentId, region);
+                return Ok(result);
+            }
+            catch (Exception ex)
 			{
-				var result = Tops.Do(t => t.ListTeams());
-				return result.Success ? Ok(result.Result) : throw result.Exception;
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch (UnauthorizedException)
-			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return StatusCode(500);
-			}
-		}
+                return Error(ex);
+            }
+
+        }
 
 	}
 }

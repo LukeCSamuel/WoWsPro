@@ -9,8 +9,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using WoWsPro.Shared;
 using WoWsPro.Shared.Constants;
+using WoWsPro.Shared.Utils;
 
 namespace WoWsPro.Server.Services
 {

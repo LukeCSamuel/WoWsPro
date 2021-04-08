@@ -1,0 +1,12 @@
+﻿.register {
+    .create {
+        background: $color-neutral-dark;
+        color: $color-white;
+        padding: px2rem(10) px2rem(20);
+        border-radius: px2rem(3);
+
+        &:hover {
+            background: $color-primary;
+        }
+    }
+}

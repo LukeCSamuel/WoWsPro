@@ -7,23 +7,30 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using WoWsPro.Client.Utils;
 using WoWsPro.Shared.Models;
+using WoWsPro.Shared.Permissions;
 
 namespace WoWsPro.Client.Services
 {
-	public interface IAccountService
+	public interface IAccountService : IUserProvider
 	{
 		Cache<Account> UserAccount { get; }
 	}
 	
 	public class AccountService : IDisposable, IAccountService
 	{
+
 		public Cache<Account> UserAccount { get; private set; }
 
 		HttpClient Http { get; }
 		IUserService UserService { get; }
 		NavigationManager Navi { get; }
 
-		public AccountService (HttpClient http, IUserService userService, NavigationManager navi)
+        bool IUserProvider.IsLoggedIn => _userAccount is not null;
+
+        Account _userAccount = null;
+        Account IUserProvider.Account => _userAccount;
+
+        public AccountService (HttpClient http, IUserService userService, NavigationManager navi)
 		{
 			Http = http;
 			Navi = navi;
@@ -34,27 +41,41 @@ namespace WoWsPro.Client.Services
 
 		async Task<Account> GetUserAccount ()
 		{
-			if ((await UserService.User).IsLoggedIn)
+			if ((await UserService.User)?.IsLoggedIn is true)
 			{
-				return await Http.GetJsonAsync<Account>($"api/Account");
-			}
+				_userAccount = await Http.GetAsAsync<Account>($"api/Account");
+                return _userAccount;
+            }
 			else
 			{
-				Navi.NavigateTo("/account/login");
-				return null;
+				try
+				{
+					Navi.NavigateTo("/account/login");
+					return null;
+				}
+				catch (NavigationException)
+				{
+					// Can't redirect, just stay on this page
+					return null;
+				}
 			}
 		}
 
-		public Task<Account> GetAccount (long id) => Http.GetJsonAsync<Account>($"api/Account/{id}");
+		public Task<Account> GetAccount (long id) => Http.GetAsAsync<Account>($"api/Account/{id}");
 
-		private async void OnUserUpdated (object sender, User user) => await UserAccount.UpdateAsync();
+        private async void OnUserUpdated(object sender, User user)
+        {
+            await UserAccount.UpdateAsync();
+        }
 
-		public void Dispose () => UserService.User.Updated -= OnUserUpdated;
+        public void Dispose () => UserService.User.Updated -= OnUserUpdated;
 	}
 
 	public static class AccountServiceProvider
 	{
 		public static IServiceCollection AddAccountService (this IServiceCollection services)
-			=> services.AddScoped<IAccountService, AccountService>();
+			=> services
+				.AddScoped<IAccountService, AccountService>()
+				.AddScoped<IUserProvider, AccountService>();
 	}
 }

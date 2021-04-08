@@ -1,0 +1,15 @@
+@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@namespace WoWsPro.Server.Pages
+@using WoWsPro.Client
+
+@{
+	Layout = "_Layout";
+}
+
+<component type="typeof(App)" render-mode="WebAssemblyPrerendered" />
+
+@section Scripts {
+    <script src="_framework/blazor.webassembly.js"></script>
+	<script async src="scripts/autoform.js"></script>
+}

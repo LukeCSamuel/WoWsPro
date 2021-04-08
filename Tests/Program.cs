@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using WoWsPro.Data;
 using WoWsPro.Data.DB;
 using WoWsPro.Data.Operations;
-using WoWsPro.Data.Services;
+using WoWsPro.Data.WarshipsApi;
 
 namespace Tests
 {
@@ -25,22 +25,13 @@ namespace Tests
 		{
 			var config = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
-				.AddJsonFile("appsettings.json")
-				.AddJsonFile("appsettings.development.json")
+				// .AddJsonFile("appsettings.json")
+				// .AddJsonFile("appsettings.development.json")
 				.Build();
 
 			services.AddSingleton<IConfiguration>(config);
 
-			services.AddDataContextPool();
-			services.AddFileOperations();
-
 			services.AddTransient<App>();
-		}
-
-		public class Authy : IAuthenticator
-		{
-			public bool LoggedIn => false;
-			long? IAuthenticator.AccountId => null;
 		}
 	}
 }

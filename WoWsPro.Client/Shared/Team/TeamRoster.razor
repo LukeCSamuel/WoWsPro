@@ -1,71 +1,92 @@
-﻿<div class="c-TeamRoster">
-	<div class="c-TeamRoster_Header">
-		<h2 class="c-TeamRoster_Header_Region @Team.Region">
-			@Team.Region
-		</h2>
-		<h2 class="c-TeamRoster_Header_Name">
-			@($"[{Team.Tag}] {Team.Name}")
-		</h2>
-		@if (IsCollapsable)
+﻿@inject ITournamentService TournamentService
+@inject IUserService UserService
+@inject IAccountService AccountService
+@inject IAuthorizer Authorizer
+
+<div class="team-roster">
+	<div class="team-roster-summary" @onclick="@(e => IsCollapsed = IsCollapsible && !IsCollapsed)">
+		@if (Team.Icon is string)
 		{
-			<button class="c-TeamRoster_Header_Collapse @(IsCollapsed ? "-Collapsed" : "")" @onclick="@(e => IsCollapsed = !IsCollapsed)">
-				<span class="fas fa-chevron-down"></span>
-			</button>
+			<img class="team-roster-icon" src="@Team.Icon" />
+		}
+		<div class="team-roster-info">
+			<h3 class="team-roster-info-title">[@(Team.Tag)] @Team.Name</h3>
+			<p class="team-roster-info-desc">@Team.Description</p>
+		</div>
+		@if (CanEdit)
+		{
+			<div class="grow"></div>
+			<NavLink class="team-roster-edit" href="@($"/tournament/{Team.TournamentId}/register/edit/{Team.TeamId}")">
+				Edit
+			</NavLink>
 		}
 	</div>
-	@if (IsCollapsable && !IsCollapsed)
-	{
-		<div class="c-TeamRoster_Detail">
-			<div class="c-TeamRoster_Detail_Info">
-				<img class="c-TeamRoster_Detail_Icon" src="@Team.Icon" />
-				<div>
-					<p>
-						@Team.Description
-					</p>
-					<table class="c-TeamRoster_Detail_Properties">
-						<tr>
-							<td>Team Status:</td>
-							<td>
-								@Team.Status.ToVerb()
-								@if (Team.Status == TeamStatus.WaitListed)
-								{
-									(int place, int size) = GetPlaceOnWaitList();
-									<span>(@place of @size)</span>
-								}
-							</td>
-						</tr>
-					</table>
-				</div>
-			</div>
-			<ul class="c-TeamRoster_Detail_List @(IsCollapsable && IsCollapsed ? "-Collapsed" : "")">
-
-				@foreach (var player in Team.Participants.Select(p => p.Player).OrderByDescending(p => p?.AccountId == Team.OwnerAccountId).ThenBy(p => p.Nickname))
-				{
-					<li class="c-TeamRoster_Detail_List_Player">
+	<div class="team-roster-detail @(!IsCollapsible || !IsCollapsed ? "show" : "hide")">
+		<p class="team-roster-prop"><strong>Created:</strong> @Team.Created.ToShortDateString() @Team.Created.ToShortTimeString()</p>
+		<p class="team-roster-prop">
+			<strong>Team Status:</strong>
+			@Team.Status.ToVerb()
+			@if (Team.Status == TeamStatus.WaitListed)
+			{
+				<span>(@WaitListPlace of @WaitListCount)</span>
+			}
+		</p>
+		<table class="team-roster-list">
+			<tr class="team-roster-list-header">
+				<td></td>
+				<td>Nickname</td>
+				<td>ID</td>
+			</tr>
+			@foreach (var player in Team.Participants.Select(p => p.Player).OrderByDescending(p => p?.AccountId == Team.OwnerAccountId).ThenBy(p => p.Nickname))
+			{
+				<tr class="team-roster-list-item">
+					<td class="team-roster-list-item-rep">
+						@* TODO: update with new permission system *@
 						@if (player?.AccountId == Team.OwnerAccountId)
 						{
 							<span class="fas fa-crown"></span>
 						}
-						<a target="_blank" href="@GetWowsNumbersUrl(player)">@player.Nickname</a>
-					</li>
-				}
-			</ul>
-		</div>
-	}
+					</td>
+					<td>
+						@player.Nickname
+					</td>
+					<td>
+						<a target="_blank" href="@GetWowsNumbersUrl(player)">
+							@player.PlayerId
+							<span class="fas fa-external-link-alt"></span>
+						</a>
+					</td>
+				</tr>
+			}
+		</table>
+	</div>
 </div>
 
 @code {
-	// TODO: Ideally, Tournament.Teams could be accessible from the Navigation property on Team
-	[Parameter]
-	public List<TournamentTeam> TeamsList { get; set; }
-
 	[Parameter]
 	public TournamentTeam Team { get; set; }
 
 	[Parameter]
-	public bool IsCollapsable { get; set; }
+	public bool IsCollapsible { get; set; }
 
 	bool IsCollapsed { get; set; } = true;
+
+	bool CanEdit { get; set; } = false;
+
+	int WaitListPlace { get; set; }
+	int WaitListCount { get; set; }
+
+	protected override async Task OnParametersSetAsync ()
+	{
+		TournamentService.WaitListRegion = Team.Region;
+		var WaitList = await TournamentService.WaitList;
+		WaitListPlace = WaitList.IndexOf(Team.TeamId) + 1;
+		WaitListCount = WaitList.Count;
+
+		// Guarantee the account is loaded before attempting authorization
+		await AccountService.UserAccount.Load;
+		CanEdit = Authorizer.HasClaim(new EditTeamInfo(), Team) || Authorizer.HasClaim(new EditTeamRoster(), Team);
+	}
 
 	public string GetWowsNumbersUrl (WarshipsPlayer player)
 	{
@@ -75,11 +96,5 @@
 			subdomain = "";
 		}
 		return $"https://{subdomain}wows-numbers.com/player/{player.PlayerId},{player.Nickname}/";
-	}
-
-	public (int place, int size) GetPlaceOnWaitList ()
-	{
-		var waitlist = TeamsList.Where(t => t.Status == TeamStatus.WaitListed).OrderBy(t => t.Created).ToList();
-		return (waitlist.IndexOf(Team) + 1, waitlist.Count);
 	}
 }

@@ -1,15 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
-using WoWsPro.Server.Extensions;
-using WoWsPro.Shared;
-using WoWsPro.Shared.Models;
+using WoWsPro.Shared.Models.Discord;
+using WoWsPro.Shared.Utils;
 
 namespace WoWsPro.Server.Services
 {
@@ -18,6 +16,70 @@ namespace WoWsPro.Server.Services
 		object GetRequestBody (string returnUrl);
 		Task<DiscordToken> GetTokenAsync (string returnUrl, string code, string state);
 		Task<DiscordUser> GetUserAsync (string token);
+	}
+
+	public class Oauth2State
+	{
+		public TimeSpan ExpirationInterval { get; set; }
+
+		private Nonce _currentState;
+		private Nonce _lastState;
+		private DateTime _expiration;
+
+		public Nonce State
+		{
+			get
+			{
+				var now = DateTime.Now;
+				if (now < _expiration)
+				{
+					return _currentState;
+				}
+				else if (now < _expiration + ExpirationInterval)
+				{
+					_lastState = _currentState;
+					return _currentState = Nonce.NewNonce();
+				}
+				else
+				{
+					_lastState = null;
+					return _currentState = Nonce.NewNonce();
+				}
+			}
+		}
+
+		public Oauth2State () : this(new TimeSpan(0, 15, 0)) { }
+
+		public Oauth2State (TimeSpan expiration) {
+			ExpirationInterval = expiration;
+			_currentState = Nonce.NewNonce();
+			_expiration = DateTime.Now + ExpirationInterval;
+		}
+
+		public bool Matches (string state)
+		{
+			return State.Matches(state) 
+				|| (_lastState is not null && _lastState.Matches(state));
+		}
+
+
+		public class Nonce
+		{
+			public string State { get; set; }
+
+			public Nonce () { }
+
+			public static Nonce NewNonce () => new Nonce()
+			{
+				State = TokenGenerator.GenerateToken()
+			};
+
+			public bool Matches (string nonce) => State == nonce;
+
+			public override string ToString () => State;
+
+			public static implicit operator string (Nonce nonce) => nonce.State;
+		}
 	}
 
 	public class DiscordHttpClient : HttpClient
@@ -34,24 +96,18 @@ namespace WoWsPro.Server.Services
 		private readonly string _scope = "identify guilds guilds.join";
 
 		DiscordHttpClient Http { get; }
+		Oauth2State Oauth2State { get; }
 		ISettings Settings { get; }
-		ISession Session { get; }
 
-		public DiscordOauth2 (ISettings settings, IHttpContextAccessor contextAccessor, DiscordHttpClient http)
+		public DiscordOauth2 (ISettings settings, DiscordHttpClient http, Oauth2State state)
 		{
 			Http = http;
 			Settings = settings;
-			Session = contextAccessor.HttpContext.Session;
+			Oauth2State = state;
 		}
 
 		public object GetRequestBody (string returnUrl)
 		{
-			var nonce = Session.Retrieve<Nonce>();
-			if (nonce.State is null)
-			{
-				nonce = Nonce.NewNonce();
-				Session.Store(nonce);
-			}
 			return new HtmlFormRequest
 			{
 				RequestAddress = $"{"https:"}//discordapp.com/api/oauth2/authorize",
@@ -60,7 +116,7 @@ namespace WoWsPro.Server.Services
 					{ "response_type", "code" },
 					{ "client_id", Settings.DiscordClientId },
 					{ "scope", _scope },
-					{ "state", nonce },
+					{ "state", Oauth2State.State },
 					{ "redirect_uri", returnUrl },
 					{ "prompt", "none" }
 				}
@@ -69,8 +125,7 @@ namespace WoWsPro.Server.Services
 
 		public async Task<DiscordToken> GetTokenAsync (string returnUrl, string code, string state)
 		{
-			var nonce = Session.Retrieve<Nonce>();
-			if (nonce.Matches(state))
+			if (Oauth2State.Matches(state))
 			{
 				var request = new HttpRequestMessage()
 				{
@@ -86,11 +141,12 @@ namespace WoWsPro.Server.Services
 					{ "redirect_uri", returnUrl },
 					{ "scope", _scope }
 				});
+				request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
 				var response = await Http.SendAsync(request);
 				if (response.IsSuccessStatusCode)
 				{
-					var result = await response.Content.ReadAsAsync<dynamic>();
+					var result = await response.Content.ReadFromJsonAsync<TokenResponse>();
 					try
 					{
 						double seconds = result.expires_in;
@@ -119,8 +175,9 @@ namespace WoWsPro.Server.Services
 				}
 				else
 				{
+					var error = await request.Content.ReadAsStringAsync();
 					// FIXME: InvalidOperationException for this
-					throw new Exception("Failed to obtain token for request.");
+					throw new Exception("Failed to obtain token for request. " + error);
 				}
 			}
 			else
@@ -142,7 +199,7 @@ namespace WoWsPro.Server.Services
 			var response = await Http.SendAsync(message);
 			if (response.IsSuccessStatusCode)
 			{
-				var result = await response.Content.ReadAsAsync<dynamic>();
+				var result = await response.Content.ReadFromJsonAsync<UserResponse>();
 				try
 				{
 					return new DiscordUser()
@@ -166,23 +223,19 @@ namespace WoWsPro.Server.Services
 			}
 		}
 
-		class Nonce
-		{
-			[SessionVar]
-			public string State { get; set; }
+		public class UserResponse {
+			public long id { get; set; }
+			public string username { get; set; }
+			public string discriminator { get; set; }
+			public string avatar { get; set; }
+		}
 
-			public Nonce () { }
-
-			public static Nonce NewNonce () => new Nonce()
-			{
-				State = TokenGenerator.GenerateToken()
-			};
-
-			public bool Matches (string nonce) => State == nonce;
-
-			public override string ToString () => State;
-
-			public static implicit operator string (Nonce nonce) => nonce.State;
+		public class TokenResponse {
+			public string access_token { get; set; }
+			public string token_type { get; set; }
+			public string refresh_token { get; set; }
+			public string scope { get; set; }
+			public double expires_in { get; set; }
 		}
 	}
 
@@ -190,6 +243,7 @@ namespace WoWsPro.Server.Services
 	{
 		public static IServiceCollection AddDiscordOauth2 (this IServiceCollection services)
 			=> services
+			.AddSingleton(new Oauth2State())
 			.AddSingleton<DiscordHttpClient, DiscordHttpClient>()
 			.AddScoped<IDiscordOauth2, DiscordOauth2>()
 			;

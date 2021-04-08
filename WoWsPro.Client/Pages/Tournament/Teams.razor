@@ -1,17 +1,35 @@
 ﻿@page "/tournament/{tournamentId:long}/teams"
 @inject ITournamentService TournamentService
+@inject IAccountService AccountService
 
 <Loading Until="TournamentLoad">
 	<Loading Until="TeamsLoad">
-		<div class="teams">
-			@foreach (var region in Tournament.RegistrationRules)
+		@{
+			// TODO: split up across regional API requests to reduce load times
+			var teams = TeamsList.Where(t => t.Region == SelectedRegion).OrderBy(t => t.Tag).ToList();
+			var rules = Tournament.RegistrationRules.Single(r => r.Region == SelectedRegion);
+		}
+		<div class="teams-header">
+			@if (Tournament.RegistrationRules.Count > 1)
 			{
-				var teams = TeamsList.Where(t => t.Region == region.Region).OrderBy(t => t.Tag).ToList();
-				<h2>@region.Region Teams (@teams.Count):</h2>
-				@foreach (var team in teams)
+				<div>Select Region:</div>
+				@foreach (var rule in Tournament.RegistrationRules)
 				{
-					<TeamRoster TeamsList="TeamsList" Team="team" IsCollapsable="true" />
+					<div class="region @rule.Region.ToString() @(SelectedRegion == rule.Region ? "selected" : "")"
+						@onclick="@(e => SelectedRegion = rule.Region)">
+						@rule.Region.ToString()
+					</div>
 				}
+			}
+			<div class="spacer"></div>
+			<div>
+				@teams.Count teams / @rules.Capacity max
+			</div>
+		</div>
+		<div class="teams">
+			@foreach (var team in teams)
+			{
+				<TeamRoster Team="team" IsCollapsible="true" />
 			}
 		</div>
 	</Loading>
@@ -28,10 +46,19 @@
 	Task TeamsLoad { get; set; }
 	List<TournamentTeam> TeamsList { get; set; }
 
+	Region SelectedRegion { get; set; } = Region.NA;
+
 	protected override async Task OnParametersSetAsync ()
 	{
-		TournamentLoad = TournamentService.SetCurrentTournamentIdAsync(TournamentId);
+		var account = await AccountService.UserAccount;
+
+		TournamentService.CurrentTournamentId = TournamentId;
+		TournamentLoad = TournamentService.Current.Load;
 		Tournament = await TournamentService.Current;
+
+		// Determine best region for user
+		var regions = Tournament.RegistrationRules.Select(r => r.Region).ToList();
+		SelectedRegion = account?.GetBestRegion(regions) ?? regions.First();
 
 		TeamsLoad = TournamentService.CurrentTeams.Load;
 		TeamsList = await TournamentService.CurrentTeams;

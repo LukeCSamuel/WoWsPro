@@ -1,0 +1,73 @@
+﻿.dashboard {
+	h1 {
+		margin: px2rem(10) px2rem(20);
+	}
+
+	a {
+		margin: px2rem(10) px2rem(20);
+		@include link-styles;
+	}
+
+
+	.container {
+		display: flex;
+		
+		@include bp($to: lg) {
+			flex-direction: column;
+		}
+	}
+
+	.accounts {
+		background: $color-neutral-darker;
+		margin: px2rem(20);
+		padding: 1em;
+		flex-grow: 1;
+
+		@include bp($to: lg) {
+			width: calc(100% - #{px2rem(40)});
+		}
+
+		button,
+		.add-account {
+			background: $color-neutral-dark;
+			cursor: pointer;
+			color: $color-white;
+			border: none;
+			border-radius: px2rem(3);
+			padding: 0.5em;
+
+			&:hover,
+			&:focus {
+				background: $color-primary;
+			}
+
+			&::after {
+				content: none;
+			}
+		}
+
+		.add-account {
+			margin: 0.5em auto;
+			display: inline-block;
+			text-decoration: none;
+		}
+
+		h2 {
+			margin: 0 0 0.2em 0;
+			text-align: center;
+		}
+
+		.account {
+			padding: 0.5em 0;
+			border-bottom: 2px solid $color-black;
+
+			&:first-child {
+				border-top: 2px solid $color-black;
+			}
+
+			h3 {
+				margin: 0 0.5em 0.75em 0;
+			}
+		}
+	}
+}

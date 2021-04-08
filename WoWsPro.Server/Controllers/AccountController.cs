@@ -1,30 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using WoWsPro.Data.Exceptions;
 using WoWsPro.Data.Operations;
-using WoWsPro.Data.Services;
+using WoWsPro.Data.WarshipsApi;
 using WoWsPro.Server.Extensions;
 using WoWsPro.Server.Services;
 using WoWsPro.Shared.Constants;
+using WoWsPro.Shared.Exceptions;
 using WoWsPro.Shared.Models;
 
 namespace WoWsPro.Server.Controllers
 {
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : WowsProApiController
     {
 		private readonly IUserService _user;
 		private readonly ISettings _settings;
 		private readonly IWGOpenId _wgOpenId;
 		private readonly IWarshipsApi _warshipsApi;
 		private readonly IDiscordOauth2 _discordOauth2;
-		IAuthorizer<AccountOperations> Accounts { get; }
+		AccountOperations Accounts { get; }
 
 		public AccountController (
 			IUserService userService,
@@ -32,7 +30,7 @@ namespace WoWsPro.Server.Controllers
 			IWGOpenId wgOpenId,
 			IDiscordOauth2 discordOauth2,
 			IWarshipsApi warshipsApi,
-			IAuthorizer<AccountOperations> accounts)
+			AccountOperations accounts)
 		{
 			_user = userService;
 			_settings = settings;
@@ -54,10 +52,10 @@ namespace WoWsPro.Server.Controllers
 				_user.Session.Store(new Referer(referer));
 				return Ok();
 			}
-			catch
+			catch (Exception ex)
 			{
-				return StatusCode(500);
-			}
+                return Error(ex);
+            }
 		}
 
 		[HttpGet("[controller]/Logout")]
@@ -74,30 +72,27 @@ namespace WoWsPro.Server.Controllers
 			{
 				return Ok(_discordOauth2.GetRequestBody($"{_settings.BaseUrl}Account/DiscordId/Login"));
 			}
-			catch
+			catch (Exception ex)
 			{
-				// FIXME: refine exceptions
-				return StatusCode(500);
+                return Error(ex);
 			}
 		}
 
 		[HttpGet("[controller]/DiscordId/Login")]
-		public IActionResult DiscordIdLogin (
+		public async Task<IActionResult> DiscordIdLoginAsync (
 			[FromQuery(Name = "code")] string code,
 			[FromQuery(Name = "state")] string state)
 		{
 			try
 			{
-				var token = _discordOauth2.GetTokenAsync($"{_settings.BaseUrl}Account/DiscordId/Login", code, state).GetAwaiter().GetResult();
+				var token = await _discordOauth2.GetTokenAsync($"{_settings.BaseUrl}Account/DiscordId/Login", code, state);
 
 				_user.Login(token);
 				return RedirectToReferer();
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex);
-				// FIXME: refine exceptions
-				return StatusCode(500);
+                return Error(ex);
 			}
 		}
 
@@ -108,26 +103,20 @@ namespace WoWsPro.Server.Controllers
 			{
 				return Ok(_wgOpenId.GetRequestBody(RegionExtensions.FromString(region), $"{_settings.BaseUrl}Account/WGOpenId/Login/{region}"));
 			}
-			catch (ArgumentException ex)
+			catch (Exception ex)
 			{
-				return BadRequest(new { Reason = ex.Message });
-			}
-			catch
-			{
-				return StatusCode(500);
+                return Error(ex);
 			}
 		}
 
 		[HttpGet("[controller]/WGOpenId/Login/{region}")]
-		public IActionResult WGOpenIdLogin (string region,
+		public async Task<IActionResult> WGOpenIdLoginAsync (string region,
 			[FromQuery(Name = "openid.assoc_handle")] string assocHandle,
 			[FromQuery(Name = "openid.claimed_id")] string claimedId)
 		{
 			try
 			{
 				var verification = _wgOpenId.VerifyLogin(RegionExtensions.FromString(region), claimedId, assocHandle, HttpContext.Request.Query);
-
-				// ONEDAY: use C# 8 syntax
 				if (verification is null)
 				{
 					return BadRequest();
@@ -136,7 +125,7 @@ namespace WoWsPro.Server.Controllers
 				{
 					(long id, string nickname) = ((long, string))verification;
 
-					var player = _warshipsApi.GetPlayerInfoAsync(RegionExtensions.FromString(region), id).GetAwaiter().GetResult();
+					var player = await _warshipsApi.GetPlayerInfoAsync(RegionExtensions.FromString(region), id);
 					_user.Login(player);
 					return RedirectToReferer();
 				}
@@ -152,95 +141,74 @@ namespace WoWsPro.Server.Controllers
 		}
 
 		[HttpGet("api/[controller]/{id:long}")]
-		public IActionResult GetAccount (long id)
+		public async Task<IActionResult> GetAccountAsync (long id)
 		{
-			Accounts.Manager.ScopeId = id;
 			try
 			{
-				var result = Accounts.Do(a => a.GetAccount());
-				return result.Success ? Ok(result.Result) : throw result.Exception;
-			}
-			catch (KeyNotFoundException)
+				var result = await Accounts.GetAccountAsync(id);
+                return Ok(result);
+            }
+			catch (Exception ex)
 			{
-				return NotFound();
-			}
-			catch (UnauthorizedException)
-			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return StatusCode(500);
+                return Error(ex);
 			}
 		}
 
 		[HttpGet("api/[controller]")]
-		public IActionResult GetAccount ()
+		public async Task<IActionResult> GetAccountAsync ()
 		{
-			Accounts.Manager.ScopeId = _user.User.AccountId;
+			if (_user.User.AccountId is null)
+			{
+                return BadRequest();
+            }
+
 			try
 			{
-				var result = Accounts.Do(a => a.GetAccount());
-				return result.Success ? Ok(result.Result) : throw result.Exception;
+				var result = await Accounts.GetAccountAsync((long)_user.User.AccountId);
+				return Ok(result);
 			}
-			catch (KeyNotFoundException)
+			catch (Exception ex)
 			{
-				return NotFound();
+				return Error(ex);
 			}
-			catch (UnauthorizedException)
-			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return StatusCode(500);
-			}
-		}
+        }
 
 		[HttpPost("api/[controller]/primary/discord")]
-		public IActionResult SetPrimaryDiscordUser ([FromBody] long discordId)
+		public async Task<IActionResult> SetPrimaryDiscordUserAsync ([FromBody] long discordId)
 		{
-			Accounts.Manager.ScopeId = _user.User.AccountId;			
+            if (_user.User.AccountId is null)
+            {
+                return BadRequest();
+            }
+
 			try
 			{
-				var result = Accounts.Do(a => a.SetPrimaryDiscordUser(discordId));
-				return result.Success ? Ok() : throw result.Exception;
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch (UnauthorizedException)
-			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return StatusCode(500);
-			}
+				await Accounts.SetPrimaryDiscordUserAsync((long)_user.User.AccountId, discordId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
 		}
 
 		[HttpPost("api/[controller]/primary/warships")]
-		public IActionResult SetPrimaryWarshipsPlayer ([FromBody] long playerId)
+		public async Task<IActionResult> SetPrimaryWarshipsPlayerAsync ([FromBody] long playerId)
 		{
-			Accounts.Manager.ScopeId = _user.User.AccountId;
+            if (_user.User.AccountId is null)
+            {
+                return BadRequest();
+            }
+
 			try
 			{
-				var result = Accounts.Do(a => a.SetPrimaryWarshipsPlayer(playerId));
-				return result.Success ? Ok() : throw result.Exception;
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch (UnauthorizedException)
-			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return StatusCode(500);
-			}
+				await Accounts.SetPrimaryWarshipsPlayerAsync((long)_user.User.AccountId, playerId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
 		}
 
 		IActionResult RedirectToReferer ()

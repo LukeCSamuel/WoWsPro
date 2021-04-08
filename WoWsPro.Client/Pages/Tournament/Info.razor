@@ -19,7 +19,7 @@
 
 	protected override async Task OnParametersSetAsync ()
 	{
-		await TournamentService.SetCurrentTournamentIdAsync(TournamentId);
+		TournamentService.CurrentTournamentId = TournamentId;
 		TournamentLoad = TournamentService.Current.Load;
 		Tournament = await TournamentService.Current;
 

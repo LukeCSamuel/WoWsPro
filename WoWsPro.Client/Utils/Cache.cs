@@ -39,6 +39,11 @@ namespace WoWsPro.Client.Utils
 			CachedValue = await CurrentUpdateTask;
 			Updated?.Invoke(this, CachedValue);
 		}
+
+		public void Invalidate ()
+		{
+			CurrentUpdateTask = null;
+		}
 	}
 
 }

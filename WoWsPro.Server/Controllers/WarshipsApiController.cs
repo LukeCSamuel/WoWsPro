@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WoWsPro.Data.Services;
+using WoWsPro.Data.WarshipsApi;
 using WoWsPro.Shared.Constants;
-using WoWsPro.Shared.Models;
+using WoWsPro.Shared.Models.Warships;
 
 namespace WoWsPro.Server.Controllers
 {

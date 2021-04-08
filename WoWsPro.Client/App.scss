@@ -1,66 +1,41 @@
-﻿// Includes
-@import "Includes/fa/fontawesome.scss";
-@import "Includes/fa/solid.scss";
-@import "Includes/fa/brands.scss";
-@import "Includes/colors.scss";
-@import "Includes/fonts.scss";
-@import "Includes/mediaq.scss";
+﻿// Font Awesome
+$fa-font-path: 'webfonts';
+@import 'lib/fontawesome/fontawesome.scss';
+@import 'lib/fontawesome/brands.scss';
+@import 'lib/fontawesome/regular.scss';
+@import 'lib/fontawesome/solid.scss';
 
-// Global styles
-*, *::before, *::after {
-	box-sizing: border-box;
-}
+// Common
+@import 'Caswell.Style/caswell.style.scss';
+
+// Brand
+@import 'Brand/colors';
+@import 'Brand/fonts';
+@import 'Brand/links';
 
 body {
-	font-family: $font-copy;
 	background: $color-black;
 	color: $color-white;
-	margin: 0;
-}
-
-.app-container {
-	display: block;
-	margin: auto;
-	background: $color-black-off;
-	/*box-shadow: #333 0px 0px 5px 2px;*/
-	//box-shadow: 0px 0px 5px 3px rgba($color-purple-medium, 0.2);
-	width: 100%;
-
-	@include pc-sm {
-		width: $width-pc-sm;
-	}
-	
-	@include pc-md {
-		width: $width-pc-md;
-	}
-}
-
-a, a:visited {
-	color: $color-blue-light;
-	text-decoration: none;
-}
-
-a:hover, a:focus {
-	text-decoration: underline;
 }
 
 // Shared
-@import "Shared/NavMenu.scss";
-@import "Shared/MainLayout.scss";
-@import "Shared/TournamentLayout.scss";
-@import "Shared/Feet.scss";
-@import "Shared/Loading.scss";
+@import "Shared/NavMenu";
+@import "Shared/MainLayout";
+@import "Shared/TournamentLayout";
+@import "Shared/Feet";
+@import "Shared/Loading";
 
-@import "Shared/Team/TeamRoster.scss";
+@import "Shared/Team/TeamRoster";
+
+@import "Shared/Trinkets/RegionBadge";
 
 // Pages
-@import "Pages/Index.scss";
+@import "Pages/Index";
 
-@import "Pages/Account/Login.scss";
-@import "Pages/Account/Dashboard.scss";
+@import "Pages/Account/Login";
+@import "Pages/Account/Dashboard";
 
-@import "Pages/Tournament/Info.scss";
-@import "Pages/Tournament/Register.scss";
-@import "Pages/Tournament/EditTeam.scss";
-@import "Pages/Tournament/Teams.scss";
-
+@import "Pages/Tournament/Info";
+@import "Pages/Tournament/Join";
+@import "Pages/Tournament/EditTeam";
+@import "Pages/Tournament/Teams";

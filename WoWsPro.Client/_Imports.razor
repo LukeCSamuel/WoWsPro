@@ -1,13 +1,30 @@
 @using System.Net.Http
+@using System.Text.Json
+@using System.Text.Json.Serialization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
 @using Microsoft.JSInterop
+
 @using WoWsPro.Client
 @using WoWsPro.Client.Shared
-@using WoWsPro.Client.Shared.Team 
+@using WoWsPro.Client.Shared.Team
+@using WoWsPro.Client.Shared.Trinkets
 @using WoWsPro.Client.Services
+@using WoWsPro.Client.Utils
+
 @using WoWsPro.Shared
-@using WoWsPro.Shared.Constants 
+@using WoWsPro.Shared.Constants
 @using WoWsPro.Shared.Models
+@using WoWsPro.Shared.Models.Discord
+@using WoWsPro.Shared.Models.Tournaments
+@using WoWsPro.Shared.Models.Warships
+@using WoWsPro.Shared.Permissions
+@using WoWsPro.Shared.Permissions.Claims.Team
+@using WoWsPro.Shared.Permissions.Claims.Tournament
+@using WoWsPro.Shared.Services
+@using WoWsPro.Shared.Utils
+@using WoWsPro.Shared.Validation
 

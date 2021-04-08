@@ -34,8 +34,8 @@ namespace WoWsPro.Client.Services
 		public UserService (HttpClient http)
 		{
 			Http = http;
-			User = new Cache<User>(() => Http.GetJsonAsync<User>("api/Account/User"));
-		}
+			User = new Cache<User>(() => Http.GetAsAsync<User>("api/Account/User"));
+        }
 
 	}
 

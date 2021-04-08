@@ -1,0 +1,139 @@
+﻿.team-roster {
+	margin: px2rem(20) px2rem(10);
+
+	&-summary {
+		padding: px2rem(10);
+		display: flex;
+		cursor: pointer;
+		
+		@include bp($to: lg) {
+			cursor: unset;
+			background: $color-neutral-darker;
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+		}
+		
+		&:hover {
+			background: $color-neutral-darker;
+		}
+		
+		&:hover .team-roster-icon {
+			z-index: $z-body-link;
+			transform: scale(1.25);
+		}
+
+		&:hover+.team-roster-detail {
+			background: $color-neutral-darker;
+		}
+	}
+
+	&-icon {
+		width: 7rem;
+		height: 7rem;
+		filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.7));
+		transform-origin: center;
+		transition: transform 150ms ease-in-out;
+
+		@include bp($to: lg) {
+			transform: translateY(-1rem);
+		}
+	}
+
+	&-info {
+		@include bp($from: lg) {
+			margin-left: 2rem;
+		}
+
+		&-title {
+			margin: 0;
+			margin-top: px2rem(10);
+		}
+
+		&-desc {
+			@include font-size(xs);
+		}
+	}
+
+	&-detail {
+		padding: px2rem(10);
+		height: 0;
+		transform-origin: top;
+		transition: transform 200ms ease-in-out;
+		transform: scaleY(0);
+
+		@include bp ($to: lg) {
+			background: $color-neutral-darker;
+		}
+
+		&>* {
+			transition: opacity 200ms ease-in-out;
+			opacity: 0;
+		}
+
+		&.show {
+			height: unset;
+			transform: scaleY(1);
+
+			&>* {
+				opacity: 1;
+			}
+		}
+	}
+
+	.grow {
+		flex-grow: 1;
+	}
+
+	&-edit {
+		color: $color-white;
+		background: $color-neutral-dark;
+		padding: px2rem(10) px2rem(20);
+		border-radius: px2rem(3);
+		height: min-content;
+
+		&:hover,
+		&:focus {
+			background: $color-primary;
+		}
+	}
+
+	&-prop {
+		@include font-size(xs);
+		margin: px2rem(5) 0;
+	}
+
+	&-list {
+		margin-top: px2rem(25);
+		width: 100%;
+		&-header {
+			@include font-weight(bold);
+		}
+
+		&-item {
+			width: 100%;
+			background: $color-neutral-dark;
+
+			&:nth-child(odd) {
+				background: $color-neutral;
+			}
+
+			&-rep {
+				text-align: right;
+			}
+
+			td {
+				padding: px2rem(5);
+				border: none;
+			}
+
+			a {
+				@include link-styles;
+			}
+
+			.fas {
+				@include font-size(xs);
+			}
+		}
+	}
+}

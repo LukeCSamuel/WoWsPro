@@ -1,23 +1,24 @@
 ﻿@page "/"
 @inject ITournamentService TournamentService
 
-	<div class="index">
-		<h1>Tournaments</h1>
-		<div class="tournament-list">
-			<Loading Until="TournamentsLoad">
-				@foreach (var tournament in Tournaments)
-				{
-				<NavLink href="@($"/tournament/{tournament.TournamentId}/info")" class="tournament-listing">
-					<img src="@tournament.Icon" />
-					<h2 class="title">@tournament.Name</h2>
-				</NavLink>
-				}
-			</Loading>
-		</div>
-	</div>
+<div class="index">
+	<h2>Tournaments</h2>
+	<Loading Until="TournamentsLoad">
+		@foreach (var tournament in Tournaments.Where(t => t.Published && !t.Archived))
+		{
+			<NavLink href="@($"/tournament/{tournament.TournamentId}/info")" class="tournament">
+				<img class="tournament-logo" src="@tournament.Icon" />
+				<div class="tournament-info">
+					<h4 class="tournament-info-title">@tournament.Name</h4>
+					<p class="tournament-info-desc">@tournament.ShortDescription</p>
+				</div>
+			</NavLink>
+		}
+	</Loading>
+</div>
 
 @code {
-	IEnumerable<WoWsPro.Shared.Models.Tournament> Tournaments { get; set; }
+	IEnumerable<WoWsPro.Shared.Models.Tournaments.Tournament> Tournaments { get; set; }
 	Task TournamentsLoad { get; set; }
 
 	protected override async Task OnInitializedAsync ()

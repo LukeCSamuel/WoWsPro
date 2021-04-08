@@ -1,12 +1,12 @@
 ﻿@inject IUserService UserService
+@inject IAccountService AccountService
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @implements IDisposable
 
 <div class="nav-menu">
-	<div class="app-container">
+	<div class="g-container">
 		<NavLink href="" class="brand" Match="NavLinkMatch.All">
-			<div class="title">Wows.Pro</div>
 			<img class="logo" src="/res/Logo.svg" alt="" />
 		</NavLink>
 
@@ -14,12 +14,14 @@
 			@if (User?.IsLoggedIn ?? false)
 			{
 				<NavLink href="account">
+					<span class="fas fa-user-circle"></span>
 					@User.PreferredName
 				</NavLink>
 			}
 			else
 			{
 				<NavLink href="account/login">
+					<span class="fas fa-user-circle"></span>
 					Sign in
 				</NavLink>
 			}
