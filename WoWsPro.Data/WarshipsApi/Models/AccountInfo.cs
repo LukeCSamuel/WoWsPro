@@ -17,10 +17,10 @@ namespace WoWsPro.Data.WarshipsApi.Models
 		public long AccountId { get; set; }
 
 		[JsonPropertyName("leveling_tier")]
-		public int LevelingTier { get; set; }
+		public int? LevelingTier { get; set; }
 
 		[JsonPropertyName("leveling_points")]
-		public int LevelingPoints { get; set; }
+		public int? LevelingPoints { get; set; }
 
 		[JsonPropertyName("created_at")]
 		[JsonConverter(typeof(JsonEpochConverter))]
