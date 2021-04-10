@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WoWsPro.Data.DB;
 using WoWsPro.Data.WarshipsApi;
 using WoWsPro.Shared.Constants;
+using WoWsPro.Shared.Exceptions;
 using WoWsPro.Shared.Models.Discord;
 using WoWsPro.Shared.Models.Tournaments;
 using WoWsPro.Shared.Permissions;
@@ -22,9 +23,11 @@ namespace WoWsPro.Data.Operations
 		static EditTeamRoster EditTeamRoster { get; } = new EditTeamRoster();
 
 		protected IWarshipsApi WarshipsApi { get; }
+		protected IUserProvider UserProvider { get; }
 
-        public TeamOperations(Context context, IAuthorizer authorizer, IWarshipsApi warshipsApi) : base(context, authorizer) {
+        public TeamOperations(Context context, IUserProvider userProvider, IAuthorizer authorizer, IWarshipsApi warshipsApi) : base(context, authorizer) {
 			WarshipsApi = warshipsApi;
+			UserProvider = userProvider;
 		}
 
         /// <summary>
@@ -63,11 +66,19 @@ namespace WoWsPro.Data.Operations
 		/// <param name="tournamentId">Tournament Id</param>
 		public Task<List<TournamentParticipant>> GetUserInvitesAsync (long tournamentId)
 		{
-			return Context.TournamentParticipants
-				.Include(p => p.Team)
-				.Where(p => p.Team.TournamentId == tournamentId)
-				.ToListAsync()
-				;
+			if (UserProvider.IsLoggedIn)
+			{
+				return Context.TournamentParticipants
+					.Include(p => p.Team)
+					.Include(p => p.Player)
+					.Where(p => p.Team.TournamentId == tournamentId && p.Player.AccountId == UserProvider.Account.AccountId)
+					.ToListAsync()
+					;
+			}
+			else
+			{
+				throw new UnauthenticatedException();
+			}
 		}
 
 		/// <summary>
