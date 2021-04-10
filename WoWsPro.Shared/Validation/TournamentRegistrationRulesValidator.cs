@@ -48,12 +48,6 @@ namespace WoWsPro.Shared.Validation
 				throw new ArgumentException("Team has too many players.");
 			}
 
-			// validate no duplicate members
-			if (team.Participants.GroupBy(p => p.PlayerId).Any(g => g.Count() > 1))
-			{
-				throw new ArgumentException("There are duplicate players.");
-			}
-
 			// validate there are no default values for players
 			foreach (var player in team.Participants)
 			{
@@ -61,6 +55,12 @@ namespace WoWsPro.Shared.Validation
 				{
 					throw new ArgumentException($"Could not find a World of Warships account for {player.Player?.Nickname ?? "one or more players"}.");
 				}
+			}
+
+			// validate no duplicate members
+			if (team.Participants.GroupBy(p => p.PlayerId).Any(g => g.Count() > 1))
+			{
+				throw new ArgumentException("There are duplicate players.");
 			}
 
 			// validate rep count

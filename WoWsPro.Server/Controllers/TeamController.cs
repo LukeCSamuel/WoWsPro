@@ -57,14 +57,12 @@ namespace WoWsPro.Server.Controllers
                 var managedTeams = (await Tops.GetManagedTeamsAsync(tournamentId))
 					.Select(t => t.TeamId);
 
+				var teamIds = joinedTeams.Union(managedTeams);
+
                 var teams = new List<TournamentTeam>();
-				foreach (var joined in joinedTeams)
+				foreach (var id in teamIds)
 				{
-                    teams.Add(await Tops.GetTeamByIdAsync(joined));
-                }
-				foreach (var managed in managedTeams)
-				{
-                    teams.Add(await Tops.GetTeamByIdAsync(managed));
+                    teams.Add(await Tops.GetTeamByIdAsync(id));
                 }
 
                 return Ok(teams);
