@@ -134,6 +134,10 @@ namespace WoWsPro.Data.Operations
 			// Create the team
 			Context.TournamentTeams.Add(team);
 			await Context.SaveChangesAsync();
+
+			// Add claims after team is created to get correct ID
+			await AddTeamRepClaims(team);
+			await Context.SaveChangesAsync();
 		}
 
 		/// <summary>
@@ -219,6 +223,8 @@ namespace WoWsPro.Data.Operations
 
 			// Update participants
 			await InitializeParticipantsAsync(rules, team);
+			await AddTeamRepClaims(team);
+			await RemoveTeamRepClaims(team);
 			var orphans = existing.Participants.Where(p => !team.Participants.Any(d => d.ParticipantId == p.ParticipantId));
 			await TrimOrphanParticipantsAsync(team, orphans);
 
@@ -341,22 +347,46 @@ namespace WoWsPro.Data.Operations
 				{
 					participant.Status = initStatus;
 				}
+				
+				// Verify the player doesn't already belong to a team
+				if (initStatus == ParticipantStatus.Accepted &&
+					await Context.TournamentParticipants
+						.Include(p => p.Team)
+						.Where(p => p.Team.TournamentId == team.TournamentId && p.PlayerId == participant.PlayerId && p.Status == ParticipantStatus.Accepted)
+						.AnyAsync())
+				{
+					throw new ArgumentException($"{participant.Player?.Nickname ?? "One of these players"} already belongs to another team.");
+				}
+			}
+		}
 
-				// Add claims to team reps
-				if (participant.Player?.AccountId is long accountId && participant.TeamRep)
+		private async Task AddTeamRepClaims (TournamentTeam team)
+		{
+			foreach (var participant in team.Participants.Where(p => p.TeamRep))
+			{
+				// Check that the participant has a WoWsPro account
+				if (participant.Player?.AccountId is long accountId)
 				{
 					await AddEditTeamInfoClaim(team, accountId);
 					await AddEditTeamRosterClaim(team, accountId);
 				}
-				
-				// Verify the player doesn't already belong to a team
-				if (initStatus == ParticipantStatus.Accepted &&
-					Context.TournamentParticipants
-						.Include(p => p.Team)
-						.Where(p => p.Team.TournamentId == team.TournamentId && p.Team.Region == team.Region && p.PlayerId == participant.PlayerId && p.Status == ParticipantStatus.Accepted)
-						.Any())
+				else
 				{
-					throw new ArgumentException($"{participant.Player?.Nickname ?? "One of these players"} already belongs to another team.");
+					// If they don't, remove their rep status
+					participant.TeamRep = false;
+				}
+			}
+		}
+
+		private async Task RemoveTeamRepClaims (TournamentTeam team)
+		{
+			foreach (var participant in team.Participants.Where(p => !p.TeamRep))
+			{
+				// Remove claims from team reps
+				if (participant.Player?.AccountId is long accountId)
+				{
+					await RemoveEditTeamInfoClaim(team, accountId);
+					await RemoveEditTeamRosterClaim(team, accountId);
 				}
 			}
 		}
