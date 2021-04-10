@@ -324,6 +324,13 @@ namespace WoWsPro.Data.Operations
 			var initStatus = rules.Rules.HasFlag(RegistrationRules.RequireInvitationAccept) ? ParticipantStatus.Invited : ParticipantStatus.Accepted;
 			foreach (var participant in team.Participants)
 			{
+				// Set participant's status if it is default (Invited)
+				// TODO: create default status
+				if (participant.Status == ParticipantStatus.Invited)
+				{
+					participant.Status = initStatus;
+				}
+
 				// Add claims to team reps
 				if (participant.Player?.AccountId is long accountId && participant.TeamRep)
 				{
