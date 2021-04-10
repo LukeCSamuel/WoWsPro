@@ -89,8 +89,15 @@
 		// Guarantee the account is loaded before attempting authorization
 		await AccountService.UserAccount.Load;
 		var validator = new TournamentRegistrationRulesValidator(RegistrationRules);
-		CanEdit = (validator.CanEditTeamInfo() && Authorizer.HasClaim(new EditTeamInfo(), Team))
-			|| (validator.CanEditTeamRoster() && Authorizer.HasClaim(new EditTeamRoster(), Team));
+		try
+		{
+			CanEdit = (validator.CanEditTeamInfo() && Authorizer.HasClaim(new EditTeamInfo(), Team))
+				|| (validator.CanEditTeamRoster() && Authorizer.HasClaim(new EditTeamRoster(), Team));
+		}
+		catch (UnauthenticatedException)
+		{
+			CanEdit = false;
+		}
 	}
 
 	public string GetWowsNumbersUrl (WarshipsPlayer player)
