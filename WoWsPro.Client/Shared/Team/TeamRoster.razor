@@ -67,6 +67,9 @@
 	public TournamentTeam Team { get; set; }
 
 	[Parameter]
+	public TournamentRegistrationRules RegistrationRules { get; set; }
+
+	[Parameter]
 	public bool IsCollapsible { get; set; }
 
 	bool IsCollapsed { get; set; } = true;
@@ -85,7 +88,9 @@
 
 		// Guarantee the account is loaded before attempting authorization
 		await AccountService.UserAccount.Load;
-		CanEdit = Authorizer.HasClaim(new EditTeamInfo(), Team) || Authorizer.HasClaim(new EditTeamRoster(), Team);
+		var validator = new TournamentRegistrationRulesValidator(RegistrationRules);
+		CanEdit = (validator.CanEditTeamInfo() && Authorizer.HasClaim(new EditTeamInfo(), Team))
+			|| (validator.CanEditTeamRoster() && Authorizer.HasClaim(new EditTeamRoster(), Team));
 	}
 
 	public string GetWowsNumbersUrl (WarshipsPlayer player)

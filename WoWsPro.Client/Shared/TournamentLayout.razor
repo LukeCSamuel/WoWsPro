@@ -32,15 +32,11 @@
 						<span>All Teams</span>
 					</NavLink>
 				</li>
-				@* TODO only if registration is open *@
-				@if (Context.RegistrationRules.Any(r => r.Open < DateTime.UtcNow && r.Close > DateTime.UtcNow))
-				{
-					<li>
-						<NavLink href="@($"tournament/{Context.TournamentId}/join")">
-							<span>My Teams</span>
-						</NavLink>
-					</li>
-				}
+				<li>
+					<NavLink href="@($"tournament/{Context.TournamentId}/join")">
+						<span>My Teams</span>
+					</NavLink>
+				</li>
 			</ul>
 		</div>
 	}

@@ -3,22 +3,27 @@
 @inject NavigationManager Navi
 
 <Loading Until="UserTeamsLoad" NotNull="UserTeams">
-	<div class="register">
-		<h3>Your Team(s)</h3>
-		@if (UserTeams.Count < 1)
-		{
-			<p>You're not associated with any teams.  Click "Create a Team" below to get started.</p>
-		}
+	<Loading Until="TournamentLoad" NotNull="Tournament">
+		<div class="register">
+			<h3>Your Team(s)</h3>
+			@if (UserTeams.Count < 1)
+			{
+				<p>You're not associated with any teams.  Click "Create a Team" below to get started.</p>
+			}
 
-		@foreach (var team in UserTeams)
-		{
-			<TeamRoster Team="team" IsCollapsible="true" />
-		}
+			@foreach (var team in UserTeams)
+			{
+				<TeamRoster Team="team" RegistrationRules="Tournament.RegistrationRules.Single(r => r.Region == team.Region)" IsCollapsible="false" />
+			}
 
-		<NavLink class="create" href="@($"/tournament/{TournamentId}/register/create")">
-			Create a Team
-		</NavLink>
-	</div>
+			@if (Tournament.RegistrationRules.Any(r => r.Open < DateTime.UtcNow && r.Close > DateTime.UtcNow))
+			{
+				<NavLink class="create" href="@($"/tournament/{TournamentId}/register/create")">
+					Create a Team
+				</NavLink>
+			}
+		</div>
+	</Loading>
 </Loading>
 
 @code {
