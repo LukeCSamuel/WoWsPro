@@ -352,7 +352,10 @@ namespace WoWsPro.Data.Operations
 				if (initStatus == ParticipantStatus.Accepted &&
 					await Context.TournamentParticipants
 						.Include(p => p.Team)
-						.Where(p => p.Team.TournamentId == team.TournamentId && p.PlayerId == participant.PlayerId && p.Status == ParticipantStatus.Accepted)
+						.Where(p => p.Team.TournamentId == team.TournamentId
+							&& p.Team.TeamId != team.TeamId
+							&& p.PlayerId == participant.PlayerId
+							&& p.Status == ParticipantStatus.Accepted)
 						.AnyAsync())
 				{
 					throw new ArgumentException($"{participant.Player?.Nickname ?? "One of these players"} already belongs to another team.");

@@ -392,13 +392,6 @@ else
 			TeamLoad = TeamService.GetTeamByIdAsync(id);
 			Team = await TeamLoad;
 			EditContext = new EditContext(Team);
-
-			// For now, only owners will have edit access
-			if (Team.OwnerAccountId != Account.AccountId)
-			{
-				Navi.NavigateTo($"/tournament/{Tournament.TournamentId}/join");
-			}
-
 			CurrentRules = Team.Tournament.RegistrationRules.Single(r => r.Region == Team.Region);
 			Validator = new TournamentRegistrationRulesValidator(CurrentRules);
 			foreach (var participant in Team.Participants)

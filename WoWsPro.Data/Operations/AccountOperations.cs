@@ -32,6 +32,7 @@ namespace WoWsPro.Data.Operations
 		public Task<Account> GetAccountAsync (long accountId)
 		{
 			return Context.Accounts
+				.Include(a => a.Claims)
 				.Include(a => a.WarshipsAccounts).ThenInclude(p => p.Participations).ThenInclude(pp => pp.Team)
 				.Include(a => a.DiscordAccounts)
 				.Include(a => a.OwnedTeams).ThenInclude(t => t.Participants).ThenInclude(p => p.Player)
