@@ -26,6 +26,7 @@ namespace WoWsPro.Client
 
 		public static void ConfigureServices (IServiceCollection services)
 		{
+			services.AddMarkdownConverter();
 			services.AddUserService();
             services.AddAccountService();
             services.AddAuthorizer();

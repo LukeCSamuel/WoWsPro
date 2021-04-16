@@ -72,7 +72,7 @@
 											<div class="player">
 												<label class="team-rep">
 													Team Rep:
-													<input type="checkbox" value="@participant.TeamRep" @onchange="@(e => participant.TeamRep = e.Value is bool val ? val : false)" />
+													<InputCheckbox @bind-Value="@participant.TeamRep" />
 												</label>
 												<label class="nickname">
 													<input type="text" value="@participant.Player.Nickname" placeholder="Player Name"
@@ -201,6 +201,10 @@
 											@foreach (var participant in Team.Participants)
 											{
 												<div class="player">
+													<label class="team-rep">
+														Team Rep:
+														<InputCheckbox @bind-Value="@participant.TeamRep" />
+													</label>
 													<label>
 														<input type="text" value="@participant.Player.Nickname" placeholder="Player Name"
 															   @oninput="@(e => OnPlayerNameInput(e, participant, cooldown: true))"
@@ -357,7 +361,7 @@ else
 	bool FormInvalid { get; set; } = true;
 	string ResultMessage { get; set; } = "";
 
-
+	// TODO: add new indexed type that can call StateHasChanged when the task resolves?
 	Dictionary<TournamentParticipant, Task<IEnumerable<WarshipsPlayer>>> PlayerLookups { get; set; }
 		= new Dictionary<TournamentParticipant, Task<IEnumerable<WarshipsPlayer>>>();
 
@@ -421,13 +425,19 @@ else
 			CanEditRoster = Validator.CanEditTeamRoster();
 		}
 
-		if (!CanEditInfo && !CanEditInfo)
+		if (!CanEditInfo && !CanEditRoster)
 		{
 			// Can't edit anything, shouldn't be here
 			Navi.NavigateTo($"/tournament/{Tournament.TournamentId}");
 		}
 
 		EditContext.OnFieldChanged += (_, __) => ValidateForm();
+
+		foreach (var lookup in PlayerLookups.Values)
+		{
+			await lookup;
+		}
+		ValidateForm();
 	}
 
 	Task Submitting { get; set; }
@@ -614,6 +624,7 @@ else
 		var result = await (CurrentRegion is Region r && !string.IsNullOrEmpty(name)
 		? WarshipsService.SearchPlayersAsync(r, name)
 		: Task.FromResult<IEnumerable<WarshipsPlayer>>(new List<WarshipsPlayer>()));
+		// TODO: remove state call from here
 		StateHasChanged();
 		return result;
 	}

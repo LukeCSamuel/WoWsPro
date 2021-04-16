@@ -2,6 +2,7 @@
 @inject IUserService UserService
 @inject IAccountService AccountService
 @inject IAuthorizer Authorizer
+@inject IMarkdownConverter Markdown 
 
 <div class="team-roster">
 	<div class="team-roster-summary" @onclick="@(e => IsCollapsed = IsCollapsible && !IsCollapsed)">
@@ -11,7 +12,7 @@
 		}
 		<div class="team-roster-info">
 			<h3 class="team-roster-info-title">[@(Team.Tag)] @Team.Name</h3>
-			<p class="team-roster-info-desc">@Team.Description</p>
+			<p class="team-roster-info-desc">@DescriptionHtml</p>
 		</div>
 		@if (CanEdit)
 		{
@@ -37,22 +38,21 @@
 				<td>Nickname</td>
 				<td>ID</td>
 			</tr>
-			@foreach (var player in Team.Participants.Select(p => p.Player).OrderByDescending(p => p?.AccountId == Team.OwnerAccountId).ThenBy(p => p.Nickname))
+			@foreach (var participant in Team.Participants.OrderByDescending(p => p.TeamRep).ThenBy(p => p.Player.Nickname))
 			{
 				<tr class="team-roster-list-item">
 					<td class="team-roster-list-item-rep">
-						@* TODO: update with new permission system *@
-						@if (player?.AccountId == Team.OwnerAccountId)
+						@if (participant.TeamRep)
 						{
 							<span class="fas fa-crown"></span>
 						}
 					</td>
 					<td>
-						@player.Nickname
+						@participant.Player.Nickname
 					</td>
 					<td>
-						<a target="_blank" href="@GetWowsNumbersUrl(player)">
-							@player.PlayerId
+						<a target="_blank" href="@GetWowsNumbersUrl(participant.Player)">
+							@participant.Player.PlayerId
 							<span class="fas fa-external-link-alt"></span>
 						</a>
 					</td>
@@ -79,6 +79,8 @@
 	int WaitListPlace { get; set; }
 	int WaitListCount { get; set; }
 
+	MarkupString DescriptionHtml { get; set; }
+
 	protected override async Task OnParametersSetAsync ()
 	{
 		TournamentService.WaitListRegion = Team.Region;
@@ -98,6 +100,8 @@
 		{
 			CanEdit = false;
 		}
+
+		DescriptionHtml = Markdown.ToHtml(Team.Description);
 	}
 
 	public string GetWowsNumbersUrl (WarshipsPlayer player)
